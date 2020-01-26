@@ -1,11 +1,7 @@
-use std::io::prelude::*;
-use std::fs::File;
+use std::fs;
 
 fn main() {
-    let mut f = File::open("input.txt").unwrap();
-    let mut input = String::new();
-    f.read_to_string(&mut input).unwrap();
-
+    let input = fs::read_to_string("input.txt").expect("Error reading input file");
     let program_input : Vec<i64> = input.split_terminator(",").map(|v| v.parse().unwrap()).collect();
     println!("part 1: {}", run_intcode(&program_input, 12, 2));
 

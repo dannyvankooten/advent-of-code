@@ -1,11 +1,7 @@
-use std::io::prelude::*;
-use std::fs::File;
+use std::fs;
 
 fn main() {
-    let mut f = File::open("../input.txt").unwrap();
-    let mut input = String::new();
-    f.read_to_string(&mut input).unwrap();
-
+    let input = fs::read_to_string("input.txt").expect("Error reading input file");
     let masses : Vec<i64> = input.split_terminator("\n").map(|v| v.trim().parse().unwrap()).collect();
 
     let fuel : i64 = masses.into_iter().map(fuel_required).map(|mut f| {

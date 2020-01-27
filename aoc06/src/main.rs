@@ -15,15 +15,15 @@ struct Graph {
 impl Graph {
     fn new(map : String) -> Graph {
         let path : Vec<(String, String)> = map.lines().map(|l| {
-            let v: Vec<&str> = l.split_terminator(')').collect();
-            return (v[0].to_string(), v[1].to_string());
+            let mut iter = l.split_terminator(')');
+            return (iter.next().unwrap().to_string(), iter.next().unwrap().to_string());
         }).collect();
     
         let mut graph = Graph{
-            objects: HashMap::new()
+            objects: HashMap::with_capacity(path.len())
         };
         for (cur, next) in path {
-            graph.objects.insert(next, cur);
+           graph.objects.insert(next, cur);
         }
 
         graph   

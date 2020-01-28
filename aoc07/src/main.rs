@@ -30,7 +30,7 @@ fn main() {
                 for ps4 in 5..10 {
                     for ps5 in 5..10 {
                         let phase_sequence = [ps1, ps2, ps3, ps4, ps5];
-                        if has_duplicates(&phase_sequence) {
+                        if has_duplicate_elements(&phase_sequence) {
                             continue;
                         }
 
@@ -49,15 +49,13 @@ fn main() {
     println!("Max thruster signal {}", max)
 }
 
-fn has_duplicates(phase_sequence : &[i64; 5]) -> bool {
-    let mut phase_sequence = *phase_sequence;
-    phase_sequence.sort();
-    phase_sequence.windows(2)
-            .filter(|win| win[0] == win[1])
-            .count() > 0
+fn has_duplicate_elements(slice: &[i64; 5]) -> bool {
+    let mut slice = slice.clone();
+    slice.sort_unstable();
+    slice.windows(2).any(|win| win[0] == win[1])
 }
 
-fn run_amplifiers(program : Vec<i64>, phase_sequence : [i64; 5]) -> i64 {
+fn run_amplifiers(program: Vec<i64>, phase_sequence: [i64; 5]) -> i64 {
     let (output_main, input_a) = channel();
     let (output_a, input_b) = channel();
     let (output_b, input_c) = channel();
@@ -105,7 +103,7 @@ fn run_amplifiers(program : Vec<i64>, phase_sequence : [i64; 5]) -> i64 {
     final_value
 }
 
-fn intcode(mut data: Vec<i64>, input : Receiver<i64>, output : Sender<i64>) {
+fn intcode(mut data: Vec<i64>, input: Receiver<i64>, output: Sender<i64>) {
     let mut i: usize = 0;
 
     while i < data.len() {
@@ -151,10 +149,12 @@ fn intcode(mut data: Vec<i64>, input : Receiver<i64>, output : Sender<i64>) {
             OP_MULTIPLY => data[params[2] as usize] = params[0] * params[1],
             OP_INPUT => {
                 data[params[0] as usize] = input.recv().unwrap();
-            },
-            OP_OUTPUT => { 
-                output.send(data[params[0] as usize]).expect("Output channel has gone away");
-            },
+            }
+            OP_OUTPUT => {
+                output
+                    .send(data[params[0] as usize])
+                    .expect("Output channel has gone away");
+            }
             OP_JUMP_IF_TRUE => {
                 if params[0] != 0 {
                     i = params[1] as usize;
@@ -190,23 +190,50 @@ mod test {
     use super::*;
 
     #[test]
+    fn test_has_duplicate_elements() {
+        assert!(has_duplicate_elements(&[0, 0, 1, 2, 3]));
+        assert!(has_duplicate_elements(&[1, 2, 3, 4, 1]));
+        assert_eq!(false, has_duplicate_elements(&[0, 5, 4, 3, 2]));
+    }
+
+    #[test]
     fn test_intcode() {
-        
         assert_eq!(
-            run_amplifiers(vec![3,15,3,16,1002,16,10,16,1,16,15,15,4,15,99,0,0], [4,3,2,1,0]),
+            run_amplifiers(
+                vec![3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0],
+                [4, 3, 2, 1, 0]
+            ),
             43210
         );
         assert_eq!(
-            run_amplifiers(vec![3,23,3,24,1002,24,10,24,1002,23,-1,23,101,5,23,23,1,24,23,23,4,23,99,0,0], [0,1,2,3,4]),
+            run_amplifiers(
+                vec![
+                    3, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23, 101, 5, 23, 23, 1, 24, 23,
+                    23, 4, 23, 99, 0, 0
+                ],
+                [0, 1, 2, 3, 4]
+            ),
             54321
         );
         assert_eq!(
-            run_amplifiers(vec![3,31,3,32,1002,32,10,32,1001,31,-2,31,1007,31,0,33,1002,33,7,33,1,33,31,31,1,32,31,31,4,31,99,0,0,0], [1,0,4,3,2]),
+            run_amplifiers(
+                vec![
+                    3, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33, 1002, 33, 7,
+                    33, 1, 33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0
+                ],
+                [1, 0, 4, 3, 2]
+            ),
             65210
         );
 
         assert_eq!(
-            run_amplifiers(vec![3,26,1001,26,-4,26,3,27,1002,27,2,27,1,27,26,27,4,27,1001,28,-1,28,1005,28,6,99,0,0,5], [9,8,7,6,5]), 
+            run_amplifiers(
+                vec![
+                    3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001,
+                    28, -1, 28, 1005, 28, 6, 99, 0, 0, 5
+                ],
+                [9, 8, 7, 6, 5]
+            ),
             139629729
         );
     }

@@ -1,7 +1,5 @@
 use std::fs;
 
-
-
 // The image you received is 25 pixels wide and 6 pixels tall
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Error reading input file");
@@ -11,10 +9,9 @@ fn main() {
     let mut best_count = [-1, -1, -1];
     for layer in &image {
         let mut count = [0, 0, 0];
-        for row in layer.iter() {
-            for col in row.iter() {
-                count[*col] = count[*col] + 1;
-            }
+
+        for col in layer.iter().flat_map(|r| r.iter()) {
+            count[*col] = count[*col] + 1;
         }
 
         if best_count[0] == -1 || count[0] < best_count[0] {

@@ -11,11 +11,9 @@ fn main() {
     let mut best_count = [-1, -1, -1];
     for layer in &image {
         let mut count = [0, 0, 0];
-        let mut idx : usize = 0;
         for row in layer.iter() {
             for col in row.iter() {
-                idx = *col;
-                count[idx] = count[idx] + 1;
+                count[*col] = count[*col] + 1;
             }
         }
 
@@ -25,36 +23,33 @@ fn main() {
     }
     println!("Answer: {}", best_count[1] * best_count[2]);
 
+
     // Part 2: determine colors
     const COLOR_BLACK : usize = 0;
     const COLOR_WHITE : usize = 1;
     const COLOR_TRANSPARENT : usize = 2;
     let mut image_colors = [[COLOR_TRANSPARENT; 25]; 6];
-    for layer in 0..image.len() {
-        for row in 0..6 {
-            for col in 0..25 {
-               if image_colors[row][col] == COLOR_TRANSPARENT {
-                   image_colors[row][col] = image[layer][row][col];
+    for (layer_idx, layer) in image.iter().enumerate() {
+        for (row_idx, row) in layer.iter().enumerate() {
+            for (col_idx, _) in row.iter().enumerate() {
+               if image_colors[row_idx][col_idx] == COLOR_TRANSPARENT {
+                   image_colors[row_idx][col_idx] = image[layer_idx][row_idx][col_idx];
                }                           
             }
         }
     }
 
     // output image
-    for _layer in 0..image.len() {
-        for row in 0..6 {
-            for col in 0..25 {
-               match image_colors[row][col] {
-                   COLOR_BLACK => print!("X"),
-                   COLOR_WHITE => print!(" "),
-                   _ => (),
-               }
+    for row in image_colors.iter() {
+        for color in row.iter() {
+            match *color {
+                COLOR_BLACK => print!("■"),
+                COLOR_WHITE => print!("□"),
+                _ => (),
             }
-
-            print!("\n");
         }
+        print!("\n");
     }
-
 
 }
 

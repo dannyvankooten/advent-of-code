@@ -1,18 +1,25 @@
 use std::collections::HashMap;
 use std::fs;
 
-const PARAM_MODE_POSITION: i64 = 0;
-const PARAM_MODE_IMMEDIATE: i64 = 1;
-const PARAM_MODE_RELATIVE: i64 = 2;
-const OP_ADD: i64 = 1;
-const OP_MULTIPLY: i64 = 2;
-const OP_INPUT: i64 = 3;
-const OP_OUTPUT: i64 = 4;
-const OP_JUMP_IF_TRUE: i64 = 5;
-const OP_JUMP_IF_FALSE: i64 = 6;
-const OP_LESS_THAN: i64 = 7;
-const OP_EQUALS: i64 = 8;
-const OP_OFFSET_RELATIVE_BASE: i64 = 9;
+#[derive(Debug)]
+enum Op {
+    Add,
+    Multiply,
+    Input,
+    Output,
+    JumpIfTrue,
+    JumpIfFalse,
+    LessThan,
+    Equals,
+    OffsetRelativeBase
+}
+
+#[derive(Debug, Copy, Clone)]
+enum ParameterMode {
+    Position,
+    Immediate,
+    Relative
+}
 
 fn main() {
     let input = fs::read_to_string("input.txt").expect("Error reading input file");
@@ -52,6 +59,38 @@ impl Computer {
         }
     }
 
+    fn parse_opcode(c : char) -> Op {
+        let opcode = c.to_digit(10).unwrap() as i64;
+        match opcode {
+            1 => Op::Add,
+            2 => Op::Multiply,
+            3 => Op::Input,
+            4 => Op::Output,
+            5 => Op::JumpIfTrue,
+            6 => Op::JumpIfFalse,
+            7 => Op::LessThan,
+            8 => Op::Equals,
+            9 => Op::OffsetRelativeBase,
+            _ => panic!("Invalid opcode")
+        }
+    }
+
+    fn parse_parameter_modes(mut chars : std::iter::Rev<std::str::Chars>) -> [ParameterMode; 2] {
+        let mut param_modes = [ParameterMode::Position, ParameterMode::Position];
+        let mut j: usize = 0;
+        while let Some(c) = chars.next() {
+            param_modes[j] = match c.to_digit(10).unwrap() as i64 {
+                0 => ParameterMode::Position,
+                1 => ParameterMode::Immediate,
+                2 => ParameterMode::Relative,
+                _ => panic!("Invalid paramteer mode")
+            };
+            j = j + 1;
+        }
+
+        param_modes
+    }
+
     fn run(&mut self, input: Vec<i64>) -> Vec<i64> {
         let mut input_n: usize = 0;
         let mut output = Vec::new();
@@ -66,35 +105,29 @@ impl Computer {
             let mut chars = instruction.chars().rev();
 
             // parse opcode
-            let opcode = chars.next().unwrap().to_digit(10).unwrap() as i64;
+            let opcode = Computer::parse_opcode(chars.next().unwrap());
             chars.next(); // ignore 2nd opcode char, we already checked for opcode 99 above
 
             // parse param modes
-            let mut param_modes = [PARAM_MODE_POSITION, PARAM_MODE_POSITION];
-            let mut j: usize = 0;
-            while let Some(c) = chars.next() {
-                param_modes[j] = c.to_digit(10).unwrap() as i64;
-                j = j + 1;
-            }
+            let param_modes = Computer::parse_parameter_modes(chars);            
 
             // parse params
             let mut params: Vec<i64> = vec![];
             match opcode {
-                OP_ADD | OP_MULTIPLY | OP_LESS_THAN | OP_EQUALS => {
+                Op::Add | Op::Multiply | Op::LessThan | Op::Equals => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
                     params.push(self.get_param_value(self.address + 2, param_modes[1]));
                     // result parameter is NEVER IN IMMEDIATE MODE
-                    params.push(self.get_param_value(self.address + 3, PARAM_MODE_IMMEDIATE));
+                    params.push(self.get_param_value(self.address + 3, ParameterMode::Immediate));
                 }
-                OP_INPUT | OP_OUTPUT | OP_OFFSET_RELATIVE_BASE => {
+                Op::Input | Op::Output | Op::OffsetRelativeBase => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
                     // result pos is NEVER IN IMMEDIATE MODE
                 }
-                OP_JUMP_IF_FALSE | OP_JUMP_IF_TRUE => {
+                Op::JumpIfFalse | Op::JumpIfTrue => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
                     params.push(self.get_param_value(self.address + 2, param_modes[1]));
                 }
-                _ => panic!("invalid opcode"),
             }
 
             println!(
@@ -104,49 +137,48 @@ impl Computer {
 
             // run operation
             match opcode {
-                OP_ADD => {
+                Op::Add => {
                     self.memory
                         .insert(params[2] as usize, params[0] + params[1]);
                 }
-                OP_MULTIPLY => {
+                Op::Multiply => {
                     self.memory
                         .insert(params[2] as usize, params[0] * params[1]);
                 }
-                OP_INPUT => {
+                Op::Input => {
                     self.memory.insert(params[0] as usize, input[input_n]);
                     input_n = input_n + 1;
                 }
-                OP_OUTPUT => {
+                Op::Output => {
                     output.push(params[0]);
                 }
-                OP_JUMP_IF_TRUE => {
+                Op::JumpIfTrue => {
                     if params[0] != 0 {
                         self.address = params[1] as usize;
                         continue;
                     }
                 }
-                OP_JUMP_IF_FALSE => {
+                Op::JumpIfFalse => {
                     if params[0] == 0 {
                         self.address = params[1] as usize;
                         continue;
                     }
                 }
-                OP_LESS_THAN => {
+                Op::LessThan => {
                     self.memory.insert(
                         params[2] as usize,
                         if params[0] < params[1] { 1 } else { 0 },
                     );
                 }
-                OP_EQUALS => {
+                Op::Equals => {
                     self.memory.insert(
                         params[2] as usize,
                         if params[0] == params[1] { 1 } else { 0 },
                     );
                 }
-                OP_OFFSET_RELATIVE_BASE => {
+                Op::OffsetRelativeBase => {
                     self.relative_base = self.relative_base + params[0] as usize;
                 }
-                _ => panic!("invalid opcode"),
             }
 
             // increment pointer by number of values in operation
@@ -157,20 +189,18 @@ impl Computer {
         output
     }
 
-    fn get_param_value(&self, pos: usize, mode: i64) -> i64 {
+    fn get_param_value(&self, pos: usize, mode: ParameterMode) -> i64 {
         match mode {
-            PARAM_MODE_IMMEDIATE => *self.memory.get(&pos).unwrap(),
-            PARAM_MODE_POSITION => {
+            ParameterMode::Immediate => *self.memory.get(&pos).unwrap(),
+            ParameterMode::Position => {
                 let value = *self.memory.get(&pos).unwrap() as usize;
                 *self.memory.get(&value).unwrap_or(&0)
             }
-            PARAM_MODE_RELATIVE => {
+            ParameterMode::Relative => {
                 //let value = std::cmp::max(0, pos as i64 + self.relative_base as i64) as usize;
                 let value = pos + self.relative_base;
-
                 *self.memory.get(&value).unwrap_or(&0)
             }
-            _ => panic!("invalid mode"),
         }
     }
 }

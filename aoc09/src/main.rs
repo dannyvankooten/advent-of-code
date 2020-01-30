@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 use std::fs;
+use std::cmp::max;
 
 #[derive(Debug)]
 enum Op {
@@ -14,7 +15,7 @@ enum Op {
     OffsetRelativeBase
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 enum ParameterMode {
     Position,
     Immediate,
@@ -30,8 +31,11 @@ fn main() {
         .collect();
 
     let mut computer = Computer::new(program);
-    let output = computer.run(vec![1]);
-    println!("{:?}", output);
+    // let output = computer.run(vec![1]);
+    // println!("Part 1: {:?}", output);
+
+    let output = computer.run(vec![2]);
+    println!("Part 2: {:?}", output);
 }
 
 struct Computer {
@@ -75,8 +79,8 @@ impl Computer {
         }
     }
 
-    fn parse_parameter_modes(mut chars : std::iter::Rev<std::str::Chars>) -> [ParameterMode; 2] {
-        let mut param_modes = [ParameterMode::Position, ParameterMode::Position];
+    fn parse_parameter_modes(mut chars : std::iter::Rev<std::str::Chars>) -> [ParameterMode; 3] {
+        let mut param_modes = [ParameterMode::Position, ParameterMode::Position, ParameterMode::Position];
         let mut j: usize = 0;
         while let Some(c) = chars.next() {
             param_modes[j] = match c.to_digit(10).unwrap() as i64 {
@@ -94,6 +98,8 @@ impl Computer {
     fn run(&mut self, input: Vec<i64>) -> Vec<i64> {
         let mut input_n: usize = 0;
         let mut output = Vec::new();
+        
+        // TODO: Memory is not reset between runs
 
         while self.address < self.program_length {
             let opcode = *self.memory.get(&self.address).unwrap();
@@ -118,22 +124,25 @@ impl Computer {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
                     params.push(self.get_param_value(self.address + 2, param_modes[1]));
                     // result parameter is NEVER IN IMMEDIATE MODE
-                    params.push(self.get_param_value(self.address + 3, ParameterMode::Immediate));
-                }
-                Op::Input | Op::Output | Op::OffsetRelativeBase => {
+                    params.push(self.get_param_position(self.address + 3, param_modes[2]) as i64);
+                },
+                Op::Input => {
+                    // result parameter is NEVER IN IMMEDIATE MODE
+                    params.push(self.get_param_position(self.address + 1, param_modes[0]) as i64);
+                },
+                Op::Output | Op::OffsetRelativeBase => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
-                    // result pos is NEVER IN IMMEDIATE MODE
-                }
+                 },
                 Op::JumpIfFalse | Op::JumpIfTrue => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
                     params.push(self.get_param_value(self.address + 2, param_modes[1]));
                 }
             }
 
-            println!(
-                "opcode: {:?}, params: {:?}, param_modes: {:?}",
-                opcode, params, param_modes
-            );
+            // println!(
+            //     "adress: {:?}\ninstruction: {:?}\nopcode: {:?}\nparams: {:?}\nparam_modes: {:?}\nrelative base: {:?}\noutput: {:?}\nmemory before op: {:?}",
+            //     self.address, instruction, opcode, params, param_modes, self.relative_base, output, self.memory
+            // );
 
             // run operation
             match opcode {
@@ -177,7 +186,7 @@ impl Computer {
                     );
                 }
                 Op::OffsetRelativeBase => {
-                    self.relative_base = self.relative_base + params[0] as usize;
+                    self.relative_base = max(0, self.relative_base as i64 + params[0]) as usize;
                 }
             }
 
@@ -189,19 +198,23 @@ impl Computer {
         output
     }
 
-    fn get_param_value(&self, pos: usize, mode: ParameterMode) -> i64 {
+    fn get_param_position(&self, pos : usize, mode : ParameterMode) -> usize {
         match mode {
-            ParameterMode::Immediate => *self.memory.get(&pos).unwrap(),
+            ParameterMode::Immediate => pos,
             ParameterMode::Position => {
-                let value = *self.memory.get(&pos).unwrap() as usize;
-                *self.memory.get(&value).unwrap_or(&0)
-            }
+                *self.memory.get(&pos).unwrap() as usize
+            },
             ParameterMode::Relative => {
-                //let value = std::cmp::max(0, pos as i64 + self.relative_base as i64) as usize;
-                let value = pos + self.relative_base;
-                *self.memory.get(&value).unwrap_or(&0)
+                let param_value = *self.memory.get(&pos).unwrap() as usize;
+                let pos = std::cmp::max(0, param_value as i64 + self.relative_base as i64) as usize;
+                pos
             }
         }
+    }
+
+    fn get_param_value(&self, pos: usize, mode: ParameterMode) -> i64 {
+        let pos = self.get_param_position(pos, mode); 
+        *self.memory.get(&pos).unwrap_or(&0)
     }
 }
 
@@ -225,14 +238,28 @@ mod test {
             16
         );
 
-        // 109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 takes no input and produces a copy of itself as output.
+        assert_eq!(Computer::new(vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![0]), vec![0]);
+        assert_eq!(Computer::new(vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![1]), vec![1]);
+        assert_eq!(Computer::new(vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![0]), vec![0]);
+        assert_eq!(Computer::new(vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![1]), vec![1]);
         assert_eq!(
-            Computer::new(vec![
-                109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99
-            ])
-            .run(vec![]),
-            vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
+            Computer::new(vec![204, 1125899906842624, 99]).run(vec![]),
+            vec![0]
         );
+        assert_eq!(
+            Computer::new(vec![109, 1, 204, 0, 99]).run(vec![]),
+            vec![1]
+        );
+
+
+        // // 109,1,204,-1,1001,100,1,100,1008,100,16,101,1006,101,0,99 takes no input and produces a copy of itself as output.
+        // assert_eq!(
+        //     Computer::new(vec![
+        //         109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99
+        //     ])
+        //     .run(vec![]),
+        //     vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
+        // );
 
         assert_eq!(Computer::new(vec![109, -1, 4, 1, 99]).run(vec![]), vec![-1]);
 

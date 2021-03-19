@@ -21,8 +21,9 @@ int main() {
     FILE *f = fopen(input_file, "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
 
-    long adapter_joltages[106];
+    long adapter_joltages[108];
     int adapter_n = 0;
+    adapter_joltages[adapter_n++] = 0; // outlet
     char linebuf[BUFSIZ] = {0};
     unsigned long n = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
@@ -33,11 +34,7 @@ int main() {
 
     printf("Read %d adapter joltages.\n", adapter_n);
     int charging_outlet_joltage = 0; 
-    // int max_diff = 3;
     qsort(adapter_joltages, adapter_n, sizeof(unsigned long), compare);
-    // for (int i = 0; i < adapter_n; i++) {
-    //     printf("%ld\n", adapter_joltages[i]);
-    // }
 
     long device_joltage = adapter_joltages[adapter_n-1] + 3;
     printf("Device joltage: %ld\n", device_joltage);
@@ -52,5 +49,18 @@ int main() {
     // add device difference
     diff[device_joltage - adapter_joltages[adapter_n-1]]++;
     printf("Answer: %d\n", diff[1] * diff[3]);
+
+    // for each adapter, find the number of available options
+    int max_diff = 3;
+    long long ways[adapter_n];
+    ways[0] = 1;
+    for (int i=1; i < adapter_n; i++) {
+        ways[i] = 0;
+
+        for (int j=i-1; j >= 0 && (adapter_joltages[i] - adapter_joltages[j]) <= max_diff; j--) {
+            ways[i] += ways[j];
+        }
+    }
+    printf("Answer (part 2): %lld\n", ways[adapter_n-1]);
 
 }

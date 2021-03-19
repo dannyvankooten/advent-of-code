@@ -8,16 +8,16 @@ fi
 cd $1
 
 if [[ $* == *--debug* ]]; then
-    cc main.c -g -Wall -std=c11 -lm 
+    cc main.c -g -Wall -lm 
     valgrind ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--gdb* ]]; then 
-    cc main.c -ggdb -O0 -Wall -std=c11 -lm -o a.out
+    cc main.c -ggdb -O0 -Wall -lm -o a.out
     nemiver a.out
     rm a.out
 else 
-    cc main.c -O2 -Wall -Wpedantic -std=c11 -lm 
+    cc main.c -Ofast -Wall -lm 
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

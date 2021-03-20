@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
+#include <math.h>
 
 struct instruction {
     char action;
@@ -15,49 +16,32 @@ struct position {
 
 struct ship {
     struct position pos;
-    char dir;
+    struct position waypoint;
 };
 
-void move_ship(struct ship *ship, char dir, int value) {
+void move_waypoint(struct ship *ship, char dir, int value) {
     switch (dir) {
         case 'N':
-            ship->pos.y -= value;
+            ship->waypoint.y += value;
             break;
         case 'E':
-            ship->pos.x += value;
+            ship->waypoint.x += value;
             break;
         case 'S':
-            ship->pos.y += value;
+            ship->waypoint.y -= value;
             break;
         case 'W':
-            ship->pos.x -= value;
+            ship->waypoint.x -= value;
             break;
     }
 }
 
-void turn_ship(struct ship *ship, int value) {
-    char directions[4] = {'N', 'E', 'S', 'W' };
-    value /= 90;
-    int dir = 0;
-    switch(ship->dir) {
-        case 'N':
-            dir = 0;
-            break;
-        case 'E':
-            dir = 1;
-            break;
-        case 'S': 
-            dir = 2;
-            break;
-        case 'W':
-            dir = 3;
-            break;
-    }
-
-    dir += value;
-    dir = dir < 0 ? dir + 4 : dir;
-    dir = dir > 3 ? dir - 4 : dir;
-    ship->dir = directions[dir];
+void rotate_waypoint(struct ship *ship, int value) {
+    double v = (double) value * M_PI / 180.0;
+    int x1 = round(ship->waypoint.x * cos(v) - ship->waypoint.y * sin(v));
+    int y1 = round(ship->waypoint.x * sin(v) + ship->waypoint.y * cos(v));
+    ship->waypoint.x = x1;
+    ship->waypoint.y = y1;
 }
 
 int main() {
@@ -81,25 +65,31 @@ int main() {
 
     struct ship ship = {
         .pos = {0, 0},
-        .dir = 'E'
+        .waypoint = {10, 1},
     };
     for (int i=0; i<instructions_n; i++) {
         struct instruction ins = instructions[i];
+         #ifdef STEP
+        printf("ship <%d, %d> \twaypoint <%d, %d>.\n", ship.pos.x, ship.pos.y, ship.waypoint.x, ship.waypoint.y);
+        printf("%c%d\n", ins.action, ins.value);
+        getc(stdin);
+        #endif
         switch (ins.action) {
             case 'F':
-                move_ship(&ship, ship.dir, ins.value);
+                ship.pos.x += ship.waypoint.x * ins.value;
+                ship.pos.y += ship.waypoint.y * ins.value;
                 break;
             case 'N':
             case 'E':
             case 'S':
             case 'W':
-                move_ship(&ship, ins.action, ins.value);
+                move_waypoint(&ship, ins.action, ins.value);
                 break;
             case 'L':
-                turn_ship(&ship, -ins.value);
+                rotate_waypoint(&ship, ins.value);
                 break;
             case 'R':
-                turn_ship(&ship, ins.value);
+                rotate_waypoint(&ship, -ins.value);
                 break;
         }
     }

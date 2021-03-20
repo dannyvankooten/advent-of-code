@@ -19,7 +19,7 @@ elif [[ $* == *--gdb* ]]; then
     nemiver a.out
     rm a.out
 else 
-    cc main.c -Ofast -Wall -lm 
+    cc main.c "$@" -Ofast -Wall -lm 
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

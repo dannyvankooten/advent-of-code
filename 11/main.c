@@ -40,10 +40,109 @@ int count_occupied_adjacent_seats(struct grid *grid, int pos_y, int pos_x) {
     return count;
 }
 
+enum position get_grid_value_by_coords(struct grid *grid, int x, int y) {
+    return *(grid->values + (y * grid->w) + x);
+}
+
+int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
+    int count = 0;
+    enum position value;
+
+    // left
+    for (int y=pos_y, x=pos_x-1; x >= 0; x--) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // left-up
+    for (int y=pos_y-1, x=pos_x-1; x >= 0 && y >= 0; y--, x--) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // up
+    for (int y=pos_y-1, x=pos_x; y >= 0; y--) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // right-up
+    for (int y=pos_y-1, x=pos_x+1; x < grid->w && y >= 0; x++, y--) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // right
+    for (int y=pos_y, x=pos_x+1; x < grid->w; x++) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // right-down
+    for (int y=pos_y+1, x=pos_x+1; x < grid->w && y < grid->h; x++, y++) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // down
+    for (int y=pos_y+1, x=pos_x; y < grid->h; y++) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+
+    // left-down
+    for (int y=pos_y+1, x=pos_x-1; x >= 0 && y < grid->h; x--, y++) {
+        value = get_grid_value_by_coords(grid, x, y);
+        if (value == POS_OCCUPIED_SEAT) {
+            count++; 
+            break;
+        } else if (value == POS_EMPTY_SEAT) {
+            break;
+        }
+    }
+    
+    return count;
+}
+
 void print_grid(struct grid *grid) {
     for (int y=0; y < grid->h; y++) {
         for (int x=0; x < grid->w; x++) {
-            switch (*(grid->values + (y*grid->w) + x)) {
+            switch (get_grid_value_by_coords(grid, x, y)) {
                 case POS_EMPTY_SEAT:
                     printf("L");
                 break;
@@ -73,7 +172,7 @@ void transmute_grid(struct grid *grid) {
             enum position *new_value = (new_grid + (grid->w * y) + x) ;
             switch (value) {
                case POS_EMPTY_SEAT:
-                    if (count_occupied_adjacent_seats(grid, y, x) == 0) {
+                    if (count_occupied_seats_in_los(grid, y, x) == 0) {
                         *new_value = POS_OCCUPIED_SEAT;
                         grid->stable = 0;
                     } else  {
@@ -82,7 +181,7 @@ void transmute_grid(struct grid *grid) {
                     break;
 
                 case POS_OCCUPIED_SEAT:
-                    if (count_occupied_adjacent_seats(grid, y, x) >= 4) {
+                    if (count_occupied_seats_in_los(grid, y, x) >= 5) {
                         *new_value = POS_EMPTY_SEAT;
                         grid->stable = 0;
                     } else {
@@ -117,7 +216,6 @@ int main() {
         grid.h++;
         grid.w = grid.w ?: strlen(linebuf) - 1;
     }
-    printf("W: %d\tH: %d\n", grid.w, grid.h);
     grid.values = malloc(grid.h * grid.w * sizeof(enum position));
     fseek(f, 0, SEEK_SET);
     int y = 0;
@@ -130,13 +228,9 @@ int main() {
     }
     fclose(f);
 
-    // print grid in intitial position
-    print_grid(&grid);
-    while (grid.stable == 0) {
+    while (!grid.stable) {
         transmute_grid(&grid);
     }
-    printf("\n\n");
-    print_grid(&grid);
 
     // count occupied seats
     int count = 0;
@@ -146,4 +240,7 @@ int main() {
         }
     }
     printf("%d occupied seats\n", count);
+    
+    free(grid.values);
 }
+

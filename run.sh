@@ -11,7 +11,7 @@ cd "$DIR"
 
 if [[ $* == *--debug* ]]; then
     cc main.c -g -Wall -lm "$@"
-    valgrind ./a.out
+    valgrind --leak-check=full -s ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--gdb* ]]; then 
@@ -19,7 +19,7 @@ elif [[ $* == *--gdb* ]]; then
     nemiver a.out
     rm a.out
 else 
-    cc main.c "$@" -Ofast -Wall -lm 
+    cc main.c -Ofast -Wall -lm 
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

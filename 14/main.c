@@ -41,7 +41,7 @@ unsigned long long bin2dec(char mask[36]) {
 
     for (int i=0; i < 36; i++) {
         if (mask[i] == '1') {
-            r += (unsigned long long) pow(2.00, (double) 35-i);
+            r |= 1UL << (35-i);
         } 
     }
     return r;
@@ -69,13 +69,13 @@ apply_address_mask(struct vec *v, char mask[36], unsigned long n) {
                 k = (n >> (35-i)) & 1;
                 if (k == 1) {
                     for (m=0; m < v->size; m++) {
-                        v->values[m] += (unsigned long) pow(2, 35-i);
+                        v->values[m] |= 1UL << (35-i);
                     }
                 }
                 break;
             case '1':
                 for (m=0; m < v->size; m++) {
-                    v->values[m] += (unsigned long) pow(2, 35-i);
+                    v->values[m] |= 1UL << (35-i);
                 }
                 break;
             case 'X': {
@@ -88,7 +88,7 @@ apply_address_mask(struct vec *v, char mask[36], unsigned long n) {
 
                 // and add each variation with it's bit set to 1
                 for (m=0; m < size_before; m++) {
-                    v->values[m] += (unsigned long) pow(2, 35-i);
+                    v->values[m] |= 1UL << (35-i);
                 }
               
                 }
@@ -197,6 +197,7 @@ int main() {
             break;
         }        
     }
+    printf("Highest bucket index: %ld\n", highest_bucket_index);
 
     unsigned long sum = hashmap_sum(&hm);
     printf("Sum: %ld\n", sum);
@@ -204,5 +205,5 @@ int main() {
     free(instructions);
     free(addresses.values);
     assert(sum == 4173715962894);
-    //printf("Memory size at finish: %ld\n", mem_size);
+
 }

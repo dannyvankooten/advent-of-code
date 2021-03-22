@@ -21,7 +21,7 @@ elif [[ $* == *--cachegrind* ]]; then
     rm a.out    
 elif [[ $* == *--gdb* ]]; then 
     cc main.c -Wall -ggdb -O0 -lm -o a.out
-    nemiver a.out
+    gdb a.out
     rm a.out
 else 
     cc main.c -Wall -Wextra -Ofast -lm 

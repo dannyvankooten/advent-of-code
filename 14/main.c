@@ -5,6 +5,7 @@
 #include <string.h>
 #include <math.h>
 #include <limits.h>
+#include "hashmap.h"
 
 struct instruction {
     enum {
@@ -59,38 +60,33 @@ apply_address_mask(struct vec *v, char mask[36], unsigned long n) {
     #define MASK_CAP 1024
     char masks[MASK_CAP][36];
     int nmasks = 1;
+    int m;
     
-    // TODO: Lazy copy here (vs. overwriting all nmasks at every step)
     for (int i=0; i < 36; i++) {        
         switch (mask[i]) {
             case '0':
                 k = (n >> (35-i)) & 1;
-                for (int m=0; m < MASK_CAP; m++) {
+                for (m=0; m < nmasks; m++) {
                     masks[m][i] = k == 1 ? '1' : '0';
                 }
                 break;
             case '1':
-                for (int m=0; m < MASK_CAP; m++) {
+                for (m=0; m < nmasks; m++) {
                     masks[m][i] = '1';
                 }
                 break;
             case 'X': {
-                for (int m=0; m < MASK_CAP; m++) {
+                for (m=0; m < nmasks; m++) {
                     masks[m][i] = '1';
                 }
 
                 // create new variation of each nmask, with i set to 0
-                int nstop = nmasks;
-                for (int n=0; n < nstop; n++) {
+                for (int n=0, nstop = nmasks; n < nstop; n++) {
                     for (int j=0; j < i; j++) {
                         masks[nmasks][j] = masks[n][j];
                     }
                     masks[nmasks][i] = '0';
                     nmasks++;
-
-                    if (nmasks >= MASK_CAP) {
-                        err(EXIT_FAILURE, "Trying to add more than %d masks", MASK_CAP);
-                    }
                 }
               
                 }
@@ -98,7 +94,7 @@ apply_address_mask(struct vec *v, char mask[36], unsigned long n) {
         }
     }
 
-    // allocate enough memory
+    // allocate enough memory & copy over decimal version of each bitmask
     if (nmasks > v->cap) {
         v->cap = nmasks;
         v->values = realloc(v->values, v->cap * sizeof(unsigned long));
@@ -125,16 +121,15 @@ void print_binary(unsigned long n) {
 
 int main() {    
    // assert(apply_bitmask("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X", 11) == 73);
-
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
     char nbuf[32] = {0};
 
     // parse program
-    int cap = 64;
+    int cap = 592;
     int size = 0;
-    struct instruction *instructions = malloc(64 * sizeof(struct instruction));
+    struct instruction *instructions = malloc(cap * sizeof(struct instruction));
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         struct instruction ins;
         char *s = linebuf;
@@ -173,34 +168,30 @@ int main() {
     }
     fclose(f);
 
-    // initialize memory
-    struct node {
-        unsigned long address;
-        unsigned int value;
-    };
-    size_t mem_size = 0;
-    size_t mem_cap = 1024;
-    struct node *memory = malloc(mem_cap * sizeof (struct node));
-
-    // walk through instructions
+    // initialize hashmap for storing memory
+    struct hashmap hm = hashmap_new();
     struct vec addresses = {
         .size = 0,
-        .cap = 256,
-        .values = malloc(256 *sizeof(unsigned long)),
+        .cap = 72923,
+        .values = malloc(72923 * sizeof(unsigned long)),
     };
+
+    // walk through instructions
     char mask[36];
+    int j;
     for (int i = 0; i < size; i++) {
         #ifdef STEP
         printf("\n%d  \tmask=\t\t%.36s\n", i, mask);
         #endif
-        
+
         switch (instructions[i].type) {
             case SET_MASK:
-                strncpy(mask, instructions[i].mask, 36);
+                for (j=0; j < 36; j++) {
+                    mask[j] = instructions[i].mask[j];
+                }
             break;
 
             case SET_VALUE: {
-                //unsigned long result = apply_bitmask(mask, instructions[i].value);
                 #ifdef STEP
                 printf("address= \t\t%ld \t", instructions[i].address);
                 print_binary(instructions[i].address);
@@ -208,36 +199,18 @@ int main() {
                 #endif
 
                 apply_address_mask(&addresses, mask, instructions[i].address);
-                for (int a=0; a < addresses.size; a++) {
-                    size_t m = 0;
-                    for (; m < mem_size; m++) {
-                        if (memory[m].address == addresses.values[a]) {
-                            memory[m].value = instructions[i].value;
-                            break;
-                        }
-                    }
-                    if (m == mem_size) {
-                        // add to memory
-                        if (mem_size >= mem_cap) {
-                            mem_cap *= 2;
-                            memory = realloc(memory, mem_cap * sizeof(struct node));
-                        }
-                        memory[mem_size++] = (struct node) {
-                            .address = addresses.values[a],
-                            .value = instructions[i].value,
-                        };
-                    }
-                    // printf("Setting memory address %ld to %ld\n", addresses.values[a], instructions[i].value);
-                    // memory[addresses.values[a]] = instructions[i].value;
+                for (j=0; j < addresses.size; j++) {
+                    hashmap_set(&hm, addresses.values[j], instructions[i].value);
                 }
             }
             break;
         }        
     }
 
-    unsigned long long sum = 0;
-    for (size_t m = 0; m < mem_size; m++) {
-        sum += memory[m].value;
-    }
-    printf("Sum: %lld\n", sum);
+    printf("Sum: %ld\n", hashmap_sum(&hm));
+
+    free(instructions);
+    free(addresses.values);
+    //assert(sum == 4173715962894);
+    //printf("Memory size at finish: %ld\n", mem_size);
 }

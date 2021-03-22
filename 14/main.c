@@ -57,52 +57,43 @@ void
 apply_address_mask(struct vec *v, char mask[36], unsigned long n) {
     // generate all possible combinations
     char k;
-    #define MASK_CAP 1024
-    char masks[MASK_CAP][36];
-    int nmasks = 1;
     int m;
-    
+
+    // reset vector
+    v->size = 1;
+    v->values[0] = 0;
+
     for (int i=0; i < 36; i++) {        
         switch (mask[i]) {
             case '0':
                 k = (n >> (35-i)) & 1;
-                for (m=0; m < nmasks; m++) {
-                    masks[m][i] = k == 1 ? '1' : '0';
+                if (k == 1) {
+                    for (m=0; m < v->size; m++) {
+                        v->values[m] += (unsigned long) pow(2, 35-i);
+                    }
                 }
                 break;
             case '1':
-                for (m=0; m < nmasks; m++) {
-                    masks[m][i] = '1';
+                for (m=0; m < v->size; m++) {
+                    v->values[m] += (unsigned long) pow(2, 35-i);
                 }
                 break;
             case 'X': {
-                for (m=0; m < nmasks; m++) {
-                    masks[m][i] = '1';
+                int size_before = v->size; 
+
+                // add each variation with i'th bit set to 0
+                for (m=0; m < size_before; m++) {
+                    v->values[v->size++] = v->values[m];
                 }
 
-                // create new variation of each nmask, with i set to 0
-                for (int n=0, nstop = nmasks; n < nstop; n++) {
-                    for (int j=0; j < i; j++) {
-                        masks[nmasks][j] = masks[n][j];
-                    }
-                    masks[nmasks][i] = '0';
-                    nmasks++;
+                // and add each variation with it's bit set to 1
+                for (m=0; m < size_before; m++) {
+                    v->values[m] += (unsigned long) pow(2, 35-i);
                 }
               
                 }
                 break;
         }
-    }
-
-    // allocate enough memory & copy over decimal version of each bitmask
-    if (nmasks > v->cap) {
-        v->cap = nmasks;
-        v->values = realloc(v->values, v->cap * sizeof(unsigned long));
-    }
-
-    v->size = 0;
-    for (int i=0; i < nmasks; i++) {
-        v->values[v->size++] = bin2dec(masks[i]);
     }
 }
 
@@ -172,8 +163,8 @@ int main() {
     struct hashmap hm = hashmap_new();
     struct vec addresses = {
         .size = 0,
-        .cap = 72923,
-        .values = malloc(72923 * sizeof(unsigned long)),
+        .cap = 1024,
+        .values = malloc(1024 * sizeof(unsigned long)),
     };
 
     // walk through instructions
@@ -207,10 +198,11 @@ int main() {
         }        
     }
 
-    printf("Sum: %ld\n", hashmap_sum(&hm));
+    unsigned long sum = hashmap_sum(&hm);
+    printf("Sum: %ld\n", sum);
 
     free(instructions);
     free(addresses.values);
-    //assert(sum == 4173715962894);
+    assert(sum == 4173715962894);
     //printf("Memory size at finish: %ld\n", mem_size);
 }

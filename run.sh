@@ -11,7 +11,7 @@ cd "$DIR"
 
 if [[ $* == *--debug* ]]; then
     cc main.c -Wall -O0 -g -lm "$@"
-    valgrind --leak-check=full -s ./a.out
+    valgrind --max-stackframe=17179877576 --leak-check=full -s ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--gdb* ]]; then 

@@ -52,7 +52,6 @@ int main() {
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
-
     char *s;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         struct instruction ins;

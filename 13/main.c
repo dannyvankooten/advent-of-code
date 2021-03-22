@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
+#include <limits.h>
 
 int main() {
     FILE *f = fopen("input.txt", "r");
@@ -25,29 +26,45 @@ int main() {
             nbuf[i++] = *s++;
         }
         nbuf[i] = '\0';
-        if (*nbuf != 'x') {
-            buses[nbuses++] = strtol(nbuf, NULL, 10);
-        }
         i = 0;
+
+        buses[nbuses++] = *nbuf == 'x' ? 1 : strtol(nbuf, NULL, 10);
         s++;
     }
     fclose(f);
 
-    // find earliest bus we can take
-    int bus_id = 0;
-    int t = ready_timestamp;
+    // // find idx of highest bus ID (so we can use that to increment search step)
+    // int highest_bus_id_idx = 0;
+    // for (int i=0; i < nbuses; i++) {
+    //     if (buses[i] > buses[highest_bus_id_idx]) {
+    //         highest_bus_id_idx = i;
+    //     }
+    // }
 
-    do {
-        for (int b=0; b < nbuses; b++) {
-            bus_id = buses[b];
-            if (t % bus_id == 0) {
-                goto BREAK;
+    // int t2;
+    // for (unsigned long long t=buses[highest_bus_id_idx]-highest_bus_id_idx; t < ULLONG_MAX - buses[highest_bus_id_idx] - 1; t += buses[highest_bus_id_idx]) {
+    //     for (i =0, t2=t; i < nbuses && (buses[i] == 1 || t2 % buses[i] == 0); i++, t2++);
+        
+    //     if (i >= nbuses - 1) {
+    //         printf("t = %lld\n", t);
+    //         break;
+    //     } 
+    // }       
+
+    // Above solution takes several minutes... Had to look up Chinese remainder Theorem.
+    // https://en.wikipedia.org/wiki/Chinese_remainder_theorem
+    unsigned long long t = 0;
+    unsigned long long step = (unsigned long long) buses[0];
+    for (int b=0; b < nbuses; b++) {
+        while (1) {
+            if ((t + b) % buses[b] == 0) {
+                step *= buses[b];
+                break;
             }
+            
+            t += step;
         }
-    } while(t++);
-    
-    BREAK: ;
-    printf("Bus %d at timestamp %d.\n", bus_id, t);
-    printf("Result: %d\n", bus_id * (t - ready_timestamp));
+    }
+    printf("Result: %lld\n", t);
 
 }

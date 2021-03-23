@@ -1,8 +1,10 @@
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
 #include <string.h>
+#include "hashmap.h"
 
 #define N 30000000
 
@@ -36,23 +38,25 @@ parse_input(char *input) {
 
 int main() {
     int *numbers = parse_input("12,1,16,3,11,0");
-    int diff;
-    int i, j;
-
     int *seen = malloc(sizeof(int) * N);
+    if (!seen) err(EXIT_FAILURE, "could not allocate memory for lookup table");
     memset(seen, -1, sizeof(int) * N);
         
-    int nnumbers = 0;
-    for (i=1; numbers[i] != -1; i++, nnumbers++) {        
-        seen[numbers[i-1]] = i-1;
+    int nnumbers = 1;
+    for (int i=1; numbers[i] != -1; i++, nnumbers++) {   
+        seen[numbers[i-1]] = i-1;    
     } 
+    int last_number;
+    int diff;
+    int j;
 
-    for (i=nnumbers; i < N; i++) {
-        j = seen[numbers[i-1]];
-        diff = j >= 0 ? i - 1 - j : 0;
+    for (size_t i=nnumbers, last_i=i-1; i < N; i++, last_i++) {
+        last_number = numbers[last_i];
+        j = seen[last_number];
+        seen[last_number] = last_i;
+        diff = j > -1 ? last_i - j : 0;
         numbers[nnumbers++] = diff;
-        seen[numbers[i-1]] = i-1;
     }
 
-    printf("%d'th number = %d", N, numbers[N-1]);
+    printf("%d'th number = %d", N, numbers[N-1]);   
 }

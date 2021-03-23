@@ -11,7 +11,7 @@ struct rule {
 };
 
 struct ticket {
-    int *values;
+    int values[32];
     size_t nvalues;
 };
 
@@ -71,7 +71,6 @@ int main() {
     while (fgets(linebuf, BUFSIZ, f) != NULL && strstr(linebuf, "your ticket:") != linebuf);
     struct ticket my_ticket;
     my_ticket.nvalues = 0;
-    my_ticket.values = (int *) malloc(32 * sizeof (int));
     
     fgets(linebuf, BUFSIZ, f);
     a = linebuf;
@@ -98,21 +97,18 @@ int main() {
 
     struct ticket *nearby_tickets = malloc(260 * sizeof (struct ticket));
     for (size_t i=0; i < 260; i++) {
-         nearby_tickets[i].values = NULL;
          nearby_tickets[i].nvalues = 0;
     };
     size_t ntickets = 0;
 
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         a = linebuf;
-        int *values = malloc(32 * sizeof (int));
-        if (!values) err(EXIT_FAILURE, "failed to alloc memory");
         size_t nvalues = 0;
 
         // parse all digits on line
         while (*a != '\n' && *a != '\0') {
             a += parse_digit(&d, a);
-            values[nvalues++] = d;
+            nearby_tickets[ntickets].values[nvalues++] = d;
 
             // loop over rules
             // if digit is not in any range, add to sum of invalid values
@@ -127,7 +123,6 @@ int main() {
                 }
             }
             if (0 == valid_any) {
-                free(values);
                 goto SKIPTICKET;
             }
 
@@ -137,7 +132,6 @@ int main() {
         }   
         
         // add ticket to list
-        nearby_tickets[ntickets].values = values;
         nearby_tickets[ntickets].nvalues = nvalues;
         ntickets++;
 
@@ -168,8 +162,7 @@ int main() {
                 }
             }
 
-            size_t idx = i * nvalues + j;
-            options[idx] = 1;
+            options[i * nvalues + j] = 1;
             NEXTPOS: ;
         }
     }
@@ -183,15 +176,27 @@ int main() {
             if (options[i * nvalues + v] == 1) {
                 count++;
                 position = v;
+
+                // stop looking at this rule if we have 2 option availabilities
+                if (count > 1) {
+                    break;
+                }
             }
         }
-
+        
+        // if we have exactly one option, use it
+        // and discard it from all other rules
         if (count == 1) {
-            int loopback = 0;
+            char loopback = 0;
             for (size_t k=0; k < nrules; k++) {
-                if (k == i) continue;
-                if (options[k * nvalues + position] == 1) {
-                    options[k * nvalues + position] = 0;
+                if (k == i) {
+                    rules[i].position = position;
+                    continue;
+                }
+
+                size_t idx = k * nvalues + position;
+                if (options[idx] == 1) {
+                    options[idx] = 0;
                     loopback = 1;
                 }
             }
@@ -200,18 +205,6 @@ int main() {
             }
         }
     }
-
-    // each rule only has one position option now
-    // set it to our rule struct
-    for (size_t i=0; i < nrules; i++) {
-       r = rules[i];
-        for (size_t v=0; v < nvalues; v++) {
-            if (options[i * nvalues + v] == 1) {
-                rules[i].position = v;
-                break;
-            }
-        }
-    }   
 
     // finally, calculate product
     size_t product = 1;
@@ -226,8 +219,7 @@ int main() {
 
     printf("Result: %ld\n", product);
 
-
-
-
-    
+    free(options);
+    free(rules);
+    free(nearby_tickets);
 }

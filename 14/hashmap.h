@@ -31,15 +31,19 @@ static struct {
     .used = 0,
 };
     
-void 
+unsigned long  
 hashmap_set(struct hashmap *hm, unsigned long key, int value) {
     unsigned long h = hash(key);
     struct hashmap_node *node = hm->buckets[h];
+    static unsigned long sum = 0;
+
+    sum += value;
 
     while (node != NULL) {
         if (node->key == key) {
+            sum -= node->value;
             node->value = value;
-            return;
+            return sum;
         }
         node = node->next;
     }
@@ -50,7 +54,7 @@ hashmap_set(struct hashmap *hm, unsigned long key, int value) {
     new_node->value = value;
     new_node->next = hm->buckets[h];
     hm->buckets[h] = new_node;
-    return;
+    return sum;
 }
 
 unsigned long hashmap_sum(struct hashmap *hm) {

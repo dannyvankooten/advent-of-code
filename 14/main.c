@@ -171,6 +171,7 @@ int main() {
     // walk through instructions
     char mask[36];
     int j;
+    unsigned long sum = 0;
 
     for (int i = 0; i < size; i++) {
         #ifdef STEP
@@ -193,15 +194,15 @@ int main() {
 
                 apply_address_mask(&addresses, mask, instructions[i].address);
                 for (j=0; j < addresses.size; j++) {
-                    hashmap_set(&hm, addresses.values[j], instructions[i].value);
+                    sum = hashmap_set(&hm, addresses.values[j], instructions[i].value);
                 }
             }
             break;
         }        
     }
 
-    unsigned long sum = 0;
-    sum = hashmap_sum(&hm);
+    // unsigned long sum = 0;
+    // sum = hashmap_sum(&hm);
     printf("Sum: %ld\n", sum);
 
     free(instructions);

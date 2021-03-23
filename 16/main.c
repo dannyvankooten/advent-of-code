@@ -6,8 +6,13 @@
 
 struct rule {
     char type[64];
-    int range_start;
-    int range_end;
+    int ranges[4];
+    size_t position;
+};
+
+struct ticket {
+    int *values;
+    size_t nvalues;
 };
 
 int
@@ -35,6 +40,7 @@ int main() {
     char buf[64];
     char *a, *b;
 
+    // TODO: Parse rules into a single rule struct
     // parse rules
     while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
         a = linebuf;
@@ -49,63 +55,179 @@ int main() {
         strcpy(r.type, buf);
         a++;
 
-        a += parse_digit(&r.range_start, a);
+        a += parse_digit(&r.ranges[0], a);
         while (*(a-1) != '-') a++;
-        a += parse_digit(&r.range_end, a);
-        rules[nrules++] = r;
-        
+        a += parse_digit(&r.ranges[1], a);        
 
-        struct rule r2;
-        strcpy(r2.type, r.type);
         a = strstr(a, "or") + 2;
-        a += parse_digit(&r2.range_start, a);
+        a += parse_digit(&r.ranges[2], a);
         while (*(a-1) != '-') a++;
-        a += parse_digit(&r2.range_end, a);
-        rules[nrules++] = r2;
+        a += parse_digit(&r.ranges[3], a);
+        rules[nrules++] = r;
     }
+
+    // parse "my ticket:"
+    int d;
+    while (fgets(linebuf, BUFSIZ, f) != NULL && strstr(linebuf, "your ticket:") != linebuf);
+    struct ticket my_ticket;
+    my_ticket.nvalues = 0;
+    my_ticket.values = (int *) malloc(32 * sizeof (int));
+    
+    fgets(linebuf, BUFSIZ, f);
+    a = linebuf;
+    while (*a != '\n' && *a != '\0') {
+        a += parse_digit(&d, a);
+        my_ticket.values[my_ticket.nvalues++] = d;
+
+        if (*a == ',') {
+            a++; 
+        } 
+    }
+    // for (int v=0; v < my_ticket.nvalues; v++) {
+    //     printf("my_ticket.values[%d] = %d\n", v, my_ticket.values[v]);
+    // }
 
     // skip foward to line saying "nearby tickets:"
     while (fgets(linebuf, BUFSIZ, f) != NULL && strstr(linebuf, "nearby tickets:") != linebuf);
 
-    // print rules
-    for (size_t i=0; i < nrules; i++) {
-        printf("%s: %d - %d\n", rules[i].type, rules[i].range_start, rules[i].range_end);
-    }
-
-    int sum = 0;
-    int d;
+    // // print rules
+    // for (size_t i=0; i < nrules; i++) {
+    //     printf("%s: %d - %d or %d - %d\n", rules[i].type, rules[i].ranges[0], rules[i].ranges[1], rules[i].ranges[2], rules[i].ranges[3]);
+    // }
     char valid_any;
-    while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
+
+    struct ticket *nearby_tickets = malloc(260 * sizeof (struct ticket));
+    for (size_t i=0; i < 260; i++) {
+         nearby_tickets[i].values = NULL;
+         nearby_tickets[i].nvalues = 0;
+    };
+    size_t ntickets = 0;
+
+    while (fgets(linebuf, BUFSIZ, f) != NULL) {
         a = linebuf;
+        int *values = malloc(32 * sizeof (int));
+        if (!values) err(EXIT_FAILURE, "failed to alloc memory");
+        size_t nvalues = 0;
 
         // parse all digits on line
         while (*a != '\n' && *a != '\0') {
             a += parse_digit(&d, a);
+            values[nvalues++] = d;
 
             // loop over rules
             // if digit is not in any range, add to sum of invalid values
             valid_any = 0;
             for (size_t i=0; i < nrules; i++) {
-                if (d >= rules[i].range_start && d <= rules[i].range_end) {
+                if (
+                    (d >= rules[i].ranges[0] && d <= rules[i].ranges[1]) 
+                    || (d >= rules[i].ranges[2] && d <= rules[i].ranges[3]) 
+                    ) {
                     valid_any = 1;
                     break;
                 }
             }
             if (0 == valid_any) {
-                sum += d;
+                free(values);
+                goto SKIPTICKET;
             }
 
             if (*a == ',') {
                 a++; 
-            }
-                       
-        }
+            }        
+        }   
         
+        // add ticket to list
+        nearby_tickets[ntickets].values = values;
+        nearby_tickets[ntickets].nvalues = nvalues;
+        ntickets++;
+
+        // label for goto jump that skips tickets containing invalid values
+        SKIPTICKET: ;
     }
-    printf("Sum: %d\n", sum);
-
-
     fclose(f);
+
+
+    // find option for rule positions on ticket
+    struct rule r;
+    struct ticket t;
+    int tval;
+
+    size_t nvalues = nearby_tickets[0].nvalues;
+    int *options = (int *) calloc(nrules * nvalues, sizeof(int));
+    if (!options) err(EXIT_FAILURE, "could not allocate memory for options array");
+
+    for (size_t i=0; i < nrules; i++) {
+        r = rules[i];
+        
+        for (size_t j=0; j < nearby_tickets[0].nvalues; j++) {
+            for (size_t k=0; k < ntickets; k++) {
+                t = nearby_tickets[k];
+                tval = t.values[j];
+                if ( (tval < r.ranges[0] || tval > r.ranges[1]) && (tval < r.ranges[2] || tval > r.ranges[3]) ) {
+                    goto NEXTPOS;
+                }
+            }
+
+            size_t idx = i * nvalues + j;
+            options[idx] = 1;
+            NEXTPOS: ;
+        }
+    }
+
+    for (size_t i=0; i < nrules; i++) {
+       r = rules[i];
+       int position;
+       int count = 0;
+
+        for (size_t v=0; v < nvalues; v++) {            
+            if (options[i * nvalues + v] == 1) {
+                count++;
+                position = v;
+            }
+        }
+
+        if (count == 1) {
+            int loopback = 0;
+            for (size_t k=0; k < nrules; k++) {
+                if (k == i) continue;
+                if (options[k * nvalues + position] == 1) {
+                    options[k * nvalues + position] = 0;
+                    loopback = 1;
+                }
+            }
+            if (loopback) {
+                i = -1;
+            }
+        }
+    }
+
+    // each rule only has one position option now
+    // set it to our rule struct
+    for (size_t i=0; i < nrules; i++) {
+       r = rules[i];
+        for (size_t v=0; v < nvalues; v++) {
+            if (options[i * nvalues + v] == 1) {
+                rules[i].position = v;
+                break;
+            }
+        }
+    }   
+
+    // finally, calculate product
+    size_t product = 1;
+    for (size_t i=0; i < nrules; i++) {
+        r = rules[i];
+        if (strstr(r.type, "departure") != r.type) {
+            continue;
+        }
+
+        product *= my_ticket.values[r.position];
+    }
+
+    printf("Result: %ld\n", product);
+
+
+
 
     
 }

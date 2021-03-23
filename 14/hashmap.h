@@ -1,7 +1,8 @@
 #include <stdlib.h>
 #include<string.h> 
 
-#define HASHMAP_BUCKETS 1301
+#define HASHMAP_BUCKETS 26001
+#define hash(i) i % HASHMAP_BUCKETS
 
 struct hashmap_node {
     unsigned long key;
@@ -13,8 +14,6 @@ struct hashmap {
     struct hashmap_node *buckets[HASHMAP_BUCKETS];
 };
 
-#define hash(i) i % HASHMAP_BUCKETS
-
 struct hashmap 
 hashmap_new() {
     struct hashmap hm;
@@ -25,7 +24,7 @@ hashmap_new() {
 }
 
 static struct {
-    struct hashmap_node nodes[72923]; 
+    struct hashmap_node nodes[73000]; 
     size_t used;
     char inited;
 } hm_node_pool = {
@@ -33,7 +32,7 @@ static struct {
 };
     
 void 
-hashmap_set(struct hashmap *hm, unsigned long key, unsigned long value) {
+hashmap_set(struct hashmap *hm, unsigned long key, int value) {
     unsigned long h = hash(key);
     struct hashmap_node *node = hm->buckets[h];
 

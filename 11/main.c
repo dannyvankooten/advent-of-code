@@ -222,7 +222,7 @@ int main() {
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         char *s = linebuf;
         for (int x=0; *s != '\n' && *s != '\0'; s++, x++) {
-            *(grid.values + y*grid.w + x)= *s == '.' ? POS_FLOOR : POS_EMPTY_SEAT;
+            *(grid.values + y*grid.w + x)= (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
         }
         y++;
     }

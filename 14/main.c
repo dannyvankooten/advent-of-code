@@ -14,7 +14,7 @@ struct instruction {
     } type;
     char mask[36];
     unsigned long address;
-    unsigned long value;
+    int value;
 };
 
 void print_binary(unsigned long n);
@@ -29,7 +29,7 @@ unsigned long apply_bitmask(char mask[36], unsigned long n) {
 
         // if mask[i] equals 'X', take bit from number
         if ((mask[i] == 'X' && k == 1) || mask[i] == '1') {
-            r += (unsigned long) pow(2.00, (double) 35-i);
+            r |= 1UL << (35-i);
         } 
     }
 
@@ -166,15 +166,17 @@ int main() {
         .cap = 1024,
         .values = malloc(1024 * sizeof(unsigned long)),
     };
+    if (!addresses.values) err(EXIT_FAILURE, "failed to allocate memory for addresses");
 
     // walk through instructions
     char mask[36];
     int j;
+
     for (int i = 0; i < size; i++) {
         #ifdef STEP
         printf("\n%d  \tmask=\t\t%.36s\n", i, mask);
         #endif
-
+        
         switch (instructions[i].type) {
             case SET_MASK:
                 for (j=0; j < 36; j++) {
@@ -197,13 +199,12 @@ int main() {
             break;
         }        
     }
-    printf("Highest bucket index: %ld\n", highest_bucket_index);
 
-    unsigned long sum = hashmap_sum(&hm);
+    unsigned long sum = 0;
+    sum = hashmap_sum(&hm);
     printf("Sum: %ld\n", sum);
 
     free(instructions);
     free(addresses.values);
     assert(sum == 4173715962894);
-
 }

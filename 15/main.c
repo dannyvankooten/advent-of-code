@@ -2,13 +2,13 @@
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
+#include <string.h>
 
-char *test_input = "0,3,6";
-char *input = "12,1,16,3,11,0";
+#define N 30000000
 
 int * 
 parse_input(char *input) {
-    int *numbers = malloc(sizeof (int) * 2020);
+    int *numbers = malloc(sizeof (int) * N);
     int nnumbers = 0;
 
     char *s = input;
@@ -38,39 +38,21 @@ int main() {
     int *numbers = parse_input("12,1,16,3,11,0");
     int diff;
     int i, j;
+
+    int *seen = malloc(sizeof(int) * N);
+    memset(seen, -1, sizeof(int) * N);
         
     int nnumbers = 0;
-    for (i=0; numbers[i] != -1; i++, nnumbers++) {
-        printf("%d, ", numbers[i]);
+    for (i=1; numbers[i] != -1; i++, nnumbers++) {        
+        seen[numbers[i-1]] = i-1;
     } 
 
-    #ifdef STEP
-    system ("/bin/stty raw");
-    #endif 
-
-    for (i=nnumbers; i < 2020; i++) {
-        // if this number appears for the first time, add 0 to list
-        diff = 0;
-        for (j=i-2; j >= 0; j--) {
-            if (numbers[j] == numbers[i-1]) {
-                diff = i - 1 - j;
-                break;
-            }
-        }   
+    for (i=nnumbers; i < N; i++) {
+        j = seen[numbers[i-1]];
+        diff = j >= 0 ? i - 1 - j : 0;
         numbers[nnumbers++] = diff;
-        numbers[nnumbers] = -1;
-        
-        // otherwise, add difference between current position and last position
-        printf("%d, ", numbers[i]);
-
-        #ifdef STEP
-        if (getchar() == 27) {
-            break;
-        }
-        #endif
+        seen[numbers[i-1]] = i-1;
     }
 
-    #ifdef STEP
-    system ("/bin/stty cooked");
-    #endif
+    printf("%d'th number = %d", N, numbers[N-1]);
 }

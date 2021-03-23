@@ -8,6 +8,7 @@ fi
 DIR=$1
 shift 
 cd "$DIR"
+CFLAGS="$CFLAGS -DSTEP"
 
 if [[ $* == *--debug* ]]; then
     cc main.c -Wall -O0 -g -lm 

@@ -25,7 +25,7 @@ elif [[ $* == *--gdb* ]]; then
     gdb a.out
     rm a.out
 else 
-    cc main.c -Wall -Wextra -Ofast -lm 
+    cc main.c -pedantic -Wall -Wextra -Ofast -lm 
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

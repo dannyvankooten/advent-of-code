@@ -4,8 +4,11 @@
 #include <assert.h>
 #include <string.h>
 
-const char CH_ACTIVE = '#';
-const char CH_INACTIVE = '.';
+
+enum {
+    STATE_ACTIVE = 1,
+    STATE_INACTIVE = 0,
+};
 
 struct grid {
     int width;
@@ -30,20 +33,22 @@ read_input() {
         .time = 21,
     };
     g.values = (char *) malloc(g.time * g.depth * g.width * g.height * sizeof(char));
-    if (!g.values) err(EXIT_FAILURE, "could not allocate grid values");
+    if (!g.values) {
+        err(EXIT_FAILURE, "could not allocate grid values");
+    }
 
-    // go back to BOF, read values
     int c = g.height / 2 - 2; // centre point
     int x;
     int y = c;
     int z = c;
     int w = c;
+    char *s;
     //fseek(f, 0, SEEK_SET);
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         x = c;
-        char *s = linebuf;
+        s = linebuf;
         while (*s != '\n' && *s != '\0') {
-            g.values[(w * g.time * g.height * g.width) + (z * g.height * g.width) + (g.width * y) + x] = *s++;
+            g.values[(w * g.time * g.height * g.width) + (z * g.height * g.width) + (g.width * y) + x] = *s++ == '#' ? STATE_ACTIVE : STATE_INACTIVE;
             x++;
         }
         y++;        
@@ -60,7 +65,7 @@ print_grid(grid_t g) {
         printf("z=%d\n", z-100/2-2);
         for (int y=0; y < g.height; y++) {
             for (int x=0; x < g.width; x++) {
-                if (g.values[(g.width * g.height * z) + (g.width * y) + x] == CH_ACTIVE) {
+                if (g.values[(g.width * g.height * z) + (g.width * y) + x] == STATE_ACTIVE) {
                     printf("#");
                     count++;
                 } else {
@@ -87,6 +92,8 @@ Otherwise, the cube remains inactive.
 int 
 count_active_neighbors(grid_t *g, int pos_x, int pos_y, int pos_z, int pos_w) {
     int count = 0;
+    int idx;
+
     for (int w = pos_w - 1; w <= pos_w + 1; w++) {
         for (int z = pos_z - 1; z <= pos_z + 1; z++) {
             for (int y = pos_y - 1; y <= pos_y + 1; y++) {
@@ -96,8 +103,8 @@ count_active_neighbors(grid_t *g, int pos_x, int pos_y, int pos_z, int pos_w) {
                         continue;
                     }
 
-                    int idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
-                    if (g->values[idx] == CH_ACTIVE) {
+                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
+                    if (g->values[idx] == STATE_ACTIVE) {
                         count++;
                     }
                 }
@@ -110,11 +117,10 @@ count_active_neighbors(grid_t *g, int pos_x, int pos_y, int pos_z, int pos_w) {
 
 int
 transmute_grid(grid_t *g) {
-    char *values = (char *) calloc(CH_INACTIVE, g->time * g->depth * g->width * g->height * sizeof(char));
+    char *values = (char *) calloc(g->time * g->depth * g->width * g->height, sizeof(char));
     if (!values) {
         err(EXIT_FAILURE, "error allocating memory for new grid values");
     }
-    //memcpy(values, g->values, g->time * g->depth * g->width * g->height * sizeof(char));
 
     int idx;
     int active_neighbor_count;
@@ -123,22 +129,22 @@ transmute_grid(grid_t *g) {
         for (int z=1; z < g->depth - 1; z++) {
             for (int y=1; y < g->height  - 1; y++) {
                 for (int x=1; x < g->width - 1; x++) {
-                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
                     active_neighbor_count = count_active_neighbors(g, x, y, z, w);
+                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
                     switch (g->values[idx]) {
-                        case CH_ACTIVE:
+                        case STATE_ACTIVE:
                             if (active_neighbor_count == 2 || active_neighbor_count == 3) {
-                                values[idx] = CH_ACTIVE;
+                                values[idx] = STATE_ACTIVE;
                                 count++;
                             }
                         break;
 
                         default:
-                        case CH_INACTIVE:
+                        case STATE_INACTIVE:
                             // If a cube is inactive but exactly 3 of its neighbors are active, 
                             // the cube becomes active.
                             if (active_neighbor_count == 3) {
-                                values[idx] = CH_ACTIVE;
+                                values[idx] = STATE_ACTIVE;
                                 count++;
                             }
                         break;

@@ -3,6 +3,7 @@
 #include <err.h>
 #include <assert.h>
 #include <ctype.h>
+#include <limits.h>
 
 int tokens_read;
 
@@ -15,10 +16,10 @@ typedef struct token {
         TOK_RPAREN,
         TOK_EOF
     } type;
-    int value;
+    unsigned long long value;
 } token_t;
 
-char *token_names[] = {
+static const char *token_names[] = {
     "NUMBER",
     "PLUS",
     "ASTERISK",
@@ -27,7 +28,8 @@ char *token_names[] = {
     "EOF",
 };
 
-char *s;
+static char *s;
+unsigned long long _eval();
 
 token_t
 gettoken() {
@@ -58,6 +60,7 @@ gettoken() {
                 .type = TOK_PLUS,
             };
             break;
+        case '\n':
         case '\0':
             return (token_t ) {
                 .type = TOK_EOF,
@@ -73,15 +76,15 @@ gettoken() {
             while (isdigit(*s)) {
                 *n++ = *s++;
             }
-            *n++ = '\0';
+            *n = '\0';
             return (token_t) {
                 .type = TOK_NUMBER,
-                .value = strtol(buf, NULL, 10),
+                .value = strtoull(buf, NULL, 10),
             };
         break;
     }
 
-    err(EXIT_FAILURE, "Unknown token at '%s'", s);
+    err(EXIT_FAILURE, "Invalid token at '%s'", s);
 }
 
 token_t
@@ -92,33 +95,12 @@ nexttoken() {
     return tok;
 }
 
-void
-expect(enum token_type type) {
-    token_t tok = gettoken();
-    if (tok.type != type) {
-        err(EXIT_FAILURE, "expected token of type %s, got %s", token_names[type], token_names[tok.type]);
-    }
-}
-
-unsigned long long _eval() {
-    unsigned long long left = 0;
+unsigned long long 
+_eval_expression(unsigned long long left) {
     unsigned long long right = 0;
+    token_t tok;
 
-    token_t tok = gettoken();
-    switch (tok.type) {
-        case TOK_NUMBER:
-            left = tok.value;
-            break;
-        case TOK_LPAREN:
-            left = _eval();
-            break;
-        default:
-            err(EXIT_FAILURE, "Invalid token: %s\n", token_names[tok.type]);
-            break;
-    }
-
-
-    while (tok.type != TOK_EOF && nexttoken().type != TOK_EOF) {
+    while (nexttoken().type != TOK_EOF && *s != '\n') {
         token_t op = gettoken();
         if (op.type != TOK_ASTERISK && op.type != TOK_PLUS) {
             err(EXIT_FAILURE, "expected operator, got %s\n", token_names[op.type]);
@@ -128,13 +110,18 @@ unsigned long long _eval() {
         switch (tok.type) {
             case TOK_NUMBER:
                 right = tok.value;
+                if (op.type == TOK_ASTERISK && nexttoken().type == TOK_PLUS) {
+                    right = _eval_expression(right);
+                } 
                 break;
 
             case TOK_LPAREN:
                 right = _eval();
                 break;
 
-            default: break;
+            default: 
+                err(EXIT_FAILURE, "Invalid token at '%s'. Expected number or grouped expression.", s);
+                break;
         }
 
         switch (op.type) {
@@ -146,40 +133,71 @@ unsigned long long _eval() {
                 left += right;
                 break;
 
-            default: break;
+            default:
+                err(EXIT_FAILURE, "Invalid operator");
+            break;
         }   
 
         if (nexttoken().type == TOK_RPAREN) {
             gettoken();
-            return left;
+            break;
         }
     }
-
 
     return left;
 }
 
+unsigned long long _eval() {
+    unsigned long long left = 0;
+
+    token_t tok = gettoken();
+    switch (tok.type) {
+        case TOK_NUMBER:
+            left = tok.value;
+            break;
+        case TOK_LPAREN:
+            left = _eval();
+            break;
+        default:
+            err(EXIT_FAILURE, "Invalid token at '%s'. Expected number or group, got %s\n", s, token_names[tok.type]);
+            break;
+    }
+
+    return _eval_expression(left);
+}
+
 unsigned long long eval(char *input) {
     s = input;
-   return _eval();
+    return _eval();
 }
 
 
 int main() {
-    assert(eval("1 + 2 * 3 + 4 * 5 + 6") == 71);
-    assert(eval("2 * 3 + (4 * 5)") == 26);
-    assert(eval("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 437);
-    assert(eval("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))") == 12240);
-    assert(eval("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 13632);
+    assert(eval("1 + 2 * 3 + 4 * 5 + 6") == 231);
+    assert(eval("2 * 3 + (4 * 5)") == 46);
+    assert(eval("1 + (2 * 3) + (4 * (5 + 6)))") == 51);
+    assert(eval("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 1445);
+    assert(eval("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))") == 669060);
+    assert(eval("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 23340);
+    assert(eval("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 23340);
+    assert(eval("10 * 30 + 50") == 800);
+    assert(eval("10 * 30 + (50 * 2)\n") == 1300);
+    assert(eval("10 * (30 + (50 * 2))") == 1300);
+    assert(eval("(10 * 30) + (50 * 2)") == 400);
+    assert(eval("(10 * 30) + 2\n") == 302);
+
+
 
     unsigned long long sum = 0;
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
+    int l = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         sum += eval(linebuf);
+        l++;
     }
     fclose(f);
 
-    printf("Result: %lld\n", sum);
+    printf("Result: %lld (%d lines)\n", sum, l);
 }

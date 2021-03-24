@@ -160,6 +160,8 @@ transmute_grid(grid_t *g) {
     return count;
 }
 
+
+// TODO: Grow grid dynamically, as this should also improve performance by reducing loop iterations
 int main() {
     grid_t g = read_input();  
     int count = 0;

@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
+#include <string.h>
 
 int tokens_read;
 
@@ -16,7 +17,8 @@ typedef struct token {
         TOK_RPAREN,
         TOK_EOF
     } type;
-    unsigned long long value;
+    long long value;
+    int precedence;
 } token_t;
 
 static const char *token_names[] = {
@@ -29,46 +31,50 @@ static const char *token_names[] = {
 };
 
 static char *s;
-unsigned long long _eval();
+long long _eval();
+
+enum precedence {
+    LOWEST = 1,
+    PRODUCT,
+    SUM,
+    CALL,
+};
 
 token_t
 gettoken() {
-    while (isspace(*s)) s++;
+    while (*s == ' ') s++;
+
+    token_t tok = {
+        .precedence = LOWEST,
+    };
 
     switch (*s) {
         case '(':
             s++;
-            return (token_t) {
-                .type = TOK_LPAREN,
-            };
+            tok.type = TOK_LPAREN;
+            tok.precedence = CALL;
             break;
         case ')':
             s++;
-            return (token_t) {
-                .type = TOK_RPAREN,
-            };
+            tok.type = TOK_RPAREN;
             break;
         case '*':
             s++;
-            return (token_t) {
-                .type = TOK_ASTERISK,
-            };
+            tok.type = TOK_ASTERISK;
+            tok.precedence = PRODUCT;
             break;
         case '+':
             s++;
-            return (token_t) {
-                .type = TOK_PLUS,
-            };
+            tok.type = TOK_PLUS;
+            tok.precedence = SUM;
             break;
         case '\n':
         case '\0':
-            return (token_t ) {
-                .type = TOK_EOF,
-            };
+            tok.type = TOK_EOF;
             break;
         default:
             if (!isdigit(*s)) {
-                break;
+                err(EXIT_FAILURE, "Invalid token at '%s'", s);
             }
 
             char buf[64];
@@ -77,14 +83,12 @@ gettoken() {
                 *n++ = *s++;
             }
             *n = '\0';
-            return (token_t) {
-                .type = TOK_NUMBER,
-                .value = strtoull(buf, NULL, 10),
-            };
+            tok.type = TOK_NUMBER;
+            tok.value = strtoll(buf, NULL, 10);
         break;
     }
 
-    err(EXIT_FAILURE, "Invalid token at '%s'", s);
+    return tok;
 }
 
 token_t
@@ -95,60 +99,38 @@ nexttoken() {
     return tok;
 }
 
-unsigned long long 
-_eval_expression(unsigned long long left) {
-    unsigned long long right = 0;
-    token_t tok;
-
-    while (nexttoken().type != TOK_EOF && *s != '\n') {
-        token_t op = gettoken();
-        if (op.type != TOK_ASTERISK && op.type != TOK_PLUS) {
-            err(EXIT_FAILURE, "expected operator, got %s\n", token_names[op.type]);
-        }
-        
-        tok = gettoken();
-        switch (tok.type) {
-            case TOK_NUMBER:
-                right = tok.value;
-                if (op.type == TOK_ASTERISK && nexttoken().type == TOK_PLUS) {
-                    right = _eval_expression(right);
-                } 
-                break;
-
-            case TOK_LPAREN:
-                right = _eval();
-                break;
-
-            default: 
-                err(EXIT_FAILURE, "Invalid token at '%s'. Expected number or grouped expression.", s);
-                break;
-        }
-
-        switch (op.type) {
-            case TOK_ASTERISK:
-                left *= right;
-                break;
-
-            case TOK_PLUS:
-                left += right;
-                break;
-
-            default:
-                err(EXIT_FAILURE, "Invalid operator");
-            break;
-        }   
-
-        if (nexttoken().type == TOK_RPAREN) {
-            gettoken();
-            break;
-        }
+long long 
+_eval_infix_expression(long long left) {
+    // parse operator
+    token_t op = gettoken();
+    if (op.type != TOK_ASTERISK && op.type != TOK_PLUS) {
+        err(EXIT_FAILURE, "expected operator, got %s\n", token_names[op.type]);
     }
+
+    // evaluate right
+    long long right = _eval(op.precedence);
+
+    switch (op.type) {
+        case TOK_ASTERISK:
+            left *= right;
+            break;
+
+        case TOK_PLUS:
+            left += right;
+            break;
+
+        default:
+            err(EXIT_FAILURE, "Invalid operator");
+        break;
+    }   
 
     return left;
 }
 
-unsigned long long _eval() {
-    unsigned long long left = 0;
+
+
+long long _eval(int precedence) {
+    long long left;
 
     token_t tok = gettoken();
     switch (tok.type) {
@@ -156,19 +138,34 @@ unsigned long long _eval() {
             left = tok.value;
             break;
         case TOK_LPAREN:
-            left = _eval();
+            left = _eval(0);
+
+            // expect RPAREN
+            if (nexttoken().type != TOK_RPAREN) {
+                err(EXIT_FAILURE, "Invalid token at '%s'. Expected RPAREN.", s);
+            } else {
+                gettoken();
+            }
             break;
         default:
             err(EXIT_FAILURE, "Invalid token at '%s'. Expected number or group, got %s\n", s, token_names[tok.type]);
             break;
     }
 
-    return _eval_expression(left);
+    while (nexttoken().type != TOK_EOF && precedence < nexttoken().precedence) {
+        if (nexttoken().type == TOK_RPAREN) {
+            return left;
+        }
+
+        left = _eval_infix_expression(left);
+    }
+
+    return left;
 }
 
-unsigned long long eval(char *input) {
+long long eval(char *input) {
     s = input;
-    return _eval();
+    return _eval(1);
 }
 
 
@@ -178,26 +175,20 @@ int main() {
     assert(eval("1 + (2 * 3) + (4 * (5 + 6)))") == 51);
     assert(eval("5 + (8 * 3 + 9 + 3 * 4 * 3)") == 1445);
     assert(eval("5 * 9 * (7 * 3 * 3 + 9 * 3 + (8 + 6 * 4))") == 669060);
+    assert(eval("2 * (9 * 8) + 6") == 156);
     assert(eval("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 23340);
-    assert(eval("((2 + 4 * 9) * (6 + 9 * 8 + 6) + 6) + 2 + 4 * 2") == 23340);
-    assert(eval("10 * 30 + 50") == 800);
-    assert(eval("10 * 30 + (50 * 2)\n") == 1300);
-    assert(eval("10 * (30 + (50 * 2))") == 1300);
-    assert(eval("(10 * 30) + (50 * 2)") == 400);
-    assert(eval("(10 * 30) + 2\n") == 302);
+    assert(eval("(((2 + 4) * 9) * ((6 + 9) * 8 + 6) + 6) + (2 + 4) * 2") == 23340);
+    assert(eval("9 + 3 * ((2 * 7) * 4 + 9 + 8 * (6 + 5) * 7) * 5 + 9") == 3803184);
+    assert(eval("2 * 6 * 2 + 2 * 8 * (3 + 2 * (9 * 8) + 6 + 9 + 2)") == 170880);
 
-
-
-    unsigned long long sum = 0;
+    long long sum = 0LL;
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
-    int l = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         sum += eval(linebuf);
-        l++;
     }
     fclose(f);
 
-    printf("Result: %lld (%d lines)\n", sum, l);
+    printf("Result: %lld\n", sum);
 }

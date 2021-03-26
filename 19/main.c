@@ -8,51 +8,24 @@
 
 struct rule {
     char ch;
-    int main[3];
-    int alt[3];
     char is_char;
-    char has_alt;
-    int length;
+
+    int main[3];
+    int nmain;
+
+    int alt[3];
+    int nalt;
+    
     int index;
 };
 
 typedef struct rule rule_t;
 
-void
-print_rule(rule_t rule) {
-    printf("Rule %d: ", rule.index);
-
-    if (rule.is_char) {
-        printf("\"%c\"", rule.ch);
-        return;
-    }
-
-    for (int r=0; r < rule.length; r++) {
-        printf("%d ", rule.main[r]);
-    }
-
-    if (rule.has_alt) {
-        printf("| ");
-   
-        for (int r=0; r < rule.length; r++) {
-            printf("%d ", rule.alt[r]);
-        }
-     }
-}
-
 int 
 message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
-    short characters_matched = 0;
-    short inc;
-
-    // protect against stack overflow
-    if ( depth > 32000) {
-        err(EXIT_FAILURE, "Depth > %d", 32000);
-    }
-
-    // for (int i=0; i < depth; i++) printf("\t");
+    // for (int i=0; i < depth; i++) printf("    |");
     // print_rule(rule);
-    // printf("\t(msg = %s)", m);
+    // printf("   (msg = %s)", m);
     // printf("\n");
 
     if (rule.is_char) {
@@ -60,29 +33,45 @@ message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
     }
 
     // first, try main branch
+    short characters_matched = 0;
+    short inc;
     short r;
     char *tmp = m ;
+    int rid;
 
-    for (r=0; r < rule.length; r++) {
-          rule_t main = rules[rule.main[r]];
-          inc = message_matches_rule(main, rules, m, depth+1); 
-          if (inc == 0) {
-              break;
-          } else {
-              m += inc;
-              characters_matched += inc;
-          }
+    for (r=0; r < rule.nmain; r++) {
+        rid = rule.main[r];
+        rule_t main = rules[rid];
+        inc = message_matches_rule(main, rules, m, depth+1); 
+        if (inc == 0) {
+            break;
+        } else {
+            m += inc;
+            characters_matched += inc;
+
+            // detect recursion for rules 31 and 42...
+            if (r > 0 && (main.index == 31 || main.index == 42) && *m == '\n') {
+                r = rule.nmain;
+                break;
+            }
+        }
     }
 
-    if (r < rule.length) {
-        // reset *m
-        // reset characters matched
+    // if main failed, check against alt branch
+    if (r < rule.nmain) {
         m = tmp;
         characters_matched = 0;
-        for (r=0; r < rule.length; r++) {
-            rule_t alt = rules[rule.alt[r]];
+        for (r=0; r < rule.nalt; r++) {
+            rid = rule.alt[r];
+            rule_t alt = rules[rid];
             inc = message_matches_rule(alt, rules, m, depth+1); 
             if (inc == 0) {
+
+                // detect recursion for rules 31 and 42...
+                if (r > 0 && (alt.index == 31 || alt.index == 42)) {
+                    r = rule.nalt;
+                    break;
+                }
                 return 0;
             } else {
                 m += inc;
@@ -90,7 +79,7 @@ message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
             }
         }
 
-        if (r != rule.length) {
+        if (r < rule.nalt) {
             return 0;
         }
     }
@@ -99,7 +88,7 @@ message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
         return 0;
     }
 
-    // for (int i=0; i < depth; i++) printf("\t");
+    // for (int i=0; i < depth; i++) printf("    |");
     // printf("OK! %d characters checked.\n", characters_matched);
     return characters_matched;
 }
@@ -114,12 +103,12 @@ int main() {
 
     // parse rules
     rule_t *rules = malloc(200 * sizeof(rule_t));
-    for (int i=0; i<200; i++) {
+    for (int i=0; i < 200; i++) {
         for (int j=0; j<3; j++) {
             rules[i].main[j] = -1;
             rules[i].alt[j] = -1;
-            rules[i].length = 0;
-            rules[i].has_alt = 0;
+            rules[i].nmain = 0;
+            rules[i].nalt = 0;
             rules[i].index = 0;
         }
     }
@@ -159,11 +148,10 @@ int main() {
                 rules[rule_idx].main[i++] = strtol(tmp, NULL, 10);
             }
             while (*s == ' ' || *s == '"') s++;
-            rules[rule_idx].length = i;
+            rules[rule_idx].nmain = i;
         }
 
         if (*s == '|') {
-            rules[rule_idx].has_alt = 1;
             s++;
             for (int i=0; *s != '\n' && *s != '\0';) {
                 while (*s == ' ' || *s == '"') s++;
@@ -174,25 +162,25 @@ int main() {
                 *t = '\0';
                 rules[rule_idx].alt[i++] = strtol(tmp, NULL, 10);
                 while (*s == ' ' || *s == '"') s++;
-            }
+                rules[rule_idx].nalt = i;
+            }   
+
         }
-    }
-
-
-    // print rules
-    for (int i=0; i < nrules; i++) {
-        print_rule(rules[i]);
-        printf("\n");
     }
 
     // parse messages
     rule_t zero = rules[0];
-    // assert(message_matches_rule(zero, rules, "ababbb", 0) > 0);
-    // assert(message_matches_rule(zero, rules, "abbbab", 0) > 0);
-    // assert(message_matches_rule(zero, rules, "bababa", 0) == 0);
-    // assert(message_matches_rule(zero, rules, "aaabbb", 0) == 0);
-    // assert(message_matches_rule(zero, rules, "aaaabbb", 0) == 0);
-
+    // assert(message_matches_rule(zero, rules, "bbabbbbaabaabba", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "ababaaaaaabaaab", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "ababaaaaabbbaba", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "babbbbaabbbbbabbbbbbaabaaabaaa", 0) > 0 && 4);
+    // assert(message_matches_rule(zero, rules, "bbbbbbbaaaabbbbaaabbabaaa", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "bbbababbbbaaaaaaaabbababaaababaabab", 0) > 0 && 5);
+    // assert(message_matches_rule(zero, rules, "baabbaaaabbaaaababbaababb", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "abbbbabbbbaaaababbbbbbaaaababb", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "aaaaabbaabaaaaababaa", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa", 0) > 0);
+    // assert(message_matches_rule(zero, rules, "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba", 0) > 0);
 
     int count = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {

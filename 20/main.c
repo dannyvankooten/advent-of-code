@@ -11,10 +11,8 @@ struct tile {
     int id;
     char grid[100];
 
-    tile_t *n;
-    tile_t *e;
-    tile_t *s;
-    tile_t *w;
+    int x;
+    int y;
 };
 
 #define W 10
@@ -23,13 +21,16 @@ struct tile {
 int 
 parse_tiles_from_input(tile_t *tiles) {
     int ntiles = 0;
-    FILE *f = fopen("input.txt", "r");
+    FILE *f = fopen("test_input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
 
         // first line contains the tile ID: Tile 2311:
-        tile_t t;
+        tile_t t = {
+            .y = -1,
+            .x = -1,
+        };
         sscanf(linebuf, "Tile %d:", &t.id);
 
         int y = 0;
@@ -89,11 +90,11 @@ flip_tile(tile_t *tile, char ax) {
         for (int x=0; x < W; x++) {
             switch (ax) {
                 case 'x':
-                    grid[y * W + (9-x)] = tile->grid[y * W + x];
+                    grid[y * W + (W-1-x)] = tile->grid[y * W + x];
                 break;
 
                 case 'y':
-                    grid[(9-y) * W + x] = tile->grid[y * W + x];
+                    grid[(H-1-y) * W + x] = tile->grid[y * W + x];
                 break;
             }
         }
@@ -147,6 +148,92 @@ cmp_tile_edges(tile_t *t1, tile_t *t2, char edge) {
     }
 }
 
+void 
+print_image(tile_t **image, int size) {
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            tile_t *t = image[y * size + x];
+            printf("%d\t", t != NULL ? t->id : 0);
+        }
+        printf("\n");
+    }
+}
+
+void
+rotate_image(tile_t **image, int size) {
+    tile_t *new_image[size*size];
+    for (int i=0; i < size*size; i++) new_image[i] = NULL;
+    tile_t *t;
+    for (int y=0, x2=size-1; y < size; y++, x2--) {
+        for (int x=0, y2=0; x < size; x++, y2++) {
+            t = image[y * size + x];
+            new_image[y2 * size + x2] = t;
+            if (t) {
+                t->x = x2;
+                t->y = y2;
+                rotate_tile(t);
+            }
+        }
+    }
+
+    for (int i=0; i < size*size; i++) image[i] = new_image[i];
+}
+
+void
+flip_image(tile_t **image, int size, char ax) {
+    tile_t *new_image[size*size];
+    for (int i=0; i < size*size; i++) new_image[i] = NULL;
+    tile_t *t;
+    for (int y=0; y < size; y++) {
+        for (int x=0; x < size; x++) {
+            t = image[y * size + x];
+            int y2 = ax == 'y' ? (size - 1 - y) : y;
+            int x2 = ax == 'x' ? (size - 1 - x) : x;
+            new_image[y2 * size + x2] = t;
+            if (t) {
+                t->x = x2;
+                t->y = y2;
+                flip_tile(t, ax);
+            }
+        }
+    }
+
+    for (int i=0; i < size*size; i++) image[i] = new_image[i];
+}
+
+void
+shift_image(tile_t **image, int size, int shift_y, int shift_x) {
+    tile_t *new_image[size*size];
+    for (int i=0; i < size*size; i++) new_image[i] = NULL;
+    tile_t *t;
+
+    for (int y=0; y < size-shift_y; y++) {
+        for (int x=0; x < size-shift_x; x++) {
+            int y2 = y + shift_y;
+            int x2 = x + shift_x;
+
+            t = image[y * size + x];
+            if (t) {
+                t->x = x2;
+                t->y = y2;
+                new_image[y2 * size + x2] = t;
+            }
+        }
+    }
+
+    for (int i=0; i < size*size; i++) image[i] = new_image[i];
+}
+
+tile_t *
+get_tile_by_id(tile_t *tiles, int ntiles, int id) {
+    for (int i=0; i < ntiles; i++) {
+        if (tiles[i].id == id) {
+            return &tiles[i];
+        }
+    }
+
+    return NULL;
+}
 
 int main() {
     tile_t *tiles = malloc(200 * sizeof(tile_t));
@@ -155,7 +242,7 @@ int main() {
     }
 
     int ntiles = parse_tiles_from_input(tiles);
-    print_tiles(tiles, ntiles);
+    // print_tiles(tiles, ntiles);
 
     #ifndef NDEBUG
     tile_t tmp;
@@ -172,69 +259,81 @@ int main() {
     assert(cmp_tiles(&tiles[0], &tmp) == 0);
     #endif
 
-
     // init empty image
-    int img_size = (int) sqrt((double) ntiles);
-    printf("Image size is %d x %d\n", img_size, img_size);
-    int *image = calloc(img_size * img_size, sizeof(int));
-    for (int y = 0; y < img_size; y++) {
-        for (int x = 0; x < img_size; x++) {
-            printf("%d\t", image[y * img_size + x]);
-        }
-        printf("\n");
-    }
+    int image_size = (int) sqrt((double) ntiles);
+    tile_t **image = calloc(image_size * image_size * 2, sizeof(tile_t *));
 
-    // start by finding the middle tile
-    // which is a tile that should have 4 possible neighbors
-    printf("%d\n", 3/2);
-    long long product = 1;
+    // For each tile, find NESW neighbors and place in image grid
+    // Once placed, stop rotating the individual tiles
+    // But allow rotation of the entire grid (image + tiles itself)
+    image[0] = &tiles[0];
+    tiles[0].y = 0;
+    tiles[0].x = 0;
+    print_image(image, image_size);
+
+
+    STARTOVER: ;
     for (int i=0; i < ntiles; i++) {
         tile_t *t1 = &tiles[i];
 
-        printf("Finding neighbors for %d: \n", t1->id);
-        int neighbors = 0;
+        // only work with tiles already in image
+        if (t1->y < 0) {
+            continue;
+        }
 
+        printf("Finding neighbors for tile %d\n", t1->id);
         for (int j=0; j < ntiles; j++) {
             // skip self
-            if (i == j) { continue; }
+            if (i == j) continue;
+
+            // skip tiles already in image
             tile_t *t2 = &tiles[j];
+            if (t2->x >= 0) {
+                continue;
+            }
 
-            for (int r=0; r < 4; r++) {
+            for (int r = 0; r < 3; r++) {
                 for (int f=0; f < 2; f++) {
-                    if (cmp_tile_edges(t1, t2, 'N') == 0) {
-                        printf("Found N: %d\n", t2->id);
-                        t1->n = t2;
-                        neighbors++;
-                    } else if (cmp_tile_edges(t1, t2, 'E') == 0) {
-                        printf("Found E: %d\n", t2->id);
-                        t1->e = t2;
-                        neighbors++;
-                    } else if (cmp_tile_edges(t1, t2, 'S') == 0) {
-                        printf("Found S: %d\n", t2->id);
-                        t1->s = t2;
-                        neighbors++;
-                    } else if (cmp_tile_edges(t1, t2, 'W') == 0) {
-                        printf("Found W: %d\n", t2->id);
-                        t1->w = t2;
-                        neighbors++;
-                    }     
-
-                    flip_tile(t2, f > 0 ? 'x' : 'y');
+                    if (cmp_tile_edges(t1, t2, 'E') == 0) {
+                        if (t1->x == image_size-1) {
+                            shift_image(image, image_size, 0, -1);
+                        }
+                        t2->y = t1->y;
+                        t2->x = t1->x + 1;
+                        if (image[t2->y * image_size + t2->x] != NULL) {
+                            if (t1->x == 0) {
+                                shift_image(image, image_size, 0, 1);
+                            }
+                            t2->x = t1->x - 1;
+                        }
+                        image[t2->y * image_size + t2->x] = t2;
+                        printf("Found E neighbor.\n");
+                        goto STARTOVER;
+                    } else if (cmp_tile_edges(t1, t2, 'S')) {
+                        if (t1->y == image_size - 1) {
+                            shift_image(image, image_size, -1, 0);
+                        }
+                        t2->y = t1->y + 1;
+                        t2->x = t1->x;
+                        if (image[t2->y * image_size + t2->x] != NULL) {
+                            if (t1->y == 0) {
+                                shift_image(image, image_size, 1, 0);
+                            }
+                            t2->y = t1->y - 1;                       
+                        }
+                        image[t2->y * image_size + t2->x] = t2;
+                        printf("Found S neighbor.\n");
+                        goto STARTOVER;
+                    }
+                  
+                    flip_image(image, image_size, f > 0 ? 'x' : 'y');
                 }
-
-                rotate_tile(t2);   
-            }    
+                
+                rotate_image(image, image_size);     
+            }
         }
-
-        if (neighbors == 2) {
-            product *= t1->id;
-        }
-
-        
     }
-
-    printf("Product: %lld\n", product);
-
+    print_image(image, image_size);
 
 
     free(image);

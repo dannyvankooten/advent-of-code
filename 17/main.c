@@ -16,6 +16,7 @@ struct grid {
     int depth;
     int time;
     char *values;
+    short *neighbor_counts;
 };
 typedef struct grid grid_t;
 
@@ -35,6 +36,10 @@ read_input() {
     g.values = (char *) malloc(g.time * g.depth * g.width * g.height * sizeof(char));
     if (!g.values) {
         err(EXIT_FAILURE, "could not allocate grid values");
+    }
+    g.neighbor_counts = (short *) malloc(g.time * g.depth * g.width * g.height * sizeof(short));
+    if (!g.neighbor_counts) {
+        err(EXIT_FAILURE, "could not allocate neighbor counts");
     }
 
     int c = g.height / 2 - 2; // centre point
@@ -80,39 +85,45 @@ print_grid(grid_t g) {
     printf("count = %d\n", count);
 }
 
-/*
-If a cube is active and exactly 2 or 3 of its neighbors are also active, 
-    the cube remains active. 
-Otherwise, the cube becomes inactive.
-
-If a cube is inactive but exactly 3 of its neighbors are active, 
-    the cube becomes active. 
-Otherwise, the cube remains inactive.
-*/
-int 
-count_active_neighbors(grid_t *g, int pos_x, int pos_y, int pos_z, int pos_w) {
-    int count = 0;
+void
+add_one_to_all_neighbours(grid_t *g, int pos_x, int pos_y, int pos_z, int pos_w) {
     int idx;
-
+    int idx_self = (pos_w * g->depth * g->width * g->height) + (g->width * g->height * pos_z) + (g->width * pos_y) + pos_x;
+;
     for (int w = pos_w - 1; w <= pos_w + 1; w++) {
         for (int z = pos_z - 1; z <= pos_z + 1; z++) {
             for (int y = pos_y - 1; y <= pos_y + 1; y++) {
                 for (int x = pos_x - 1; x <= pos_x + 1; x++) {
-                    // skip self
-                    if (w == pos_w && z == pos_z && x == pos_x && y == pos_y) {
+                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
+                    if (idx == idx_self) {
                         continue;
                     }
 
-                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
-                    if (g->values[idx] == STATE_ACTIVE) {
-                        count++;
-                    }
+                    g->neighbor_counts[idx] += 1;
                 }
             }
         }   
     }
-    
-    return count;
+}
+
+void
+update_neighbor_counts(grid_t *g) {
+    memset(g->neighbor_counts, 0, g->time * g->depth * g->width * g->height * sizeof(short));
+    int idx;
+    for (int w=1; w < g->time - 1; w++) {
+        for (int z=1; z < g->depth - 1; z++) {
+            for (int y=1; y < g->height  - 1; y++) {
+                for (int x=1; x < g->width - 1; x++) {
+                    idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
+                    if (g->values[idx] == STATE_ACTIVE) {
+                        // add one to all neighbors
+                        add_one_to_all_neighbours(g, x, y, z, w);
+                    } 
+                }
+            }
+        }
+    }
+
 }
 
 int
@@ -122,6 +133,7 @@ transmute_grid(grid_t *g) {
         err(EXIT_FAILURE, "error allocating memory for new grid values");
     }
 
+    update_neighbor_counts(g);
     int idx;
     int active_neighbor_count;
     int count = 0;
@@ -129,8 +141,8 @@ transmute_grid(grid_t *g) {
         for (int z=1; z < g->depth - 1; z++) {
             for (int y=1; y < g->height  - 1; y++) {
                 for (int x=1; x < g->width - 1; x++) {
-                    active_neighbor_count = count_active_neighbors(g, x, y, z, w);
                     idx = (w * g->depth * g->width * g->height) + (g->width * g->height * z) + (g->width * y) + x;
+                    active_neighbor_count = g->neighbor_counts[idx];
                     switch (g->values[idx]) {
                         case STATE_ACTIVE:
                             if (active_neighbor_count == 2 || active_neighbor_count == 3) {
@@ -154,7 +166,6 @@ transmute_grid(grid_t *g) {
             }
         }
     }
-
     free(g->values);
     g->values = values;
     return count;
@@ -176,5 +187,6 @@ int main() {
     }
 
     printf("Count: %d\n", count);
+    free(g.neighbor_counts);
     free(g.values);
 }

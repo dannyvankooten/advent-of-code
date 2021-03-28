@@ -20,7 +20,7 @@ struct ht {
     size_t length;      // number of items in hash table
 };
 
-#define INITIAL_CAPACITY 16  // must not be zero
+#define INITIAL_CAPACITY 1024  // must not be zero
 
 ht* ht_create(void) {
     // Allocate space for hash table struct.

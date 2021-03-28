@@ -16,11 +16,16 @@ struct Bag {
 };
 
 ht* bags;
+struct Bag *mbags;
 
 void
 parse_rules_from_input(char *input_file) {
     int i;
     int qty;
+
+    int cap = 1024;
+    int size = 0;
+    struct Bag *mbags = (struct Bag *) malloc(cap * sizeof(struct Bag));
 
     FILE *f = fopen(input_file, "r");
     if (!f) {
@@ -30,9 +35,12 @@ parse_rules_from_input(char *input_file) {
     bags = ht_create();
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         char *str = linebuf;
-
-        //struct Bag bag = bags.values[bags.size++];
-        struct Bag *bag = malloc(sizeof(struct Bag));
+        struct Bag *bag = &mbags[size++];
+        if (size == cap) {
+            cap *= 2;
+            mbags = (struct Bag *) realloc(mbags, cap * sizeof(struct Bag));
+        }
+        //struct Bag *bag = malloc(sizeof(struct Bag));
         bag->nchildren = 0;
         bag->color[0] = '\0';
         
@@ -167,9 +175,6 @@ int main()
     printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
     printf("children of shiny bag: %d\n", count_children(shiny_gold));  
 
-    hti it = ht_iterator(bags);
-    while (ht_next(&it)) {
-       free(it.value);
-    }
+    free(mbags);
     ht_destroy(bags);
 }

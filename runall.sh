@@ -4,7 +4,7 @@ for dir in ./*/
 do
     dir=${dir%*/}     
     cd $dir
-    cc *.c -Wall -Wextra -O2 -lm -std=c11 -o a.out
+    cc *.c -Wall -Wextra -O2 -lm -o a.out
     start_time="$(date -u +%s.%N)"
     ./a.out > /dev/null
     end_time="$(date -u +%s.%N)"

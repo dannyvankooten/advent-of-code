@@ -4,6 +4,7 @@
 #include <assert.h>
 #include <string.h>
 #include <ctype.h>
+#include "ht.h"
 
 struct Bag {
     char color[32];
@@ -14,19 +15,10 @@ struct Bag {
     } children[16];
 };
 
-struct Bags {
-    struct Bag *values;
-    int size;
-    int cap;
-};
+ht* bags;
 
-struct Bags
+void
 parse_rules_from_input(char *input_file) {
-    struct Bags bags = {
-        .values = malloc(512 *sizeof(struct Bag)),
-        .size = 0,
-        .cap = 512,
-    };
     int i;
     int qty;
 
@@ -35,27 +27,27 @@ parse_rules_from_input(char *input_file) {
         err(EXIT_FAILURE, "could not open input file");
     }
     char linebuf[BUFSIZ] = {0};
-
+    bags = ht_create();
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         char *str = linebuf;
-    
-        struct Bag bag = {
-            .nchildren = 0,
-            .color = "",
-        };
+
+        //struct Bag bag = bags.values[bags.size++];
+        struct Bag *bag = malloc(sizeof(struct Bag));
+        bag->nchildren = 0;
+        bag->color[0] = '\0';
         
         // parse up to " contain "
         char *pos = strstr(str, " bags contain ");
-        for (i=0; str < pos; i++, str++) {
-            bag.color[i] = *str;
+        for (i=0; str < pos;) {
+            bag->color[i++] = *str++;
         }
-        bag.color[i] = '\0';
+        bag->color[i] = '\0';
         
         // skip " bags contain "
         str += strlen(" bags contain ");
 
         // parse all children
-        while (*str != '.') {
+        while (1) {
             while (*str == ' ') str++;
 
             // parse child quantity
@@ -65,80 +57,48 @@ parse_rules_from_input(char *input_file) {
                 str++;
             }
             
-            bag.children[bag.nchildren].qty = qty;
+            bag->children[bag->nchildren].qty = qty;
 
             // skip whitespace
             while (*str == ' ') str++;
             
             // parse child color
             pos = strstr(str, " bag");
-            for (i=0; str < pos; str++) {
-                bag.children[bag.nchildren].color[i++] = *str;
+            for (i=0; str < pos;) {
+                bag->children[bag->nchildren].color[i++] = *str++;
             }
-            bag.children[bag.nchildren].color[i] = '\0';
-            bag.nchildren++;
+            bag->children[bag->nchildren].color[i] = '\0';
+            bag->nchildren++;
 
             // skip forward to after next comma or dot
-            while (*(str-1) != ',' && *(str-1) != '.') {
+            while (*(str) != ',' && *str != '.') {
                 str++;
             }
 
             // if it was a dot, we're done parsing children
-            if (*(str-1) == '.') {
+            if (*str == '.') {
                 break;
+            } else {
+                str++; // skip ,
             }
         }
 
-        // Add bag to list
-        if (bags.size == bags.cap) {
-            bags.cap *= 2;
-            bags.values = realloc(bags.values, bags.cap * sizeof(struct Bag));
-        }
-        bags.values[bags.size++] = bag; 
+        if (ht_set(bags, bag->color, (void *) bag) == NULL) {
+            err(EXIT_FAILURE, "error adding to hashmap");
+        } 
     }
 
     fclose(f);
-    return bags;
 }
-
-void
-print_bags(struct Bags bags) 
-{
-    printf("%d bags, capacity %d\n", bags.size, bags.cap);
-    for (int i=0; i < bags.size; i++) {
-        printf("%s", bags.values[i].color);
-
-        if (bags.values[i].nchildren > 0) {
-            printf(" contains ");
-
-            for (int j=0; j < bags.values[i].nchildren; j++) {
-                if (j > 0) {
-                    printf(", ");
-                }
-                printf("%d %s", bags.values[i].children[j].qty, bags.values[i].children[j].color);
-            }
-        }
-
-        printf("\n");
-    }
-}
-
-struct Bags bags;
 
 struct Bag *
-find_bag(char *color) {
+find_bag(const char color[32]) {
     struct Bag *b;
-    for (int i=0; i < bags.size; i++) {
-       b = &bags.values[i];
-       if (strcmp(b->color, color) == 0) {
-           return b;
-       }
-    }
-
-    return NULL;
+    b = (struct Bag *) ht_get(bags, color);
+    return b;
 }
 
-int may_bag_contain_color(struct Bag *b, char *color) {
+int may_bag_contain_color(struct Bag *b, const char color[32]) {
     if (b == NULL) {
         return 0;
     }
@@ -158,13 +118,12 @@ int may_bag_contain_color(struct Bag *b, char *color) {
     return 0;
 }
 
-int search_bags_for_color(char *color) {
+int search_bags_for_color(const char color[32]) {
     int count = 0;
-
-    for (int i=0; i < bags.size; i++) {
-        count += may_bag_contain_color(&bags.values[i], color);
+    hti it = ht_iterator(bags);
+    while (ht_next(&it)) {
+        count += may_bag_contain_color(it.value, color);
     }
-
     return count;
 }
 
@@ -200,14 +159,17 @@ int main()
     // printf("%d bags can contain dotted black\n", search_bags_for_color("dotted black"));
     // printf("%d bags can contain dark orange\n", search_bags_for_color("dark orange"));
 
-    bags = parse_rules_from_input("input.txt");
-
-
-    printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
+    parse_rules_from_input("input.txt");
 
     struct Bag *shiny_gold = find_bag("shiny gold");
     assert(shiny_gold != NULL);
+
+    printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
     printf("children of shiny bag: %d\n", count_children(shiny_gold));  
 
-    free(bags.values); 
+    hti it = ht_iterator(bags);
+    while (ht_next(&it)) {
+       free(it.value);
+    }
+    ht_destroy(bags);
 }

@@ -11,21 +11,27 @@ cd "$DIR"
 CFLAGS="$CFLAGS -DSTEP"
 
 if [[ $* == *--debug* ]]; then
-    cc main.c -Wextra -Wall -std=c11 -O0 -g -lm 
+    cc *.c -Wextra -Wall -O0 -g -lm 
     valgrind --leak-check=full -s ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--cachegrind* ]]; then 
-    cc main.c -Wall -Wextra -std=c11 -O0 -g -lm 
+    cc *.c -Wall -Wextra -O0 -g -lm 
     valgrind --tool=cachegrind -s ./a.out
     rm vgcore*
     rm a.out    
 elif [[ $* == *--gdb* ]]; then 
-    cc main.c -Wall -Wextra -ggdb -O0 -lm -o a.out
+    cc *.c -Wall -Wextra -ggdb -O0 -lm -o a.out
     gdb a.out
     rm a.out
+elif [[ $* == *--profile ]]; then
+    cc *.c -Wall -Wextra -pg -o0 -lm -o a.out
+    ./a.out
+    gprof a.out gmon.out > prof_output
+    cat prof_output
+    rm a.out
 else 
-    cc main.c -Wall -Wextra -O2 -lm -std=c11
+    cc *.c -Wall -Wextra -O2 -lm
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

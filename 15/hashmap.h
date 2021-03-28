@@ -55,7 +55,7 @@ hashmap_set(struct hashmap *hm, int key, int value) {
     }
 
     if (0 == hm_node_pool.inited) {
-        hm_node_pool.nodes = malloc(1000000 * sizeof(struct hashmap_node));
+        hm_node_pool.nodes = (struct hashmap_node *) malloc(1000000 * sizeof(struct hashmap_node));
         hm_node_pool.cap = 1000000;
         hm_node_pool.inited = 1;
     }

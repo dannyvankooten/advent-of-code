@@ -5,9 +5,9 @@
 #include <string.h>
 
 enum position {
-    POS_FLOOR,
-    POS_EMPTY_SEAT,
-    POS_OCCUPIED_SEAT,
+    POS_FLOOR = -1,
+    POS_EMPTY_SEAT = 0,
+    POS_OCCUPIED_SEAT = 1,
 };
 
 struct grid {
@@ -17,7 +17,9 @@ struct grid {
     char stable;
 };
 
-int count_occupied_adjacent_seats(struct grid *grid, int pos_y, int pos_x) {
+typedef struct grid grid_t;
+
+int count_occupied_adjacent_seats(grid_t *grid, int pos_y, int pos_x) {
     int y_start = pos_y - 1;
     y_start = y_start < 0 ? 0 : y_start;
     int y_end = pos_y + 1;
@@ -40,9 +42,7 @@ int count_occupied_adjacent_seats(struct grid *grid, int pos_y, int pos_x) {
     return count;
 }
 
-enum position get_grid_value_by_coords(struct grid *grid, int x, int y) {
-    return *(grid->values + (y * grid->w) + x);
-}
+#define get_grid_value_by_coords(grid, x, y) *(grid->values + (y * grid->w) + x)
 
 int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     int count = 0;
@@ -51,10 +51,8 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // left
     for (int y=pos_y, x=pos_x-1; x >= 0; x--) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -62,10 +60,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // left-up
     for (int y=pos_y-1, x=pos_x-1; x >= 0 && y >= 0; y--, x--) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -73,10 +70,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // up
     for (int y=pos_y-1, x=pos_x; y >= 0; y--) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -84,10 +80,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // right-up
     for (int y=pos_y-1, x=pos_x+1; x < grid->w && y >= 0; x++, y--) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -95,10 +90,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // right
     for (int y=pos_y, x=pos_x+1; x < grid->w; x++) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -106,10 +100,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // right-down
     for (int y=pos_y+1, x=pos_x+1; x < grid->w && y < grid->h; x++, y++) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -117,10 +110,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // down
     for (int y=pos_y+1, x=pos_x; y < grid->h; y++) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -128,10 +120,9 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     // left-down
     for (int y=pos_y+1, x=pos_x-1; x >= 0 && y < grid->h; x--, y++) {
         value = get_grid_value_by_coords(grid, x, y);
-        if (value == POS_OCCUPIED_SEAT) {
-            count++; 
-            break;
-        } else if (value == POS_EMPTY_SEAT) {
+        
+        if (value != POS_FLOOR) {
+            count += value;
             break;
         }
     }
@@ -161,15 +152,13 @@ void print_grid(struct grid *grid) {
 }
 
 void transmute_grid(struct grid *grid) {
-    enum position *new_grid = malloc(grid->h * grid->w * sizeof(enum position));
-    if (new_grid == NULL) {
-        err(EXIT_FAILURE, "oom");
-    }
+    enum position new_grid[grid->h * grid->w];
+    
     grid->stable = 1;
     for (int y=0; y < grid->h; y++) {
         for (int x=0; x < grid->w; x++) {
-            enum position value = *(grid->values + (y * grid->w) + x);
-            enum position *new_value = (new_grid + (grid->w * y) + x) ;
+            enum position value = grid->values[(y * grid->w) + x];
+            enum position *new_value = &new_grid[(grid->w * y) + x];
             switch (value) {
                case POS_EMPTY_SEAT:
                     if (count_occupied_seats_in_los(grid, y, x) == 0) {
@@ -198,8 +187,7 @@ void transmute_grid(struct grid *grid) {
     }
 
     // swap out grid with new grid
-    free(grid->values);
-    grid->values = new_grid;
+    memcpy(grid->values, new_grid, grid->h * grid->w * sizeof(enum position));
 }
 
 int main() {

@@ -2,3 +2,4 @@ a.out
 vgcore*
 */gmon.out
 */prof_output
+*/cachegrind.out.*

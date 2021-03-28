@@ -16,22 +16,22 @@ if [[ $* == *--debug* ]]; then
     rm vgcore*
     rm a.out
 elif [[ $* == *--cachegrind* ]]; then 
-    cc *.c -Wall -Wextra -O0 -g -lm 
+    cc *.c -Wall -Wextra -g -lm 
     valgrind --tool=cachegrind -s ./a.out
     rm vgcore*
     rm a.out    
 elif [[ $* == *--gdb* ]]; then 
-    cc *.c -Wall -Wextra -ggdb -O0 -lm -o a.out
+    cc *.c -Wall -Wextra -ggdb -lm -o a.out
     gdb a.out
     rm a.out
 elif [[ $* == *--profile ]]; then
-    cc *.c -Wall -Wextra -pg -o0 -lm -o a.out
+    cc *.c -Wall -Wextra -pg -lm -o a.out
     ./a.out
     gprof a.out gmon.out > prof_output
     cat prof_output
     rm a.out
 else 
-    cc *.c -Wall -Wextra -O2 -lm
+    cc *.c -Wall -Wextra -O2 -lm -march=native
     /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

@@ -91,12 +91,12 @@ int main() {
     int *seen = malloc(ins.size * sizeof(int));
     struct Instruction i;
 
-    for (int c=0; c < ins.size; c++) {
+    for (size_t c=0; c < ins.size; c++) {
         int acc = 0;
-        int ip;
+        size_t ip;
         memset(seen, 0, ins.size * sizeof(0));
 
-        for (ip=0; ip >= 0 && ip < ins.size; ) {
+        for (ip=0; ip < ins.size; ) {
             i = ins.values[ip];
 
             // break if we've seen this instruction already

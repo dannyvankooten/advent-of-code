@@ -10,26 +10,26 @@ int main() {
     char linebuf[BUFSIZ] = {0};
 
     // parse "ready at timestamp" from 1st line
-    fgets(linebuf, BUFSIZ, f) != NULL ?: err(EXIT_FAILURE, "invalid input");
+    if(fgets(linebuf, BUFSIZ, f) == NULL) err(EXIT_FAILURE, "invalid input");
     int ready_timestamp = strtol(linebuf, NULL, 10);
     printf("Ready at timestamp %d\n", ready_timestamp);
 
     // parse bus schedules from 2nd line
-    fgets(linebuf, BUFSIZ, f) != NULL ?: err(EXIT_FAILURE, "invalid input");
+    if (fgets(linebuf, BUFSIZ, f) == NULL) err(EXIT_FAILURE, "invalid input");
     char *s = linebuf;
     char nbuf[8] = {0};
-    int i = 0;
-    int buses[64] = {[0 ... 63] = 0};
+    int buses[64] = {0};
     int nbuses = 0;
     while (*s != '\n' && *s != '\0') {
-        while(*s != ',') {
+        int i = 0;
+        while(*s == 'x' || (*s >= '0' && *s <= '9')) {
             nbuf[i++] = *s++;
         }
         nbuf[i] = '\0';
         i = 0;
 
-        buses[nbuses++] = *nbuf == 'x' ? 1 : strtol(nbuf, NULL, 10);
-        s++;
+        buses[nbuses++] = *nbuf == 'x' ? 1 : (int) strtol(nbuf, NULL, 10);
+        if (*s == ',') s++; // skip comma
     }
     fclose(f);
 

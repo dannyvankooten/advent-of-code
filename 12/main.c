@@ -35,6 +35,7 @@ void move_waypoint(struct ship *ship, char dir, int value) {
             break;
     }
 }
+# define M_PI		3.14159265358979323846	/* pi */
 
 void rotate_waypoint(struct ship *ship, int value) {
     double v = (double) value * M_PI / 180.0;
@@ -56,8 +57,16 @@ int main() {
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         struct instruction ins;
         s = linebuf;
+
+        // parse single character
         ins.action = *s++;
-        ins.value = (int) strtol(s, &s+2, 10);
+
+        // parse digit
+        ins.value = 0;
+        while (*s >= '0' && *s <= '9') {
+            ins.value = ins.value * 10 + *s - '0';
+            s++;
+        }
         instructions[instructions_n++] = ins;        
     }
     fclose(f);

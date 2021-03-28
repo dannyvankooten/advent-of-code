@@ -214,7 +214,7 @@ int main() {
     };
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         grid.h++;
-        grid.w = grid.w ?: strlen(linebuf) - 1;
+        grid.w = grid.w > 0 ? grid.w : (int) strlen(linebuf) - 1;
     }
     grid.values = malloc(grid.h * grid.w * sizeof(enum position));
     fseek(f, 0, SEEK_SET);

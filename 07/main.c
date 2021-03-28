@@ -21,21 +21,24 @@ struct Bags {
 };
 
 struct Bags
-parse_rules(char *str) {
+parse_rules_from_input(char *input_file) {
     struct Bags bags = {
-        .values = malloc(8 *sizeof(struct Bag)),
+        .values = malloc(512 *sizeof(struct Bag)),
         .size = 0,
-        .cap = 8,
+        .cap = 512,
     };
     int i;
-    char buf[64];
-    long qty;
-   
-    // every top line represents a bag
-    for (; *str != '\0'; str++) {   
-        // skip newline
-        while (isspace(*str)) str++;
+    int qty;
 
+    FILE *f = fopen(input_file, "r");
+    if (!f) {
+        err(EXIT_FAILURE, "could not open input file");
+    }
+    char linebuf[BUFSIZ] = {0};
+
+    while (fgets(linebuf, BUFSIZ, f) != NULL) {
+        char *str = linebuf;
+    
         struct Bag bag = {
             .nchildren = 0,
             .color = "",
@@ -56,12 +59,12 @@ parse_rules(char *str) {
             while (*str == ' ') str++;
 
             // parse child quantity
-            buf[0] = '\0';
-            for (i=0; *str != ' '; str++) {
-                buf[i++] = *str;
+            qty = 0;
+            while (*str >= '0' && *str <= '9') {
+                qty = qty * 10 + *str - '0';
+                str++;
             }
-            buf[i] = '\0';
-            qty = strtol(buf, 0, 10);
+            
             bag.children[bag.nchildren].qty = qty;
 
             // skip whitespace
@@ -87,20 +90,14 @@ parse_rules(char *str) {
         }
 
         // Add bag to list
-        if (bags.size + 1 >= bags.cap) {
+        if (bags.size == bags.cap) {
             bags.cap *= 2;
             bags.values = realloc(bags.values, bags.cap * sizeof(struct Bag));
         }
-        bags.values[bags.size++] = bag;  
-
-        if (*str == '\0') {
-            break;
-        }
+        bags.values[bags.size++] = bag; 
     }
 
-    // each of those bags contain a number of children 
-    // (which we may not yet know about)
-
+    fclose(f);
     return bags;
 }
 
@@ -203,21 +200,7 @@ int main()
     // printf("%d bags can contain dotted black\n", search_bags_for_color("dotted black"));
     // printf("%d bags can contain dark orange\n", search_bags_for_color("dark orange"));
 
-    // actual input
-    FILE *f = fopen("input.txt", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
-
-    // read file size
-    fseek(f, 0, SEEK_END);
-    long fsize = ftell(f);
-    fseek(f, 0, SEEK_SET);  
-    
-    // read entire file into memory
-    char *string = malloc(fsize + 1);
-    fread(string, 1, fsize, f);
-    string[fsize] = '\0';
-    fclose(f);
-    bags = parse_rules(string);
+    bags = parse_rules_from_input("input.txt");
 
 
     printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
@@ -227,5 +210,4 @@ int main()
     printf("children of shiny bag: %d\n", count_children(shiny_gold));  
 
     free(bags.values); 
-    free(string);
 }

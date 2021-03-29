@@ -1,39 +1,37 @@
+#include <stdint.h>
+#include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <err.h>
+#include <string.h>
+
 
 // https://adventofcode.com/2020/day/4#part2
 
 char 
 is_passport_valid(char passport[]) {
-    const char valid_1[] = {1, 1, 1, 1, 1, 1, 1, 1};
+    static const char valid_1[] = {1, 1, 1, 1, 1, 1, 1, 1};
     if (memcmp(passport, valid_1, 8 * sizeof(char)) == 0) {
         return 1;
     }
 
-    const char valid_2[] = {1, 1, 1, 1, 1, 1, 1, 0};
+    static const char valid_2[] = {1, 1, 1, 1, 1, 1, 1, 0};
     return memcmp(passport, valid_2, 8 * sizeof(char)) == 0;
 }
 
 char
 is_valid_hgt(char *v) {
-    long n = 0;
-    char buf[3];
-    int i = 0;
-    while (*v >= '0' && *v <= '9') {
-        if (i > 2) {
-            return 0;
-        }
+    int32_t n = 0;
+    int32_t i = 0;
 
-        buf[i++] = *v;
+    while (*v >= '0' && *v <= '9') {
+        n = n * 10 + (*v - '0');
+        i++;
         v++;
     }
-    if (i == 0) {
+    if (i == 0 || i > 3) {
         return 0;
     }
-    buf[i] = '\0';
-    n = strtol(buf, 0, 10);
 
     if (strcmp(v, "cm") == 0) {
         return n >= 150 && n <= 193;
@@ -53,6 +51,10 @@ is_valid_hcl(char *v) {
     }
     
     for (int i=1; i < 7; i++) {
+        if (v[i] == '\0') {
+            return 0;
+        }
+
         if (!('a' <= v[i] && v[i] <= 'f')
             && !('0' <= v[i] && v[i] <= '9')) {
                 return 0;    
@@ -68,10 +70,9 @@ is_valid_hcl(char *v) {
 
 char
 is_valid_ecl(char *v) {
-    char *valid_values[] = { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
-    int l = sizeof(valid_values) / sizeof(valid_values[0]);
+    static const char *valid_values[] = { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
 
-    for (int i=0; i < l; i++) {
+    for (int i=0; i < 7; i++) {
         if (strcmp(v, valid_values[i]) == 0) {
             return 1;
         }
@@ -83,7 +84,7 @@ is_valid_ecl(char *v) {
 char
 is_valid_pid(char *v) {
     for (int i=0; i < 9; i++) {
-        if (v[i] < '0' || v[i] > '9') {
+        if (v[i] < '0' || v[i] > '9' || v[i] == '\0') {
             return 0;
         }
     }
@@ -95,29 +96,30 @@ is_valid_pid(char *v) {
     return 1;
 } 
 
+enum field_key {
+    BYR = 0,
+    IYR,
+    EYR,
+    HGT,
+    HCL,
+    ECL,
+    PID,
+    CID
+};
+
 int 
 main() {
 	FILE *f = fopen("input.txt", "r");
-    if (!f) return 1;
-
+    if (!f) {
+        return 1;
+    }
     char buf[BUFSIZ];
-    char fields[8];
-    memset(fields, 0, 8 * sizeof(char));
-    enum field_key {
-        BYR = 0,
-        IYR,
-        EYR,
-        HGT,
-        HCL,
-        ECL,
-        PID,
-        CID
-    };
+    char fields[8] = {0};
     char key[32];
     char value[32];
-    int i;
-    int valid_pp_count = 0;
-    long v;
+    size_t i;
+    int64_t valid_pp_count = 0;
+    int64_t v;
 
     while (fgets(buf, BUFSIZ, f) != NULL) {
         char *str = buf;
@@ -128,11 +130,10 @@ main() {
                 valid_pp_count++;
             }
             memset(fields, 0, 8 * sizeof(char));
-            printf("\n");
             continue;
         }
         
-        while (*str != '\n') {
+        while (*str != '\n' && *str != '\0') {
             // parse key
             for (i=0; *str != ':'; i++) {
                 key[i] = *str++;
@@ -188,6 +189,6 @@ main() {
         valid_pp_count++;
     }
 
-    printf("%d\n", valid_pp_count);
+    printf("%" PRId64 "\n", valid_pp_count);
     fclose(f);
 }

@@ -9,6 +9,12 @@
 
 #define MAX_NAME_LENGTH 32
 
+typedef struct node node_t;
+struct node {
+    char *ingredient;
+    node_t *next;
+};
+
 typedef struct {
     char (*ingredients)[MAX_NAME_LENGTH];
     size_t ningredients;
@@ -157,10 +163,6 @@ ingredient_can_contain_allergen(allergen_t *list, size_t size, char *ingredient)
         allergen_t a = list[i];
 
         for (size_t j=0; j < a.noptions; j++) {
-            if (a.options[j] == NULL) {
-                continue;
-            }
-
             if (strcmp(a.options[j], ingredient) == 0) {
                 return true;
             }
@@ -170,12 +172,9 @@ ingredient_can_contain_allergen(allergen_t *list, size_t size, char *ingredient)
     return false;
 }
 
-
-
 int cmp_allergen(void const *p1, void const *p2) { 
     allergen_t *a = (allergen_t *) p1;
     allergen_t *b = (allergen_t *) p2;
-
     return strcmp(a->name, b->name);
 }
 
@@ -203,9 +202,11 @@ int main() {
                 // we've seen allergen before, 
                 // remove all options which are not an ingredient for current food
                 for (size_t k=0; k < a->noptions; k++) {
-                    if (!a->options[k]) continue;
                     if (!food_has_ingredient(f, a->options[k])) {
-                        a->options[k] = NULL;
+                        for (size_t k1=k; k1 < a->noptions - 1; k1++) {
+                            a->options[k1] = a->options[k1+1];
+                        }
+                        a->noptions -= 1;
                     }
                 }
             }
@@ -216,9 +217,7 @@ int main() {
     for (size_t i=0; i < nallergens; i++) {
         printf("%s: ", allergen_list[i].name);
         for (size_t j=0; j < allergen_list[i].noptions; j++) {
-            if (allergen_list[i].options[j]) {
-                printf("%s, ", allergen_list[i].options[j]);
-            }
+            printf("%s, ", allergen_list[i].options[j]);
         }
         printf("\n");
     }
@@ -241,28 +240,28 @@ int main() {
     // find each allergen with only 1 option
     // remove this option from all other allergens, repeat until stable
     for (size_t i=0; i < nallergens; i++) {
-        size_t noptions = 0;
         size_t last_idx = 0;
-        for (size_t j=0; j < allergen_list[i].noptions; j++) {
-            if (!allergen_list[i].options[j]) continue;
-            noptions++;
-            last_idx = j;            
-        }
-        if (noptions == 1) {
-            char *ingredient = allergen_list[i].options[last_idx];
+        allergen_t *a = &allergen_list[i];
+        if (a->noptions == 1) {
+            char *ingredient = a->options[last_idx];
             bool stable = true;
-            for (size_t k=0; k < nallergens; k++) {
-                if (k == i) { continue; }
 
-                for (size_t l=0; l < allergen_list[k].noptions; l++) {                    
-                    if (allergen_list[k].options[l] != NULL && strcmp(allergen_list[k].options[l], ingredient) == 0) {
-                        allergen_list[k].options[l] = NULL;
+            for (size_t k=0; k < nallergens; k++) {
+                if (k == i) { continue; } // skip self
+
+                allergen_t *a2 = &allergen_list[k];
+                for (size_t l=0; l < a2->noptions; l++) {   
+                    if (strcmp(a2->options[l], ingredient) == 0) {
+                        for (size_t l2=l; l2 < a2->noptions - 1; l2++) {
+                            a2->options[l2] = a2->options[l2+1];
+                        }
+                        a2->noptions -= 1;
                         stable = false;
                     }
                 }
             }
 
-            if (!stable) {
+            if (stable == false) {
                 i = 0;
                 continue;
             }
@@ -274,11 +273,7 @@ int main() {
     printf("Part 2: ");
     for (size_t i=0; i < nallergens; i++) {
        if (i > 0) printf(",");
-       for (size_t j=0; j < allergen_list[i].noptions; j++) {
-           if (allergen_list[i].options[j] == NULL) continue;
-           printf("%s", allergen_list[i].options[j]);
-           break;
-       }
+       printf("%s", allergen_list[i].options[0]);
     }
     printf("\n");
 

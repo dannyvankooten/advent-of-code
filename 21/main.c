@@ -2,18 +2,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
-#include <assert.h>
 #include <stdbool.h>
 #include <string.h>
 #include <inttypes.h>
 
 #define MAX_NAME_LENGTH 32
-
-typedef struct node node_t;
-struct node {
-    char *ingredient;
-    node_t *next;
-};
 
 typedef struct {
     char (*ingredients)[MAX_NAME_LENGTH];
@@ -23,7 +16,7 @@ typedef struct {
 } food_t; 
 
 typedef struct {
-    char name[MAX_NAME_LENGTH];
+    char *name;
     char **options;
     size_t noptions;
 } allergen_t;
@@ -44,8 +37,8 @@ parse_input(food_t *dest) {
         food_t *f = &dest[n++];
         f->ningredients = 0;
         f->nallergens = 0;
-        f->ingredients = malloc(i_cap * sizeof(char[MAX_NAME_LENGTH]));
-        f->allergens = malloc(a_cap * sizeof(char[MAX_NAME_LENGTH]));
+        f->ingredients = malloc(i_cap * MAX_NAME_LENGTH * sizeof(char));
+        f->allergens = malloc(a_cap * MAX_NAME_LENGTH * sizeof(char));
         
         char *s = linebuf;
         while (*s != '(') {
@@ -65,7 +58,7 @@ parse_input(food_t *dest) {
         }
 
         if (*s == '(') {
-            s += 10; // skip forward to first allergen
+            s += strlen("(contains "); // skip forward to first allergen
 
             while (*s != ')') {
                 if (f->nallergens == a_cap) {
@@ -80,10 +73,9 @@ parse_input(food_t *dest) {
                 *a = '\0';
 
                 // skip , and space
-                if (*s == ',') s += 2;
+                if (*s == ',' && *(s+1) == ' ') s += 2;
             }
         }
-       
     }
     fclose(fp);
     return n;
@@ -122,30 +114,6 @@ food_has_ingredient(food_t *f, char *ingredient) {
 }
 
 
-bool 
-food_has_allergen(food_t *f, char *allergen) {
-    for (size_t i=0; i < f->nallergens; i++) {
-        if (strcmp(f->allergens[i], allergen) == 0) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool 
-food_cmp_allergens(food_t *f1, food_t *f2) {
-    for (size_t i=0; i < f1->nallergens; i++) {
-        for (size_t j=0; j < f2->nallergens; j++) {
-            if (strcmp(f1->allergens[i], f2->allergens[j]) == 0) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
-
 allergen_t *
 get_allergen(allergen_t *list, size_t size, char *name) {
     for (size_t i=0; i < size; i++) {
@@ -157,6 +125,7 @@ get_allergen(allergen_t *list, size_t size, char *name) {
     return NULL;
 }
 
+// returns true if this ingredient is a possible option for any allergen
 bool 
 ingredient_can_contain_allergen(allergen_t *list, size_t size, char *ingredient) {
     for (size_t i=0; i < size; i++) {
@@ -178,6 +147,14 @@ int cmp_allergen(void const *p1, void const *p2) {
     return strcmp(a->name, b->name);
 }
 
+void
+remove_option_from_allergen(allergen_t *a, size_t index) {
+    for (size_t i=index+1; i < a->noptions; i++) {
+        a->options[i-1] = a->options[i];
+    }
+    a->noptions--;
+}
+
 int main() {
     food_t * foods = malloc(28 * sizeof(food_t));
     size_t nfoods = parse_input(foods);
@@ -192,7 +169,7 @@ int main() {
             allergen_t *a = get_allergen(allergen_list, nallergens, f->allergens[j]);
             if (a == NULL) {
                 a = &allergen_list[nallergens++];
-                strcpy(a->name, f->allergens[j]);
+                a->name = f->allergens[j];
                 a->options = malloc(f->ningredients * sizeof(char *));
                 a->noptions = f->ningredients;
                 for (size_t k=0; k < f->ningredients; k++) {
@@ -203,10 +180,7 @@ int main() {
                 // remove all options which are not an ingredient for current food
                 for (size_t k=0; k < a->noptions; k++) {
                     if (!food_has_ingredient(f, a->options[k])) {
-                        for (size_t k1=k; k1 < a->noptions - 1; k1++) {
-                            a->options[k1] = a->options[k1+1];
-                        }
-                        a->noptions -= 1;
+                        remove_option_from_allergen(a, k);
                     }
                 }
             }
@@ -240,32 +214,29 @@ int main() {
     // find each allergen with only 1 option
     // remove this option from all other allergens, repeat until stable
     for (size_t i=0; i < nallergens; i++) {
-        size_t last_idx = 0;
         allergen_t *a = &allergen_list[i];
-        if (a->noptions == 1) {
-            char *ingredient = a->options[last_idx];
-            bool stable = true;
+        if (a->noptions != 1) {
+            continue;
+        }
+        char *ingredient = a->options[0];
+        bool stable = true;
 
-            for (size_t k=0; k < nallergens; k++) {
-                if (k == i) { continue; } // skip self
+        for (size_t j=0; j < nallergens; j++) {
+            // skip self
+            if (j == i) continue; 
 
-                allergen_t *a2 = &allergen_list[k];
-                for (size_t l=0; l < a2->noptions; l++) {   
-                    if (strcmp(a2->options[l], ingredient) == 0) {
-                        for (size_t l2=l; l2 < a2->noptions - 1; l2++) {
-                            a2->options[l2] = a2->options[l2+1];
-                        }
-                        a2->noptions -= 1;
-                        stable = false;
-                    }
+            allergen_t *a2 = &allergen_list[j];
+            for (size_t k=0; k < a2->noptions; k++) {   
+                if (strcmp(a2->options[k], ingredient) == 0) {
+                    remove_option_from_allergen(a2, k);
+                    stable = false;
                 }
             }
+        }
 
-            if (stable == false) {
-                i = 0;
-                continue;
-            }
-
+        if (stable == false) {
+            i = 0;
+            continue;
         }
     }
     

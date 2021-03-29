@@ -64,7 +64,7 @@ int main() {
         // parse digit
         ins.value = 0;
         while (*s >= '0' && *s <= '9') {
-            ins.value = ins.value * 10 + *s - '0';
+            ins.value = (ins.value * 10) + (*s - '0');
             s++;
         }
         instructions[instructions_n++] = ins;        

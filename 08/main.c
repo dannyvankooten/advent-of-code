@@ -54,24 +54,21 @@ parse_instruction_line(char *line)
     while (*line == ' ') line++;
 
     // read value
-    buf[0] = 0;
-    i = 0;
+    int v = 0;
     while (*line != '\n' && *line != '\0') {
-        buf[i++] = *line++;
+        v = v * 10 + (*line - '0');
+        line++;
     }
-    buf[i] = '\0';
-
-    long l = strtol(buf, 0, 10);
-    ins.value = l * ins.sign;
+    ins.value = v * ins.sign;
     return ins;    
 }
 
 int main() {
     char *file = "input.txt"; 
     struct Instructions ins = {
-        .cap = 8,
+        .cap = 64,
         .size = 0,
-        .values = malloc(8 * sizeof (struct Instruction)),
+        .values = malloc(64 * sizeof (struct Instruction)),
     };
 
     // Parse input file
@@ -80,7 +77,7 @@ int main() {
     char linebuf[BUFSIZ] = {0};
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         struct Instruction i = parse_instruction_line(linebuf);
-        if (ins.size +1 >= ins.cap) {
+        if (ins.size + 1 >= ins.cap) {
             ins.cap *= 2;
             ins.values = realloc(ins.values, ins.cap * sizeof(struct Instruction));
         }
@@ -125,7 +122,7 @@ int main() {
 
                 case JUMP:
                 ip += i.value;
-                continue;
+                continue; // continue without increment instruction pointer
                 break;
             }
 

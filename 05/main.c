@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <err.h>
 #include <string.h>
 #include <assert.h>
 
@@ -57,7 +56,6 @@ decode(char *v) {
     return s;
 }
 
-#define EMPTY_STRING {0};
 int main() {
     assert(decode_row("FBFBBFFRLR") == 44);
     assert(decode_column("RLR") == 5);
@@ -67,8 +65,10 @@ int main() {
     assert(decode("BBFFBBFRLL").seat == 820);
 
     FILE *f = fopen("input.txt", "r");
-    if (!f) err(0, "Error reading input file.");
-    char buf[BUFSIZ] = EMPTY_STRING;
+    if (!f) {
+        return 1;
+    }
+    char buf[BUFSIZ] = {0};
 
     // find seat with highest seat ID
     struct Seat s;
@@ -79,24 +79,27 @@ int main() {
             max_seat_id = s.seat;
         }
     }
-    printf("Highest seat ID: %d\n", max_seat_id);
+    printf("Part 1: %d\n", max_seat_id);
 
     // find our seat (missing from list, not at (unknown) front or back)
-    int seats[128][8];
-    memset(seats, 0, 128*8*sizeof(int));
+    int seats[128][8] = {0};
     fseek(f, 0, SEEK_SET);
     while ((fgets(buf, BUFSIZ, f) != NULL)) {
         s = decode(buf);
         seats[s.row][s.column] = 1;
     }
+    fclose(f);    
 
     for (int r=1; r<127; r++) {
         for (int c=0; c<8; c++) {
             if (seats[r][c] == 0) {
-                printf("Seat at row %d, column %d (ID=%d) is missing.\n", r, c, r*8+c);
+                printf("Part 2: Seat %d (%d, %d)\n", r*8+c, r, c);
+                return 0;
             }
         }
     }
+
+
     
-    fclose(f);    
+    
 }

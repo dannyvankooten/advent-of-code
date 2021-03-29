@@ -1,8 +1,10 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
 #include <limits.h>
+#include <inttypes.h>
 
 int main() {
     FILE *f = fopen("input.txt", "r");
@@ -11,24 +13,33 @@ int main() {
 
     // parse "ready at timestamp" from 1st line
     if(fgets(linebuf, BUFSIZ, f) == NULL) err(EXIT_FAILURE, "invalid input");
-    int ready_timestamp = strtol(linebuf, NULL, 10);
-    printf("Ready at timestamp %d\n", ready_timestamp);
+    char *s = linebuf;
+    int64_t ready_timestamp = 0;
+    while (*s >= '0' && *s <= '9') {
+        ready_timestamp = (ready_timestamp * 10) + (*s - '0');
+        s++;
+    }
+
+    printf("Ready at timestamp %" PRId64 "\n", ready_timestamp);
 
     // parse bus schedules from 2nd line
     if (fgets(linebuf, BUFSIZ, f) == NULL) err(EXIT_FAILURE, "invalid input");
-    char *s = linebuf;
-    char nbuf[8] = {0};
-    int buses[64] = {0};
-    int nbuses = 0;
+    s = linebuf;
+    int64_t buses[64] = {0};
+    size_t nbuses = 0;
     while (*s != '\n' && *s != '\0') {
-        int i = 0;
-        while(*s == 'x' || (*s >= '0' && *s <= '9')) {
-            nbuf[i++] = *s++;
+        if (*s == 'x') {
+            buses[nbuses++] = 1;
+            s++;
+        } else {
+            int64_t n = 0;
+            while (*s >= '0' && *s <= '9') {
+                n = (n * 10) + (*s - '0');
+                s++;
+            }
+            buses[nbuses++] = n;
         }
-        nbuf[i] = '\0';
-        i = 0;
 
-        buses[nbuses++] = *nbuf == 'x' ? 1 : (int) strtol(nbuf, NULL, 10);
         if (*s == ',') s++; // skip comma
     }
     fclose(f);
@@ -53,9 +64,9 @@ int main() {
 
     // Above solution takes several minutes... Had to look up Chinese remainder Theorem.
     // https://en.wikipedia.org/wiki/Chinese_remainder_theorem
-    unsigned long long t = 0;
-    unsigned long long step = (unsigned long long) buses[0];
-    for (int b=0; b < nbuses; b++) {
+    int64_t t = 0;
+    int64_t step = buses[0];
+    for (size_t b=0; b < nbuses; b++) {
         while (1) {
             if ((t + b) % buses[b] == 0) {
                 step *= buses[b];
@@ -65,6 +76,6 @@ int main() {
             t += step;
         }
     }
-    printf("Result: %lld\n", t);
-
+    printf("Result: %" PRId64 "\n", t);
+    assert(t == 415579909629976);
 }

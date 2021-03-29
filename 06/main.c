@@ -8,8 +8,8 @@
 int
 count_yes_answers(char *str) {
     char group_answers[26];
-    char user_answers[26];
-    for (int i=0; i<26; user_answers[i] = 0, group_answers[i] = -1, i++);
+    char user_answers[26] = {0};
+    for (int i=0; i<26; i++) group_answers[i] = -1;
 
     while (*str >= 'a' && *str <= 'z') {
         user_answers[*str - 'a'] = 1;
@@ -26,7 +26,7 @@ count_yes_answers(char *str) {
                 break;
             }
 
-            for (int i=0; i<26; user_answers[i++] = 0);
+            for (int i=0; i<26; i++) user_answers[i] = 0;
             str++;
         }
     }

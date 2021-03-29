@@ -3,6 +3,9 @@
  
 int main()  {
     FILE *f = fopen("input.txt", "r");
+    if (!f) {
+        return 1;
+    }
     char buf[BUFSIZ];
     int numbers[BUFSIZ];
     int n = 0;

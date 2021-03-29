@@ -151,11 +151,12 @@ int main() {
         }
 
         // add instruction to list
-        instructions[size++] = ins;
-        if (size == cap) {
+        if (size + 1 == cap) {
             cap *= 2;
             instructions = realloc(instructions, cap * sizeof(struct instruction));
         }
+        instructions[size++] = ins;
+        
     }
     fclose(f);
 

@@ -1,33 +1,38 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <err.h>
 #include <assert.h>
 #include <string.h>
+#include <inttypes.h>
 
 int main() {
     FILE *f = fopen("input.txt", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
-    unsigned long numbers[1000];
-    int numbers_n = 0;
+    if (!f) {
+        return 1;
+    }
+    int64_t numbers[1000];
+    size_t numbers_n = 0;
+    int64_t invalid_n = 104054607;
     char linebuf[BUFSIZ] = {0};
-    unsigned long long n = 0;
-    // unsigned long long invalid_n = 127;
-    unsigned long long invalid_n = 104054607;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
-            n = strtoll(linebuf, NULL, 10);
+            int64_t n = 0;
+            char *s = linebuf;
+            while (*s >= '0' && *s <= '9') {
+                n = n * 10 + (*s - '0');
+                s++;
+            }
             numbers[numbers_n++] = n;
     }
     fclose(f);
-    printf("%d numbers\n", numbers_n);
+    printf("%" PRId64 " numbers\n", numbers_n);
 
     // loop through numbers to find contiguous set 
     // that sums to invalid_n (127)
-    int range_start = 0;
-    int range_end = 0;
-    for (int i=0; i < numbers_n-1; i++) {
-        unsigned long sum = numbers[i];
-
-        int j = i;
+    size_t range_start = 0;
+    size_t range_end = 0;
+    for (size_t i=0; i < numbers_n-1; i++) {
+        int64_t sum = numbers[i];
+        size_t j = i;
         for (; j < numbers_n-1 && sum < invalid_n; ) {
             sum += numbers[++j];
         }
@@ -39,10 +44,10 @@ int main() {
         }
     }
 
-    printf("Found range: %d to %d\n", range_start, range_end);
-    unsigned long smallest = numbers[range_start];
-    unsigned long largest = numbers[range_start];
-    for (int i=range_start; i <= range_end; i++) {
+    printf("Found range: %ld to %ld\n", range_start, range_end);
+    int64_t smallest = numbers[range_start];
+    int64_t largest = numbers[range_start];
+    for (size_t i=range_start; i <= range_end; i++) {
         if (numbers[i] < smallest) {
             smallest = numbers[i];
         } else if(numbers[i] > largest) {

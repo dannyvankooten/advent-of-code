@@ -29,16 +29,18 @@ struct game {
 
 player_t *play_game(game_t * g);
 
+game_t *games_memory;
+size_t games_memory_ptr = 0;
+
 game_t *
 new_game() {
-    game_t *game = malloc(sizeof(game_t));
+    game_t *game = &games_memory[games_memory_ptr++];
     game->p1.ncards = 0;
     game->p2.ncards = 0;
     game->ended = false;
     game->index = 1;
     game->round = 0;
-    game->previous_decks = calloc(100000 * 100, sizeof(int8_t));
-
+    // game->previous_decks = calloc(100000 * 100, sizeof(int8_t));
     //memset(game->hashes, 0, HASH_MAX * sizeof(int8_t));
     return game;
 }
@@ -171,7 +173,6 @@ play_round(game_t *g) {
     player_t *winner = NULL;
     player_t *loser = NULL;
     g->round++;
-
     // int64_t hash = hash_decks(p1, p2);
 
     #ifndef NDEBUG
@@ -186,7 +187,7 @@ play_round(game_t *g) {
 
     // If we've seen this exact same configuration before this game
     // Player 1 wins
-    if (g->round > 1500) {
+    if (g->round > 1000) {
     // if (find_deck_in_game(g)) {
         #ifndef NDEBUG
         printf("Player 1 wins because we've been here before!\n");
@@ -194,14 +195,6 @@ play_round(game_t *g) {
         g->ended = true;
         return p1;
     }
-    // for (size_t i = 0; i < p1->ncards; i++) {
-    //     g->previous_decks[(g->round-1) * 100 + i] = p1->deck[i];
-    // }
-    // for (size_t i = 0; i < p2->ncards; i++) {
-    //     g->previous_decks[(g->round-1) * 100 + 50 + i] = p2->deck[i];
-    // }
-
-    // g->hashes[hash] = 1;
 
     // draw top card (index 0) from both decks
     // move them both to the player that played the highest card
@@ -213,28 +206,28 @@ play_round(game_t *g) {
     printf("Player 2 plays: %d\n", card_p2);
     #endif
 
-    if (g->index > 1 && card_p1 > (p1->ncards + p2->ncards)) {
-        g->ended = true;
-        return p1;
-    }
-
-    // TODO: Check ncards of both players
-    // If it is equal or higher than value of card they drew
-    // Start a sub-game
-    bool played_subgame = false;
-    if (p1->ncards >= card_p1 && p2->ncards >= card_p2) {
+    // Speed-up sub-games
+    // if (g->index > 1 && card_p1 > (p1->ncards + p2->ncards)) {
+    //     g->ended = true;
+    //     p1->ncards = 50;
+    //     p2->ncards = 0;
+    //     return p1;
+    // }
+    
+    if (card_p1 <= p1->ncards && card_p2 <= p2->ncards) {
         #ifndef NDEBUG
         printf("Playing a sub-game to determine the winner.\n");
         #endif
         game_t *sub_game = copy_game(g, card_p1, card_p2);
         winner = play_game(sub_game);
-        free(sub_game->previous_decks);
-        free(sub_game);
-        played_subgame = true;
+        winner = winner == &sub_game->p1 ? p1 : p2;        
+        // free(sub_game->previous_decks);
+        games_memory_ptr--;
+        // free(sub_game);
     }
 
     //printf("Drawed %ld and %ld\n", card_p1, card_p2);
-    if ((played_subgame == false && card_p1 > card_p2) || (played_subgame == true && winner == p1)) {
+    if ((winner == NULL && card_p1 > card_p2) || (winner == p1)) {
         // P1 won
         add_card_to_deck(p1, card_p1);
         add_card_to_deck(p1, card_p2);
@@ -249,14 +242,14 @@ play_round(game_t *g) {
     }
 
     #ifndef NDEBUG
-    printf("Player %d wins round %" PRId64 " of game %" PRId64 "!\n", winner == p1 ? 1 : 2, g->round, g->index);
+    printf("Player %d wins round %" PRId64 " of game %" PRId64 "!\n", winner->id == p1->id ? 1 : 2, g->round, g->index);
     #endif
 
     if (loser->ncards == 0) {
         g->ended = true;
 
         #ifndef NDEBUG
-        printf("The winner of game %" PRId64 " is player %d!\n", g->index, winner == p1 ? 1 : 2);
+        printf("The winner of game %" PRId64 " is player %d!\nGame lasted %ld rounds.\n", g->index, winner == p1 ? 1 : 2, g->round);
         #endif
     }
 
@@ -275,26 +268,23 @@ play_game(game_t *game) {
 
 int 
 main() {
-    game_t *game = parse_input("test_input_3.txt");
+    // pre-allocate memory for main game and enough sub-games
+    games_memory = malloc(50 * sizeof(game_t));
+    if (!games_memory) {
+        return 1;
+    }
+
+    game_t *game = parse_input("input.txt");
     player_t *winner = play_game(game);
     int64_t score = 0;
-
-    printf("Winner's deck: ");
-    print_player_deck(winner);
-    printf("\n");
 
     for (int8_t i=0; i < winner->ncards; i++) {
         score = score + ( winner->deck[i] * (winner->ncards - i));
     }
+    printf("Score: %ld (%s)", score, score == 33469 ? "CORRECT" : "WRONG");
 
-    printf("Score: %ld (%s)", score, score == 34031 ? "CORRECT" : "WRONG");
-
-    // day_input_3.txt = 34031
-    // 45, 36, 38, 32, 37, 2, 41, 16, 39, 5, 23, 12, 19, 11, 46, 43, 21, 13, 33, 14, 29, 10, 49, 40, 48, 30, 35, 27, 31, 4, 34, 25, 24, 1, 28, 20, 26, 8, 22, 3, 9, 6, 50, 15, 47, 7, 44, 18, 42, 17,
-
-    // assert(score != 32977);
-    free(game->previous_decks);
-    free(game);
+    games_memory_ptr--;
+    // free(game);
 }   
 
 //

@@ -8,13 +8,13 @@
 #include <string.h>
 #include <sys/types.h>
 
-#define HASH_MAX 1298779
 #define NDEBUG 1
 
 typedef struct player player_t;
 struct player {
     int8_t deck[50];
     int8_t ncards;
+    size_t offset;
 };
 
 typedef struct game game_t;
@@ -35,8 +35,11 @@ size_t games_memory_ptr = 0;
 game_t *
 new_game() {
     game_t *game = &games_memory[games_memory_ptr++];
+    // game_t *game = malloc(sizeof(game_t));
     game->p1.ncards = 0;
+    game->p1.offset = 0;
     game->p2.ncards = 0;
+    game->p2.offset = 0;
     game->ended = false;
     game->index = 1;
     game->round = 0;
@@ -51,11 +54,11 @@ copy_game(game_t *g1, int8_t card_p1, int8_t card_p2) {
     g2->index = g1->index + 1;
     g2->p1.ncards = card_p1;
     for (int8_t i=0; i < card_p1; i++) {
-        g2->p1.deck[i] = g1->p1.deck[i];
+        g2->p1.deck[i] = g1->p1.deck[(g1->p1.offset + i) % 50];
     }
     g2->p2.ncards = card_p2;
     for (int8_t i=0; i < card_p2; i++) {
-        g2->p2.deck[i] = g1->p2.deck[i];
+        g2->p2.deck[i] = g1->p2.deck[(g1->p2.offset + i) % 50];
     }
     return g2;
 }
@@ -101,23 +104,26 @@ parse_input(char *file) {
 
 int8_t 
 shift_card_from_deck(player_t *p) {
-    int8_t card = p->deck[0];
-    for (int8_t i=0; i < p->ncards - 1; i++) {
-        p->deck[i] = p->deck[i+1];
-    }
+    int8_t card = p->deck[p->offset % 50];
+    p->offset++;
     p->ncards--;
+    // for (int8_t i=0; i < p->ncards - 1; i++) {
+    //     p->deck[i] = p->deck[i+1];
+    // }
+    // p->ncards--;
     return card;
 }
 
 void
 add_card_to_deck(player_t *p, int8_t card) {
-    p->deck[p->ncards++] = card;
+    p->deck[(p->offset + p->ncards) % 50] = card;
+    p->ncards++;
 }
 
 void
 print_player_deck(player_t *p) {
     for (int8_t i=0; i < p->ncards; i++) {
-        printf("%s%d", i > 0 ? ", " : "", p->deck[i]);
+        printf("%s%d", i > 0 ? ", " : "", p->deck[(p->offset + i) % 50]);
     }
 }
 
@@ -137,34 +143,6 @@ print_player_deck(player_t *p) {
 
 //     return hash % HASH_MAX;
 // }
-
-bool 
-find_deck_in_game(game_t *g) {
-    int8_t j;
-   
-    for (int64_t i=0; i < g->round; i++) {
-        for (j=0; j < g->p1.ncards; j++) {
-            if (g->previous_decks[(i * 100) + j] != g->p1.deck[j]) {
-                break;   
-            }
-        }
-        
-        if (j == g->p1.ncards) {
-            // deck for player 1 matched
-            for (j=0; j < g->p2.ncards; j++) {
-                if (g->previous_decks[(i * 100) + 50 + j] != g->p2.deck[j]) {
-                    break;   
-                }
-            }
-
-            if (j == g->p2.ncards) {
-                return true;
-            }
-        }
-    }
-
-    return false;
-}
 
 player_t * 
 play_round(game_t *g) {
@@ -242,7 +220,7 @@ play_round(game_t *g) {
     }
 
     #ifndef NDEBUG
-    printf("Player %d wins round %" PRId64 " of game %" PRId64 "!\n", winner->id == p1->id ? 1 : 2, g->round, g->index);
+    printf("Player %d wins round %" PRId64 " of game %" PRId64 "!\n", winner == p1 ? 1 : 2, g->round, g->index);
     #endif
 
     if (loser->ncards == 0) {
@@ -279,12 +257,11 @@ main() {
     int64_t score = 0;
 
     for (int8_t i=0; i < winner->ncards; i++) {
-        score = score + ( winner->deck[i] * (winner->ncards - i));
+        score = score + ( winner->deck[(winner->offset + i) % 50] * (winner->ncards - i));
     }
     printf("Score: %ld (%s)", score, score == 33469 ? "CORRECT" : "WRONG");
 
-    games_memory_ptr--;
-    // free(game);
+    free(games_memory);
 }   
 
 //

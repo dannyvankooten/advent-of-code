@@ -47,83 +47,25 @@ int count_occupied_adjacent_seats(grid_t *grid, int pos_y, int pos_x) {
 int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     int count = 0;
     enum position value;
-
-    // left
-    for (int y=pos_y, x=pos_x-1; x >= 0; x--) {
-        value = get_grid_value_by_coords(grid, x, y);
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // left-up
-    for (int y=pos_y-1, x=pos_x-1; x >= 0 && y >= 0; y--, x--) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // up
-    for (int y=pos_y-1, x=pos_x; y >= 0; y--) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // right-up
-    for (int y=pos_y-1, x=pos_x+1; x < grid->w && y >= 0; x++, y--) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // right
-    for (int y=pos_y, x=pos_x+1; x < grid->w; x++) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // right-down
-    for (int y=pos_y+1, x=pos_x+1; x < grid->w && y < grid->h; x++, y++) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // down
-    for (int y=pos_y+1, x=pos_x; y < grid->h; y++) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
-        }
-    }
-
-    // left-down
-    for (int y=pos_y+1, x=pos_x-1; x >= 0 && y < grid->h; x--, y++) {
-        value = get_grid_value_by_coords(grid, x, y);
-        
-        if (value != POS_FLOOR) {
-            count += value;
-            break;
+    static const int directions[8][2] = {
+        { 0, 1}, // right
+        { 0, -1}, // left
+        { 1, 0},  // down
+        { -1, 0}, // up
+        { 1, 1}, // down-right
+        { -1, 1}, // up-right,
+        { 1, -1}, // down-left
+        { -1, -1}, // up-left
+    };
+    for (int d=0; d < 8; d++) {
+        int dy = directions[d][0];
+        int dx = directions[d][1];
+        for (int y = pos_y + dy, x = pos_x + dx; y >= 0 && x >= 0 && x < grid->w && y < grid->h; x += dx, y += dy) {
+            value = get_grid_value_by_coords(grid, x, y);
+            if (value != POS_FLOOR) {
+                count += value;
+                break;
+            }
         }
     }
     

@@ -1,0 +1,105 @@
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <err.h>
+#include <assert.h>
+
+const char *test_input = "389125467";
+const char *input = "327465189";
+
+
+void
+parse_input(int8_t *dest, const char *s) {
+    while (*s != '\0') {
+        *dest++ = (*s++ - '0');
+    }
+}
+
+void 
+shift(int8_t *dest, int8_t *src, int8_t start_index, int8_t length) {
+    for (int8_t i=0; i < length; i++) {
+        dest[i] = src[start_index + i];
+    }
+    for (int8_t i=0; i < 9 - start_index; i++) {
+        src[start_index + i] = src[start_index + length + i];
+    }   
+}
+
+int8_t
+find(int8_t *arr, int8_t narr, int8_t value) {
+    for (int8_t i=0; i < narr; i++) {
+        if (arr[i] == value) {
+            return i;
+        }
+    }
+
+    return -1;
+}
+
+void
+print_arr(int8_t *arr, int8_t narr, int8_t highlight_value, char *before, char *after) {
+    printf("%s", before);
+    for (int8_t i=0; i < narr; i++) {
+        printf("%s%s%d%s", i > 0 ? ", " : "", arr[i] == highlight_value ? "(" : "", arr[i], arr[i] == highlight_value ? ")" : "");
+    }
+    printf("%s", after);
+}
+
+void 
+insert(int8_t *dest, int8_t ndest, int8_t *src, int8_t length, int8_t start_index) {
+    // shift all elements at position index until index+length $length elements to the right
+    for (int8_t i=ndest - start_index - 1; i >= 0; i--) {
+        dest[start_index + length + i] = dest[start_index + i];
+    }
+    for (int8_t i=0; i < length; i++) {
+        dest[start_index + i] = src[i];
+    }
+}
+
+int main() {
+    int8_t cups[9];
+    parse_input(cups, test_input);
+    
+    int8_t current_cup_idx = 0;
+    int8_t current_cup;
+    int8_t destination_cup_idx;
+    int8_t destination_cup;
+    int8_t next_three_cups[3];
+
+    // 100 moves
+    for (int8_t m=0; m < 100; m++) {
+        current_cup = cups[current_cup_idx];
+
+        printf("-- move %d --\n", m+1);
+        print_arr(cups, 9, current_cup, "cups: ", "\n");
+
+      
+        // Pick up next three cups that come after current cup
+        // Remove them from array
+        shift(next_three_cups, cups, current_cup_idx + 1, 3);
+        print_arr(next_three_cups, 3, -1, "pick up: ", "\n");
+        print_arr(cups, 6, current_cup, "cups: ", "\n");
+
+        // Select destination cup
+        destination_cup = (current_cup - 1) % 9;
+        while (find(next_three_cups, 3, destination_cup) != -1) {
+            destination_cup--;
+            if (destination_cup == 0) {
+                destination_cup = 9;
+            }
+        }
+        destination_cup_idx = find(cups, 6, destination_cup);
+        printf("destination: %d (idx %d)\n", destination_cup, destination_cup_idx);
+
+        insert(cups, 9, next_three_cups, 3, destination_cup_idx+1);
+    
+        
+        // Increment current_cup_idx by 1
+        current_cup_idx = (current_cup_idx + 1 ) % 9;
+        printf("\n");
+
+        if (m >= 5) {
+            break;
+        }
+     }
+}

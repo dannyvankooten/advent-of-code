@@ -8,6 +8,7 @@ fi
 DIR=$1
 shift 
 cd "$DIR"
+CC="${CC:=clang}" 
 CFLAGS="$CFLAGS -DSTEP"
 
 if [[ $* == *--debug* ]]; then
@@ -25,14 +26,14 @@ elif [[ $* == *--gdb* ]]; then
     gdb a.out
     rm a.out
 elif [[ $* == *--profile ]]; then
-    cc *.c -Wall -Wextra -pg -lm -o a.out
+    $CC *.c -Wall -Wextra -pg -lm -o a.out
     ./a.out
     gprof a.out gmon.out > prof_output
     cat prof_output
     rm a.out
 else 
-    cc *.c -Wall -Wextra -O2 -lm -march=native
-    /usr/bin/time -f "\nWall time: %es\nMemory usage: %MKB" ./a.out
+    $CC *.c -Wall -Wextra -Ofast -lm -march=native
+    sudo nice -n -19 /usr/bin/time -f "\n$CC\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;
 

@@ -4,23 +4,33 @@
 #include <err.h>
 #include <assert.h>
 
+#define NDEBUG 1 
+
 const char *test_input = "389125467";
 const char *input = "327465189";
 
 typedef struct cup cup_t;
 struct cup {
-    int8_t label;
+    int64_t label;
     cup_t *next;
 };
 
 void
 parse_input(cup_t *cups, const char *s) {
     size_t i = 0;
+    cup_t *c;
 
     while (*s != '\0') {
-        cup_t *cup = &cups[i++];
-        cup->label = (*s++ - '0');
-        cup->next = &cups[i % 9];
+        c = &cups[i++];
+        c->label = (*s++ - '0');
+        c->next = &cups[i];
+    }
+
+    // fill in remainder with incrementing values
+    while (i < 1000000) {
+        c = &cups[i++];
+        c->label = i;
+        c->next = i < 1000000 ? &cups[i] : &cups[0];
     }
 }
 
@@ -28,65 +38,68 @@ void
 print_cups(cup_t *head, cup_t *highlight_cup, size_t n, char *before) {
     printf("%s", before);
     cup_t *c = head;
-    for (int i=0; i < n; i++, c = c->next) {
+    for (size_t i=0; i < n; i++, c = c->next) {
         if (c == highlight_cup) {
-            printf("%s(%d)", i > 0 ? ", " : "", c->label);
+            printf("%s(%ld)", i > 0 ? ", " : "", c->label);
         } else {
-            printf("%s%d", i > 0 ? ", " : "", c->label);
+            printf("%s%ld", i > 0 ? ", " : "", c->label);
         }
     }
     printf("\n");
 }
 
-cup_t *
-find_cup_by_label(cup_t *head, int8_t label) {
-    cup_t *c = head;
-    for (size_t i = 0; i < 9; i++, c = c->next) {
-        if (c->label == label) {
-            return c;
-        }
-    }
-
-    return NULL;
-}
-
 int main() {
-    cup_t *cups = malloc(9 * sizeof(cup_t));
+    cup_t *cups = malloc(1000000 * sizeof(cup_t));
     parse_input(cups, input);
 
     cup_t *head = &cups[0];
     cup_t *current_cup = head;
+    
     cup_t *selection = NULL;
     cup_t *destination = NULL;
 
+    cup_t **lookup_table = malloc(1000001 * sizeof(cup_t *));
+    for (int i=0; i < 1000000; i++) {
+        lookup_table[cups[i].label] = &cups[i];
+    }
+
     // 100 moves
-    for (int8_t m=0; m < 100; m++) {
-        printf("-- move %d --\n", m+1);
-        print_cups(head, current_cup, 9, "cups: ");
+    for (size_t m=0; m < 10000000; m++) {
+        #ifndef NDEBUG
+        printf("-- move %ld --\n", m+1);
+        print_cups(head, current_cup, 12, "cups: ");
+        #endif
 
         selection = current_cup->next;
         current_cup->next = selection->next->next->next;
+        #ifndef NDEBUG
         print_cups(selection, NULL, 3, "pick up: ");
+        #endif
 
-        int8_t label = current_cup->label;
-        destination = NULL;
-        while (destination == NULL) {
-            label--;
-            label = label > 0 ? label : 9;
-            destination = find_cup_by_label(current_cup, label);
+        int64_t label = current_cup->label;
+        while (1) {
+            label = label > 1 ? label - 1 : 1000000;
+
+            if (label != selection->label && label != selection->next->label && label != selection->next->next->label) {
+                destination = lookup_table[label];
+                break;
+            }
         }
-        printf("destination: %d\n", destination->label);
+        #ifndef NDEBUG
+        printf("destination: %ld\n\n", destination->label);
+        #endif
 
         // insert cups after destination
         selection->next->next->next = destination->next;
         destination->next = selection;
 
+        // select next cup as current cup
         current_cup = current_cup->next;
-        printf("\n");
-     }
-
-    cup_t *c = find_cup_by_label(current_cup, 1)->next;
-    for(size_t i=0; i < 8; i++, c = c->next) {
-        printf("%d", c->label);
     }
+
+    cup_t *c = lookup_table[1]->next;
+    printf("%ld * %ld = %ld\n", c->label, c->next->label, c->label * c->next->label);
+    
+    free(lookup_table);
+    free(cups);
 }

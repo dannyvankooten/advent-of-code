@@ -10,23 +10,23 @@ const char *test_input = "389125467";
 const char *input = "327465189";
 
 void
-print_raw(u_int64_t *cups);
+print_raw(u_int32_t *cups);
 
-u_int64_t
-parse_input(u_int64_t *cups, const char *s) {
+u_int32_t
+parse_input(u_int32_t *cups, const char *s) {
     size_t i = 1;
-    u_int64_t first = (*s++ - '0');
-    u_int64_t prev = first;
+    u_int32_t first = (*s++ - '0');
+    u_int32_t prev = first;
 
-    while (*s != '\0') {
-        cups[prev] = (*s++ - '0');
+    for (;*s != '\0'; s++, i++) {
+        cups[prev] = (*s - '0');
         prev = cups[prev];
-        i++;
     }
 
     // fill in remainder with incrementing values
-    while (i < 1000000) {
-        cups[prev] = ++i;
+    // for (i=i+1; i < 1000000; i++) {
+    for (; i < 1000000; i++) {
+        cups[prev] = i + 1;
         prev = cups[prev];
     }
 
@@ -37,32 +37,33 @@ parse_input(u_int64_t *cups, const char *s) {
 }
 
 void
-print_raw(u_int64_t *cups) {
+print_raw(u_int32_t *cups) {
     printf("| ");
-    for(size_t i = 1; i <= 9; i++) {
-        printf("%2ld | ", i);
+    for(u_int32_t i = 1; i <= 9; i++) {
+        printf("%2d | ", i);
     }
     printf("\n| ");
-    for(size_t i = 1; i <= 9; i++) {
-        printf("%2ld | ", cups[i]);
+    for(u_int32_t i = 1; i <= 9; i++) {
+        printf("%2d | ", cups[i]);
     }
     printf("\n\n");
 }
 
 void 
-print_cups(u_int64_t *cups, u_int64_t first, size_t n, char *before) {
+print_cups(u_int32_t *cups, u_int32_t first, size_t n, char *before) {
     printf("%s", before);
-    u_int64_t c = first;
+    u_int32_t c = first;
     for (size_t i=0; i < n; i++, c = cups[c]) {
-        printf("%s%ld", i > 0 ? ", " : "", c);
+        printf("%s%d", i > 0 ? ", " : "", c);
     }
     printf("\n");
 }
 
 int main() {
-    u_int64_t *cups =  malloc(1000001 * sizeof(u_int64_t));
-    u_int64_t current_cup = parse_input(cups, input);
-    u_int64_t selection[3];
+    // u_int32_t *cups =  malloc(1000001 * sizeof(u_int32_t));
+    u_int32_t cups[1000001]; // =  malloc(1000001 * sizeof(u_int32_t));
+    u_int32_t current_cup = parse_input(cups, input);
+    u_int32_t a, b, c;
 
     assert(current_cup == 3);
 
@@ -71,30 +72,30 @@ int main() {
         // print_raw(cups);
         // print_cups(cups, current_cup, 9, "cups: ");
 
-        selection[0] = cups[current_cup];
-        selection[1] = cups[selection[0]];
-        selection[2] = cups[selection[1]];
+        a = cups[current_cup];
+        b = cups[a];
+        c = cups[b];
 
-        // printf("selection: %ld, %ld, %ld\n", selection[0], selection[1], selection[2]);
-        cups[current_cup] = cups[selection[2]];
+        // printf("selection: %ld, %ld, %ld\n", a, b, c);
+        cups[current_cup] = cups[c];
 
-        u_int64_t destination = current_cup;
+        u_int32_t destination = current_cup;
         do {
             destination--;
             if (destination < 1) {
                 destination = 1000000;
             }
-        }  while (destination == selection[0] || destination == selection[1] || destination == selection[2] );
+        }  while (destination == a || destination == b || destination == c);
         
         // printf("destination %ld\n", destination);
-        cups[selection[2]] = cups[destination];
-        cups[destination] = selection[0];
+        cups[c] = cups[destination];
+        cups[destination] = a;
         current_cup = cups[current_cup];
     }
 
-    u_int64_t c1 = cups[1];
-    u_int64_t c2 = cups[c1];
-    printf("%ld * %ld = %ld\n", c1, c2, c1 * c2);
-    free(cups);
+    u_int32_t c1 = cups[1];
+    u_int32_t c2 = cups[c1];
+    printf("%ld\n", (u_int64_t) c1 * c2);
+    // free(cups);
     return 0;
 }

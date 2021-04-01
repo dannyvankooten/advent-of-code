@@ -19,7 +19,7 @@ typedef enum {
 } direction_t;
 
 const int32_t GRIDSIZE = 128;
-const int32_t GRIDSIZE_SQ = GRIDSIZE * GRIDSIZE;
+const int32_t GRIDSIZE_SQ = 128*128;
 int32_t black_tile_count = 0;
 
 void
@@ -248,7 +248,6 @@ int main() {
     }
     fclose(f);
 
-    // cound black tiles
     printf("%d\n", black_tile_count);
     assert(black_tile_count == 244);
 
@@ -260,4 +259,5 @@ int main() {
 
     free(directions);
     free(grid);
+    return 0;
 }

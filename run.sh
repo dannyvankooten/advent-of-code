@@ -13,7 +13,7 @@ CFLAGS="$CFLAGS -DSTEP"
 
 if [[ $* == *--debug* ]]; then
     cc *.c -Wextra -Wall -O0 -g -lm 
-    valgrind --leak-check=full -s ./a.out
+    valgrind --leak-check=full --max-stackframe=4000064 -s ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--cachegrind* ]]; then 
@@ -33,7 +33,7 @@ elif [[ $* == *--profile ]]; then
     rm a.out
 else 
     $CC *.c -Wall -Wextra -Ofast -lm -march=native
-    sudo nice -n -19 /usr/bin/time -f "\n$CC\nWall time: %es\nMemory usage: %MKB" ./a.out
+    /usr/bin/time -f "\n$CC\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;
 

@@ -1,18 +1,28 @@
 #!/bin/bash
 TOTAL=0.0
-CC=clang
-for dir in ./*/     
+for DIR in ./*/     
 do
-    dir=${dir%*/} 
-    dir=${dir#"./"}     
-    cd $dir
-    $CC *.c -Wall -Wextra -Ofast -lm -march=native -o a.out
-    start_time="$(date -u +%s.%N)"
-    ./a.out > /dev/null
-    end_time="$(date -u +%s.%N)"
-    elapsed="$(bc <<<"$end_time-$start_time")"
-    TOTAL="$(bc <<<"$TOTAL+$elapsed")"
-    echo -e "Day $dir: \t$elapsed" "s"
+    DIR=${DIR%*/} 
+    DIR=${DIR#"./"}     
+    cd $DIR
+    BEST_ELAPSED=1000
+    for CC in gcc clang; do
+        for OPTLEVEL in O2 O3 Ofast; do
+            $CC *.c -$OPTLEVEL -lm -march=native -o $DIR.$CC 
+            for i in {1..10}; do
+                START_TIME="$(date -u +%s.%N)"
+                ./$DIR.$CC > /dev/null
+                END_TIME="$(date -u +%s.%N)"
+                ELAPSED="$(bc <<<"$END_TIME-$START_TIME")"
+                if [[ $(bc <<< "$ELAPSED<$BEST_ELAPSED") ]]; then 
+                    BEST_ELAPSED=$ELAPSED
+                fi
+            done
+        done
+    done
+    
+    TOTAL="$(bc <<<"$TOTAL+$BEST_ELAPSED")"
+    echo -e "Day $DIR: \t$BEST_ELAPSED" "s"
     cd ..
 done
 

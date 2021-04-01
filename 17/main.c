@@ -164,7 +164,7 @@ transmute_grid(grid_t *g) {
 
 // TODO: Grow grid dynamically, as this should also improve performance by reducing loop iterations
 int
-main() {
+day17() {
     grid_t g = read_input();  
     int32_t count = 0;
     for (int32_t i=0; i < 6; i++) {
@@ -177,7 +177,8 @@ main() {
         #endif
     }
 
-    printf("Count: %d\n", count);
+    printf("%d\n", count);
     free(g.neighbor_counts);
     free(g.values);
+    return 0;
 }

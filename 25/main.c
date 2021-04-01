@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-int main() {
+int day25() {
     int32_t card_pubkey = 1965712;
     int32_t door_pubkey = 19072108;
     int64_t value = 1;
@@ -27,4 +27,5 @@ int main() {
     }
     printf("%ld\n", value);
     assert(value == 16881444);
+    return 0;
 }

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
  
-int main()  {
+int day1()  {
     FILE *f = fopen("input.txt", "r");
     if (!f) {
         return 1;
@@ -18,10 +18,11 @@ int main()  {
         for (int j=i; j <n; j++) {
             for (int k=j; k < n; k++) {
                 if (numbers[i] + numbers[j] + numbers[k] == 2020) {
-                    printf("Result: %d", numbers[i] * numbers[j] * numbers[k]);
+                    printf("%d\n", numbers[i] * numbers[j] * numbers[k]);
                     return 0;
                 }
             }
         }
     }
+    return 0;
 }

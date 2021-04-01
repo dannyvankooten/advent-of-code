@@ -9,15 +9,15 @@ DIR=$1
 shift 
 cd "$DIR"
 CC="${CC:=clang}" 
-CFLAGS="$CFLAGS -DSTEP"
+CFLAGS="$CFLAGS -Wl,-eday$DIR"
 
 if [[ $* == *--debug* ]]; then
-    cc *.c -Wextra -Wall -O0 -g -lm 
+    cc $CFLAGS *.c -Wextra -Wall -O0 -g -lm 
     valgrind --leak-check=full --max-stackframe=4000064 -s ./a.out
     rm vgcore*
     rm a.out
 elif [[ $* == *--cachegrind* ]]; then 
-    cc *.c -Wall -Wextra -g -lm 
+    cc $CFLAGS *.c -Wall -Wextra -g -lm 
     valgrind --tool=cachegrind -s ./a.out
     rm vgcore*
     rm a.out    
@@ -32,7 +32,7 @@ elif [[ $* == *--profile ]]; then
     cat prof_output
     rm a.out
 else 
-    $CC *.c -Wall -Wextra -Ofast -lm -march=native
+    $CC $CFLAGS *.c -Wall -Wextra -Ofast -lm -march=native
     /usr/bin/time -f "\n$CC\nWall time: %es\nMemory usage: %MKB" ./a.out
     rm a.out
 fi;

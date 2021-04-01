@@ -63,6 +63,7 @@ copy_game(game_t *g1, int8_t card_p1, int8_t card_p2) {
     return g2;
 }
 
+static 
 game_t *
 parse_input(char *file) {
     game_t *game = new_game();
@@ -245,7 +246,7 @@ play_game(game_t *game) {
 }
 
 int 
-main() {
+day22() {
     // pre-allocate memory for main game and enough sub-games
     games_memory = malloc(50 * sizeof(game_t));
     if (!games_memory) {
@@ -259,9 +260,10 @@ main() {
     for (int8_t i=0; i < winner->ncards; i++) {
         score = score + ( winner->deck[(winner->offset + i) % 50] * (winner->ncards - i));
     }
-    printf("Score: %ld (%s)", score, score == 33469 ? "CORRECT" : "WRONG");
-
+    printf("%ld\n", score);
+    assert(score == 33469);
     free(games_memory);
+    return 0;
 }   
 
 //

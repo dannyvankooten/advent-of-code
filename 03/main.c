@@ -9,7 +9,7 @@ const int HEIGHT = 323;
 const int WIDTH = 31;
 unsigned long count_trees(int_fast8_t *grid, int slope_y, int slope_x);
 
-int main() {
+int day3() {
     FILE *f = fopen("input.txt", "r");
     if (!f) {
         return 1;
@@ -49,9 +49,10 @@ int main() {
         * count_trees(grid, 1, 7)
         * count_trees(grid, 2, 1);
 
-    printf("%" PRId64 " trees\n", product);
+    printf("%" PRId64 "\n", product);
 
     free(grid);
+    return 0;
 }
 
 unsigned long count_trees(int_fast8_t *grid, int slope_y, int slope_x) {

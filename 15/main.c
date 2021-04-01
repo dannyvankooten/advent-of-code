@@ -84,6 +84,7 @@ hm_set(hashmap_t *hm, uint32_t key, uint32_t value) {
     // hm->values[index] = value;
 }
 
+static 
 uint32_t   
 parse_input(uint32_t *numbers, char *s) {
     uint32_t num;
@@ -103,7 +104,7 @@ parse_input(uint32_t *numbers, char *s) {
     return n;
 }
 
-int main() {
+int day15() {
     uint32_t numbers[6];
     uint32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");        
     // uint32_t *seen = calloc(BOUNDARY, sizeof(uint32_t));
@@ -144,6 +145,7 @@ int main() {
 
     free(ht->entries);
     free(ht);
-    printf("%d", cur);  
+    printf("%d\n", cur);  
     // free(seen);
+    return 0;
 }

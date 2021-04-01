@@ -56,7 +56,7 @@ decode(char *v) {
     return s;
 }
 
-int main() {
+int day5() {
     assert(decode_row("FBFBBFFRLR") == 44);
     assert(decode_column("RLR") == 5);
     assert(decode("FBFBBFFRLR").seat == 357);
@@ -79,7 +79,7 @@ int main() {
             max_seat_id = s.seat;
         }
     }
-    printf("Part 1: %d\n", max_seat_id);
+    printf("%d\n", max_seat_id);
 
     // find our seat (missing from list, not at (unknown) front or back)
     int seats[128][8] = {0};
@@ -93,13 +93,11 @@ int main() {
     for (int r=1; r<127; r++) {
         for (int c=0; c<8; c++) {
             if (seats[r][c] == 0) {
-                printf("Part 2: Seat %d (%d, %d)\n", r*8+c, r, c);
+                printf("%d\n", r*8+c);
                 return 0;
             }
         }
     }
 
-
-    
-    
+    return 0;
 }

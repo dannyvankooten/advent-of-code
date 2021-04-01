@@ -30,7 +30,7 @@ parse_digit(int *d, char *s) {
     return s - start;
 }
 
-int main() {
+int day16() {
     struct rule *rules = malloc(sizeof(struct rule) * 100);
     size_t nrules = 0;
     // read input file
@@ -217,9 +217,10 @@ int main() {
         product *= my_ticket.values[r.position];
     }
 
-    printf("Result: %ld\n", product);
+    printf("%ld\n", product);
 
     free(options);
     free(rules);
     free(nearby_tickets);
+    return 0;
 }

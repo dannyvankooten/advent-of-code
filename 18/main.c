@@ -169,7 +169,7 @@ long long eval(char *input) {
 }
 
 
-int main() {
+int day18() {
     assert(eval("1 + 2 * 3 + 4 * 5 + 6") == 231);
     assert(eval("2 * 3 + (4 * 5)") == 46);
     assert(eval("1 + (2 * 3) + (4 * (5 + 6)))") == 51);
@@ -190,5 +190,6 @@ int main() {
     }
     fclose(f);
 
-    printf("Result: %lld\n", sum);
+    printf("%lld\n", sum);
+    return 0;
 }

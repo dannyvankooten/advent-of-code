@@ -10,6 +10,7 @@ const char *input = "327465189";
 void
 print_raw(int32_t *cups);
 
+static 
 int32_t
 parse_input(int32_t *cups, const char *s) {
     int32_t i = 1;
@@ -57,7 +58,7 @@ print_cups(int32_t *cups, int32_t first, size_t n, char *before) {
     printf("\n");
 }
 
-int main() {
+int day23() {
     // int32_t *cups =  malloc(1000001 * sizeof(int32_t));
     int32_t cups[1000001]; 
     int32_t current_cup = parse_input(cups, input);

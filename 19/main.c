@@ -94,7 +94,7 @@ message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
 }
 
 
-int main() {
+int day19() {
     FILE *f = fopen("input.txt", "r");
     if (!f) {
         err(EXIT_FAILURE, "error reading input file");
@@ -192,11 +192,12 @@ int main() {
             count++;
         }
     }
-    printf("%d messages matched rule 0.\n", count);
+    printf("%d\n", count);
 
     fclose(f);
 
     free(rules);
+    return 0;
 }
 
 /*

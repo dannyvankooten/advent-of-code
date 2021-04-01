@@ -149,15 +149,16 @@ int32_t count_children(struct Bag *b)
     return count;
 }
 
-int32_t main() 
+int day7() 
 {
     parse_rules_from_input("input.txt");
     struct Bag *shiny_gold = find_bag("shiny gold");
     assert(shiny_gold != NULL);
 
-    printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
-    printf("children of shiny bag: %d\n", count_children(shiny_gold));  
+    printf("%d\n", search_bags_for_color("shiny gold"));
+    printf("%d\n", count_children(shiny_gold));  
 
     free(mbags);
     ht_destroy(bags);
+    return 0;
 }

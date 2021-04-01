@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int main() {
+int day2() {
 	FILE *f = fopen("input.txt", "r");
     char buf[BUFSIZ];
     char token[16];
@@ -52,5 +52,6 @@ int main() {
     }
     fclose(f);
 
-    printf("%d valid passwords\n", count_valid);
+    printf("%d\n", count_valid);
+    return 0;
 }

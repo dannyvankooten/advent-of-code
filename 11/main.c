@@ -72,7 +72,7 @@ int count_occupied_seats_in_los(struct grid *grid, int pos_y, int pos_x) {
     return count;
 }
 
-void print_grid(struct grid *grid) {
+static void print_grid(struct grid *grid) {
     for (int y=0; y < grid->h; y++) {
         for (int x=0; x < grid->w; x++) {
             switch (get_grid_value_by_coords(grid, x, y)) {
@@ -93,7 +93,7 @@ void print_grid(struct grid *grid) {
     }
 }
 
-void transmute_grid(struct grid *grid) {
+static void transmute_grid(struct grid *grid) {
     enum position new_grid[grid->h * grid->w];
     
     grid->stable = 1;
@@ -132,7 +132,7 @@ void transmute_grid(struct grid *grid) {
     memcpy(grid->values, new_grid, grid->h * grid->w * sizeof(enum position));
 }
 
-int main() {
+int day11() {
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
@@ -169,8 +169,9 @@ int main() {
             count++;
         }
     }
-    printf("%d occupied seats\n", count);
+    printf("%d\n", count);
     
     free(grid.values);
+    return 0;
 }
 

@@ -110,7 +110,7 @@ void print_binary(unsigned long n) {
     }
 }
 
-int main() {    
+int day14() {    
    // assert(apply_bitmask("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X", 11) == 73);
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
@@ -204,9 +204,10 @@ int main() {
 
     // unsigned long sum = 0;
     // sum = hashmap_sum(&hm);
-    printf("Sum: %ld\n", sum);
+    printf("%ld\n", sum);
 
     free(instructions);
     free(addresses.values);
     assert(sum == 4173715962894);
+    return 0;
 }

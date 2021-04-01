@@ -45,7 +45,7 @@ void rotate_waypoint(struct ship *ship, int value) {
     ship->waypoint.y = y1;
 }
 
-int main() {
+int day12() {
     int instructions_n = 0;
     struct instruction *instructions = malloc(800 * sizeof(struct instruction));
     if (!instructions) err(EXIT_FAILURE, "oom");
@@ -102,8 +102,8 @@ int main() {
         }
     }
 
-    printf("Final position: (%d, %d)\n", ship.pos.x, ship.pos.y);
-    printf("Manhattan distance: %d\n", abs(ship.pos.x) + abs(ship.pos.y));
+    printf("%d\n", abs(ship.pos.x) + abs(ship.pos.y));
 
     free(instructions);
+    return 0;
 }

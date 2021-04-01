@@ -264,7 +264,7 @@ count_sea_monster_in_image(const char *image, int32_t image_size, const monster_
 }
 
 
-int main() {
+int day20() {
     tile_t *tiles = (tile_t *) malloc(200 * sizeof(tile_t));
     if (!tiles) {
         err(EXIT_FAILURE, "could not allocate memory for tiles");
@@ -406,4 +406,5 @@ int main() {
     free(final_image);
     free(image);
     free(tiles);
+    return 0;
 }

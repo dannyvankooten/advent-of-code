@@ -63,7 +63,7 @@ parse_instruction_line(char *line)
     return ins;    
 }
 
-int main() {
+int day8() {
     char *file = "input.txt"; 
     struct Instructions ins = {
         .cap = 64,
@@ -131,13 +131,12 @@ int main() {
 
         // Print result if we made it to end of program
         if (ip == ins.size) {
-            printf("Accumulator value: %d\n", acc);
+            printf("%d\n", acc);
         }
         
     }
 
-    
-
     free(ins.values);
     free(seen);
+    return 0;
 }

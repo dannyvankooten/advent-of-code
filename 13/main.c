@@ -6,7 +6,7 @@
 #include <limits.h>
 #include <inttypes.h>
 
-int main() {
+int day13() {
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
@@ -19,8 +19,6 @@ int main() {
         ready_timestamp = (ready_timestamp * 10) + (*s - '0');
         s++;
     }
-
-    printf("Ready at timestamp %" PRId64 "\n", ready_timestamp);
 
     // parse bus schedules from 2nd line
     if (fgets(linebuf, BUFSIZ, f) == NULL) err(EXIT_FAILURE, "invalid input");
@@ -76,6 +74,7 @@ int main() {
             t += step;
         }
     }
-    printf("Result: %" PRId64 "\n", t);
+    printf("%" PRId64 "\n", t);
     assert(t == 415579909629976);
+    return 0;
 }

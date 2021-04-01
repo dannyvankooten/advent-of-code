@@ -180,7 +180,7 @@ apply_rules(color_t *grid) {
 }
 
 
-int main() {
+int day24() {
     color_t *grid = (color_t *) calloc(GRIDSIZE_SQ, sizeof(color_t));
     if (!grid) {
         return 1;

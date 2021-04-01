@@ -108,7 +108,7 @@ enum field_key {
 };
 
 int 
-main() {
+day4() {
 	FILE *f = fopen("input.txt", "r");
     if (!f) {
         return 1;
@@ -191,4 +191,5 @@ main() {
 
     printf("%" PRId64 "\n", valid_pp_count);
     fclose(f);
+    return 0;
 }

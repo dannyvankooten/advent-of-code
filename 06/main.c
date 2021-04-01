@@ -41,7 +41,7 @@ count_yes_answers(char *str) {
     return y_count;
 }
 
-int main() {
+int day6() {
     // Test input
     assert(count_yes_answers("abc") == 3);
     assert(count_yes_answers("a\nb\nc") == 0);
@@ -71,5 +71,6 @@ int main() {
     sum += count_yes_answers(group_buf);
 
     fclose(f);
-    printf("Sum: %d\n", sum);
+    printf("%d\n", sum);
+    return 0;
 }

@@ -5,7 +5,7 @@
 #include <string.h>
 #include <inttypes.h>
 
-int main() {
+int day9() {
     FILE *f = fopen("input.txt", "r");
     if (!f) {
         return 1;
@@ -24,7 +24,6 @@ int main() {
             numbers[numbers_n++] = n;
     }
     fclose(f);
-    printf("%" PRId64 " numbers\n", numbers_n);
 
     // loop through numbers to find contiguous set 
     // that sums to invalid_n (127)
@@ -44,7 +43,6 @@ int main() {
         }
     }
 
-    printf("Found range: %ld to %ld\n", range_start, range_end);
     int64_t smallest = numbers[range_start];
     int64_t largest = numbers[range_start];
     for (size_t i=range_start; i <= range_end; i++) {
@@ -55,8 +53,7 @@ int main() {
         }
     }
 
-    printf("S: %ld\nL: %ld\n", smallest, largest);
-    printf("Result: %ld\n", largest + smallest);
+    printf("%ld\n", largest + smallest);
 
     return EXIT_SUCCESS;
 }

@@ -21,6 +21,7 @@ typedef struct {
     size_t noptions;
 } allergen_t;
 
+static 
 size_t  
 parse_input(food_t *dest) {
     FILE *fp = fopen("input.txt", "r");
@@ -155,7 +156,7 @@ remove_option_from_allergen(allergen_t *a, size_t index) {
     a->noptions--;
 }
 
-int main() {
+int day21() {
     food_t * foods = malloc(28 * sizeof(food_t));
     size_t nfoods = parse_input(foods);
 
@@ -187,14 +188,14 @@ int main() {
         }
     }
 
-    // print options
-    for (size_t i=0; i < nallergens; i++) {
-        printf("%s: ", allergen_list[i].name);
-        for (size_t j=0; j < allergen_list[i].noptions; j++) {
-            printf("%s, ", allergen_list[i].options[j]);
-        }
-        printf("\n");
-    }
+    // // print options
+    // for (size_t i=0; i < nallergens; i++) {
+    //     printf("%s: ", allergen_list[i].name);
+    //     for (size_t j=0; j < allergen_list[i].noptions; j++) {
+    //         printf("%s, ", allergen_list[i].options[j]);
+    //     }
+    //     printf("\n");
+    // }
 
     // then, find ingredients not in any of the allergen options
     int64_t count = 0;
@@ -209,7 +210,7 @@ int main() {
             count++;
         }
      }
-     printf("Part 1: %" PRId64  "\n", count);
+     printf("%" PRId64  "\n", count);
 
     // find each allergen with only 1 option
     // remove this option from all other allergens, repeat until stable
@@ -241,7 +242,6 @@ int main() {
     }
     
     qsort(allergen_list, nallergens, sizeof(allergen_t), cmp_allergen);
-    printf("Part 2: ");
     for (size_t i=0; i < nallergens; i++) {
        if (i > 0) printf(",");
        printf("%s", allergen_list[i].options[0]);
@@ -259,4 +259,5 @@ int main() {
         free(foods[i].ingredients);
     }
     free(foods);
+    return 0;
 }

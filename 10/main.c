@@ -16,7 +16,7 @@ compare(const void *p1, const void *p2) {
     return (*a < *b) ? -1 : 1;
 }
 
-int main() {
+int day10() {
     FILE *f = fopen("input.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
 
@@ -36,12 +36,10 @@ int main() {
     }
     fclose(f);
 
-    printf("Read %ld adapter joltages.\n", adapter_n);
     int64_t charging_outlet_joltage = 0; 
     qsort(adapter_joltages, adapter_n, sizeof(int64_t), compare);
 
     int64_t device_joltage = adapter_joltages[adapter_n-1] + 3;
-    printf("Device joltage: %ld\n", device_joltage);
 
     int64_t diff[4] = { [0 ... 3] = 0};
     diff[adapter_joltages[0] - charging_outlet_joltage]++;
@@ -52,7 +50,7 @@ int main() {
 
     // add device difference
     diff[device_joltage - adapter_joltages[adapter_n-1]]++;
-    printf("Answer: %ld\n", diff[1] * diff[3]);
+    printf("%ld\n", diff[1] * diff[3]);
 
     // for each adapter, find the number of available options
     int64_t max_diff = 3;
@@ -65,6 +63,6 @@ int main() {
             ways[i] += ways[j];
         }
     }
-    printf("Answer (part 2): %ld\n", ways[adapter_n-1]);
-
+    printf("%ld\n", ways[adapter_n-1]);
+    return 0;
 }

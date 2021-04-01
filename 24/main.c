@@ -9,17 +9,17 @@ typedef enum {
     BLACK = 1,
 } color_t;
 
-typedef enum direction direction_t;
-enum direction {
+typedef enum {
     NE,
     NW,
     E,
     W,
     SE,
     SW
-};
+} direction_t;
 
-const int32_t GRIDSIZE = 256;
+const int32_t GRIDSIZE = 128;
+const int32_t GRIDSIZE_SQ = GRIDSIZE * GRIDSIZE;
 int32_t black_tile_count = 0;
 
 void
@@ -43,10 +43,10 @@ print_direction(direction_t d) {
     printf("%s", names[d]);
 }
 
-size_t 
+int32_t 
 parse_line(direction_t *directions, char *line) {
     char *s = line;
-    size_t ndirections = 0;
+    int32_t ndirections = 0;
     while (*s != '\n' && *s != '\0') {
         switch (*s++) {
             case 'e':
@@ -141,64 +141,70 @@ count_adjacent_black_tiles(color_t *grid, int32_t x, int32_t y) {
         }        
     }
     
-    // TODO
     return count;
 }
 
 void
 apply_rules(color_t *grid) {
-    color_t new_grid[GRIDSIZE * GRIDSIZE];
+    color_t new_grid[GRIDSIZE_SQ];
 
     for (int32_t y=0; y < GRIDSIZE; y++) {
         for (int32_t x=0; x < GRIDSIZE; x++) {
             int32_t black_neighbors = count_adjacent_black_tiles(grid, x, y); 
-            // printf("(%d, %d): %d adjacent black tiles\n", x, y, black_neighbors);
-            new_grid[y * GRIDSIZE + x] = grid[y * GRIDSIZE + x];
-            switch (grid[y * GRIDSIZE + x]) {
+            color_t *color = &grid[y * GRIDSIZE + x];
+            color_t *new_color = &new_grid[y * GRIDSIZE + x];
+            switch (*color) {
                 case WHITE:
                     if (black_neighbors == 2) {
-                        new_grid[y * GRIDSIZE + x] = BLACK;
+                        *new_color = BLACK;
                         black_tile_count++;
+                    } else {
+                        *new_color = WHITE;
                     }
                 break;
 
                 case BLACK:
                     if (black_neighbors == 0 || black_neighbors > 2) {
-                        new_grid[y * GRIDSIZE + x] = WHITE;
+                        *new_color = WHITE;
                         black_tile_count--;
+                    } else {
+                        *new_color = BLACK;
                     }
                 break;
             }
         }
     }
 
-    for (int32_t i = 0; i < GRIDSIZE*GRIDSIZE; i++) {
+    for (int32_t i=0; i < GRIDSIZE_SQ; i++) {
         grid[i] = new_grid[i];
     }
 }
 
 
 int main() {
-    color_t *grid = (color_t *) malloc(sizeof(color_t) * GRIDSIZE * GRIDSIZE);
-    if (!grid) return 1;
-    for (int32_t i=0; i < GRIDSIZE*GRIDSIZE; i++) {
-        grid[i] = WHITE;
+    color_t *grid = (color_t *) calloc(GRIDSIZE_SQ, sizeof(color_t));
+    if (!grid) {
+        return 1;
     }
-    int32_t x, y;
 
     FILE *f = fopen("input.txt", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char linebuf[BUFSIZ] = {0};
     direction_t *directions = (direction_t *) malloc(sizeof(direction_t) * 50);
-    if (!directions) return 1;
+    if (!directions) {
+        return 1;
+    }
 
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
-        size_t ndirections = parse_line(directions, linebuf);
+        int32_t ndirections = parse_line(directions, linebuf);
+        
         // go back to start tile 
-        x = GRIDSIZE / 2;
-        y = GRIDSIZE / 2;
+        int32_t x = GRIDSIZE / 2;
+        int32_t y = x;
 
-        for (size_t i=0; i < ndirections; i++) {
+        for (int32_t i=0; i < ndirections; i++) {
             switch (directions[i]) {
                 case E:
                     x += 1;
@@ -244,11 +250,13 @@ int main() {
 
     // cound black tiles
     printf("%d\n", black_tile_count);
+    assert(black_tile_count == 244);
 
     for (int32_t i=0; i < 100; i++) {
         apply_rules(grid);
     }
     printf("%d\n", black_tile_count);
+    assert(black_tile_count == 3665);
 
     free(directions);
     free(grid);

@@ -8,10 +8,10 @@
 
 struct Bag {
     char color[32];
-    int nchildren;
+    int32_t nchildren;
     struct {
         char color[32];
-        int qty;
+        int32_t qty;
     } children[16];
 };
 
@@ -20,12 +20,12 @@ struct Bag *mbags;
 
 void
 parse_rules_from_input(char *input_file) {
-    int i;
-    int qty;
+    int32_t i;
+    int32_t qty;
 
-    int cap = 1024;
-    int size = 0;
-    struct Bag *mbags = (struct Bag *) malloc(cap * sizeof(struct Bag));
+    int32_t cap = 1024;
+    int32_t size = 0;
+    mbags = (struct Bag *) malloc(cap * sizeof(struct Bag));
 
     FILE *f = fopen(input_file, "r");
     if (!f) {
@@ -106,13 +106,13 @@ find_bag(const char color[32]) {
     return b;
 }
 
-int may_bag_contain_color(struct Bag *b, const char color[32]) {
+int32_t may_bag_contain_color(struct Bag *b, const char color[32]) {
     if (b == NULL) {
         return 0;
     }
 
     // search children for the given color
-    for (int j=0; j < b->nchildren; j++) {
+    for (int32_t j=0; j < b->nchildren; j++) {
         if (strcmp(b->children[j].color, color) == 0) {
             return 1;
         }
@@ -126,8 +126,8 @@ int may_bag_contain_color(struct Bag *b, const char color[32]) {
     return 0;
 }
 
-int search_bags_for_color(const char color[32]) {
-    int count = 0;
+int32_t search_bags_for_color(const char color[32]) {
+    int32_t count = 0;
     hti it = ht_iterator(bags);
     while (ht_next(&it)) {
         count += may_bag_contain_color(it.value, color);
@@ -135,40 +135,23 @@ int search_bags_for_color(const char color[32]) {
     return count;
 }
 
-int count_children(struct Bag *b)
+int32_t count_children(struct Bag *b)
 {
     if (b == NULL) {
         return 0;
     }
 
-    int count = 0;
-    for (int i=0; i < b->nchildren; i++) {
+    int32_t count = 0;
+    for (int32_t i=0; i < b->nchildren; i++) {
         count += (1 + count_children(find_bag(b->children[i].color))) * b->children[i].qty;
     }
 
     return count;
 }
 
-int main() 
+int32_t main() 
 {
-    // test input
-    // bags = parse_rules("light red bags contain 1 bright white bag, 2 muted yellow bags.\n"
-    //     "dark orange bags contain 3 bright white bags, 4 muted yellow bags.\n"
-    //     "bright white bags contain 1 shiny gold bag.\n"
-    //     "muted yellow bags contain 2 shiny gold bags, 9 faded blue bags.\n"
-    //     "shiny gold bags contain 1 dark olive bag, 2 vibrant plum bags.\n"
-    //     "dark olive bags contain 3 faded blue bags, 4 dotted black bags.\n"
-    //     "vibrant plum bags contain 5 faded blue bags, 6 dotted black bags.\n"
-    //     "faded blue bags contain no other bags.\n"
-    //     "dotted black bags contain no other bags.\n");
-
-    // print_bags(bags);
-    // printf("%d bags can contain shiny gold\n", search_bags_for_color("shiny gold"));
-    // printf("%d bags can contain dotted black\n", search_bags_for_color("dotted black"));
-    // printf("%d bags can contain dark orange\n", search_bags_for_color("dark orange"));
-
     parse_rules_from_input("input.txt");
-
     struct Bag *shiny_gold = find_bag("shiny gold");
     assert(shiny_gold != NULL);
 

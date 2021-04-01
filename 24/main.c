@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
+#include <string.h>
 
 typedef enum {
     WHITE = 0,
@@ -146,7 +147,7 @@ count_adjacent_black_tiles(color_t *grid, int32_t x, int32_t y) {
 
 void
 apply_rules(color_t *grid) {
-    color_t new_grid[GRIDSIZE_SQ];
+    color_t new_grid[GRIDSIZE_SQ] = { WHITE };
 
     for (int32_t y=0; y < GRIDSIZE; y++) {
         for (int32_t x=0; x < GRIDSIZE; x++) {
@@ -159,13 +160,13 @@ apply_rules(color_t *grid) {
                         *new_color = BLACK;
                         black_tile_count++;
                     } else {
-                        *new_color = WHITE;
+                        // *new_color = WHITE;
                     }
                 break;
 
                 case BLACK:
                     if (black_neighbors == 0 || black_neighbors > 2) {
-                        *new_color = WHITE;
+                        // *new_color = WHITE;
                         black_tile_count--;
                     } else {
                         *new_color = BLACK;
@@ -175,9 +176,7 @@ apply_rules(color_t *grid) {
         }
     }
 
-    for (int32_t i=0; i < GRIDSIZE_SQ; i++) {
-        grid[i] = new_grid[i];
-    }
+    memcpy(grid, new_grid, GRIDSIZE_SQ * sizeof(color_t));
 }
 
 

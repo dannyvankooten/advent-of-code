@@ -1,15 +1,13 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
 
-typedef struct tile tile_t;
-struct tile {
-    enum {
-        WHITE,
-        BLACK,
-    } color;
-};
+typedef enum {
+    WHITE = 0,
+    BLACK = 1,
+} color_t;
 
 typedef enum direction direction_t;
 enum direction {
@@ -21,20 +19,20 @@ enum direction {
     SW
 };
 
-tile_t *grid;
+const int32_t GRIDSIZE = 256;
 int32_t black_tile_count = 0;
 
 void
-flip_tile(tile_t *t) {
-    switch (t->color) {
+flip_tile(color_t *color) {
+    switch (*color) {
         case WHITE:
             black_tile_count++;
-            t->color = BLACK;
+            *color = BLACK;
             break;
 
         case BLACK:
             black_tile_count--;
-            t->color = WHITE;
+            *color = WHITE;
             break;
     }
 }
@@ -88,13 +86,103 @@ parse_line(direction_t *directions, char *line) {
     return ndirections;
 }
 
+int32_t 
+count_adjacent_black_tiles(color_t *grid, int32_t x, int32_t y) {
+    int32_t count = 0;
+
+    // west
+    if (x > 0) {
+         count += grid[(y * GRIDSIZE) + x - 1];
+    }
+
+    // east
+    if (x < GRIDSIZE-1) {
+         count += grid[(y * GRIDSIZE) + x + 1];
+    }
+     
+
+    if (y > 0) {
+        if (y % 2 == 0) {
+            // north-east
+            count += grid[(y - 1) * GRIDSIZE + x];
+
+            // north west
+            if (x > 0) {
+                count += grid[(y - 1) * GRIDSIZE + x - 1];
+            }
+        } else {
+            // north-east
+            if (x < GRIDSIZE-1) {
+                count += grid[(y - 1) * GRIDSIZE + x + 1];
+            }
+
+            // north west
+            count += grid[(y - 1) * GRIDSIZE + x];
+        }      
+    }
+
+    if (y < GRIDSIZE-1) {
+        if (y % 2 == 0) {
+            // south-east
+            count += grid[(y + 1) * GRIDSIZE + x];
+
+            // south west
+            if (x > 0) {
+                count += grid[(y + 1) * GRIDSIZE + x - 1];
+            }
+        } else {
+            // south-east
+            if (x < GRIDSIZE-1) {
+                count += grid[(y + 1) * GRIDSIZE + x + 1];
+            }
+
+            // south west
+            count += grid[(y + 1) * GRIDSIZE + x];
+        }        
+    }
+    
+    // TODO
+    return count;
+}
+
+void
+apply_rules(color_t *grid) {
+    color_t new_grid[GRIDSIZE * GRIDSIZE];
+
+    for (int32_t y=0; y < GRIDSIZE; y++) {
+        for (int32_t x=0; x < GRIDSIZE; x++) {
+            int32_t black_neighbors = count_adjacent_black_tiles(grid, x, y); 
+            // printf("(%d, %d): %d adjacent black tiles\n", x, y, black_neighbors);
+            new_grid[y * GRIDSIZE + x] = grid[y * GRIDSIZE + x];
+            switch (grid[y * GRIDSIZE + x]) {
+                case WHITE:
+                    if (black_neighbors == 2) {
+                        new_grid[y * GRIDSIZE + x] = BLACK;
+                        black_tile_count++;
+                    }
+                break;
+
+                case BLACK:
+                    if (black_neighbors == 0 || black_neighbors > 2) {
+                        new_grid[y * GRIDSIZE + x] = WHITE;
+                        black_tile_count--;
+                    }
+                break;
+            }
+        }
+    }
+
+    for (int32_t i = 0; i < GRIDSIZE*GRIDSIZE; i++) {
+        grid[i] = new_grid[i];
+    }
+}
+
 
 int main() {
-    const int32_t GRIDSIZE = 64;
-    tile_t *grid = (tile_t *) malloc(sizeof(tile_t) * GRIDSIZE * GRIDSIZE);
+    color_t *grid = (color_t *) malloc(sizeof(color_t) * GRIDSIZE * GRIDSIZE);
     if (!grid) return 1;
-    for (int i=0; i < GRIDSIZE*GRIDSIZE; i++) {
-        grid[i].color = WHITE;
+    for (int32_t i=0; i < GRIDSIZE*GRIDSIZE; i++) {
+        grid[i] = WHITE;
     }
     int32_t x, y;
 
@@ -107,8 +195,8 @@ int main() {
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         size_t ndirections = parse_line(directions, linebuf);
         // go back to start tile 
-        x = 32;
-        y = 32;
+        x = GRIDSIZE / 2;
+        y = GRIDSIZE / 2;
 
         for (size_t i=0; i < ndirections; i++) {
             switch (directions[i]) {
@@ -155,6 +243,11 @@ int main() {
     fclose(f);
 
     // cound black tiles
+    printf("%d\n", black_tile_count);
+
+    for (int32_t i=0; i < 100; i++) {
+        apply_rules(grid);
+    }
     printf("%d\n", black_tile_count);
 
     free(directions);

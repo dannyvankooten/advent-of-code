@@ -79,9 +79,7 @@ void rotate(char *grid, size_t size) {
         }
     }
 
-    for (size_t i=0; i < size * size; i++) {
-        grid[i] = new_grid[i];
-    } 
+    memcpy(grid, new_grid, size * size);
 }
 
 void flip(char *grid, size_t size, char ax) {
@@ -102,9 +100,8 @@ void flip(char *grid, size_t size, char ax) {
         }
     }
 
-    for (size_t i=0; i < size * size; i++) {
-        grid[i] = new_grid[i];
-    }
+
+    memcpy(grid, new_grid, size * size);
 }
 
 bool
@@ -160,7 +157,6 @@ remove_image_borders(char *image, tile_t **tiles, size_t image_size)  {
     }
 }
 
-
 void 
 print_image(tile_t **image, size_t image_size) {
     for (size_t image_y = 0; image_y < image_size; image_y++) {
@@ -215,29 +211,33 @@ shift_image(tile_t **image, size_t size, int8_t shift_y, int8_t shift_x) {
 }
 
 size_t
-count_sea_monster_in_image(const char *image, size_t image_size, const char *monster) 
-{
+count_sea_monster_in_image(const char *image, size_t image_size, const char *monster) {
+    const char *m = monster;
+    size_t monster_height = 0;
+    while (*m++ != '\0') {
+        if (*m == '\n') monster_height++;
+    }
     size_t count = 0;
-    for (size_t y=0; y < image_size; y++) {
+    for (size_t y=0; y < image_size - monster_height; y++) {
         for (size_t x=0; x < image_size; x++) {
             const char *i = &image[y * image_size + x];
             const char *m = monster;
             size_t y_search = y;
             size_t x_search = x;
 
-            while (*i == *m || *m == ' ') {
+            while (*m == ' ' || *i == *m) {
                 i++;
                 m++;
+
+                if (*m == '\0') {
+                    count++;
+                }
 
                 if (*m == '\n') {
                     y_search++;
                     x_search = x;
                     i = &image[y_search * image_size + x_search];
                     m++;
-                }
-
-                if (*m == '\0') {
-                    count++;
                 }
             }
         }
@@ -248,7 +248,7 @@ count_sea_monster_in_image(const char *image, size_t image_size, const char *mon
 
 
 int main() {
-    tile_t *tiles = malloc(200 * sizeof(tile_t));
+    tile_t *tiles = (tile_t *) malloc(200 * sizeof(tile_t));
     if (!tiles) {
         err(EXIT_FAILURE, "could not allocate memory for tiles");
     }
@@ -258,7 +258,10 @@ int main() {
 
     // init empty image
     size_t image_size = (size_t) sqrt((double) ntiles);
-    tile_t **image = calloc(image_size * image_size * 2, sizeof(tile_t *));
+    tile_t **image = (tile_t **) calloc(image_size * image_size * 2, sizeof(tile_t *));
+    if (!image) {
+        err(EXIT_FAILURE, "could not allocate memory for image");
+    }
 
     // For each tile, find NESW neighbors and place in image grid
     image[0] = &tiles[0];
@@ -275,7 +278,9 @@ int main() {
 
         for (size_t j=0; j < ntiles; j++) {
             // skip self
-            if (i == j) continue;
+            if (i == j) {
+                continue;
+            }
 
             // skip tiles already in image
             tile_t *t2 = &tiles[j];
@@ -283,52 +288,54 @@ int main() {
                 continue;
             }
 
-            for (int8_t r = 0; r < 2; r++) {
-                for (int8_t f=0; f < 2; f++) {
-                    if (tiles_edges_match(t1, t2, 'E')) {
-                        if (t1->x == image_size-1) {
-                            shift_image(image, image_size, 0, -1);
-                        }
-                        t2->y = t1->y;
-                        t2->x = t1->x + 1;
-                        image[t2->y * image_size + t2->x] = t2;
-                        goto STARTOVER;
-                    } else if (tiles_edges_match(t1, t2, 'S')) {
-                        if (t1->y == image_size - 1) {
-                            shift_image(image, image_size, -1, 0);
-                        }
-                        t2->y = t1->y + 1;
-                        t2->x = t1->x;
-                       
-                        image[t2->y * image_size + t2->x] = t2;
-                        goto STARTOVER;
-                    } else if (tiles_edges_match(t1, t2, 'N')) {
-                        // if t1 was at northern edge, shift it down
-                        if (t1->y == 0) {
-                            shift_image(image, image_size, 1, 0);
-                        }
-                        t2->y = t1->y - 1;
-                        t2->x = t1->x;
-                        image[t2->y * image_size + t2->x] = t2;
-                        goto STARTOVER;
-                    }  else if (tiles_edges_match(t1, t2, 'W')) {
-                        // if t1 was at western edge, shift it down
-                        if (t1->x == 0) {
-                            shift_image(image, image_size, 0, 1);
-                        }
-                        t2->y = t1->y;
-                        t2->x = t1->x - 1;
-                        image[t2->y * image_size + t2->x] = t2;
-                        goto STARTOVER;
+            for (int8_t r = 0; r < 4; r++) {
+                if (tiles_edges_match(t1, t2, 'E')) {
+                    if (t1->x == image_size-1) {
+                        shift_image(image, image_size, 0, -1);
                     }
-
-                    flip(t2->grid, W, f > 0 ? 'x' : 'y');
+                    t2->y = t1->y;
+                    t2->x = t1->x + 1;
+                    image[t2->y * image_size + t2->x] = t2;
+                    goto STARTOVER;
+                } else if (tiles_edges_match(t1, t2, 'S')) {
+                    if (t1->y == image_size - 1) {
+                        shift_image(image, image_size, -1, 0);
+                    }
+                    t2->y = t1->y + 1;
+                    t2->x = t1->x;
+                    
+                    image[t2->y * image_size + t2->x] = t2;
+                    goto STARTOVER;
+                } else if (tiles_edges_match(t1, t2, 'N')) {
+                    // if t1 was at northern edge, shift it down
+                    if (t1->y == 0) {
+                        shift_image(image, image_size, 1, 0);
+                    }
+                    t2->y = t1->y - 1;
+                    t2->x = t1->x;
+                    image[t2->y * image_size + t2->x] = t2;
+                    goto STARTOVER;
+                }  else if (tiles_edges_match(t1, t2, 'W')) {
+                    // if t1 was at western edge, shift it down
+                    if (t1->x == 0) {
+                        shift_image(image, image_size, 0, 1);
+                    }
+                    t2->y = t1->y;
+                    t2->x = t1->x - 1;
+                    image[t2->y * image_size + t2->x] = t2;
+                    goto STARTOVER;
                 }
 
-                rotate(t2->grid, W);
-            }
+                if (r == 3) {
+                    flip(t2->grid, W, 'x');
+                } else {
+                    rotate(t2->grid, W);   
+                }            
+            }              
         }
     }
+
+
 
     // print_image_ids(image, image_size);
     // print_image(image, image_size);
@@ -358,7 +365,7 @@ int main() {
     }
 
     DETERMINE_WATER_ROUGHNESS: ;
-    
+
     // count # in monster
     size_t c1 = 0;
     const char *m = sea_monster;

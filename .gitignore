@@ -6,4 +6,5 @@ vgcore*
 *.gcc
 *.clang
 aoc2020
+aoc2020debug
 build/

@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
   // parse CLI args
   for (int8_t i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--bench") == 0) {
-      n_samples = 100;
+      n_samples = 10;
     } else if (isdigit(*argv[i])) {
       while (*argv[i] != '\0') {
         day = day * 10 + (*argv[i] - '0');

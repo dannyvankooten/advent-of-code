@@ -40,7 +40,7 @@ int32_t day16() {
   if (!rules) {
     err(EXIT_FAILURE, "error allocating memory for rules");
   }
-  FILE* f = fopen("inputs/16.input", "r");
+  FILE* f = fopen("inputs/16.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

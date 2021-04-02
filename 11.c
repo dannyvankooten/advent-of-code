@@ -47,7 +47,7 @@ int32_t count_occupied_adjacent_seats(grid_t* grid,
 
 #define get_grid_value_by_coords(grid, x, y) grid->values[y * grid->w + x]
 
-int32_t count_occupied_seats_in_los(struct grid* grid, int pos_y, int pos_x) {
+int32_t count_occupied_seats_in_los(grid_t* grid, int pos_y, int pos_x) {
   int32_t count = 0;
   enum position value;
   static const int8_t directions[8][2] = {
@@ -76,9 +76,9 @@ int32_t count_occupied_seats_in_los(struct grid* grid, int pos_y, int pos_x) {
   return count;
 }
 
-// static void print_grid(struct grid *grid) {
-//     for (int y=0; y < grid->h; y++) {
-//         for (int x=0; x < grid->w; x++) {
+// static void print_grid(grid_t *grid) {
+//     for (int32_t y=0; y < grid->h; y++) {
+//         for (int32_t x=0; x < grid->w; x++) {
 //             switch (get_grid_value_by_coords(grid, x, y)) {
 //                 case POS_EMPTY_SEAT:
 //                     printf("L");
@@ -97,7 +97,7 @@ int32_t count_occupied_seats_in_los(struct grid* grid, int pos_y, int pos_x) {
 //     }
 // }
 
-static void transmute_grid(struct grid* grid) {
+static void transmute_grid(grid_t* grid) {
   enum position new_grid[grid->h * grid->w];
 
   grid->stable = true;
@@ -137,12 +137,12 @@ static void transmute_grid(struct grid* grid) {
 }
 
 int day11() {
-  FILE* f = fopen("inputs/11.input", "r");
+  FILE* f = fopen("inputs/11.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }
 
-  struct grid grid = {
+  grid_t grid = {
       .h = 0,
       .w = 0,
       .stable = 0,
@@ -151,7 +151,7 @@ int day11() {
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
     grid.h++;
     if (grid.w == 0) {
-      grid.w = (int)strlen(linebuf) - 1;
+      grid.w = (int32_t) strlen(linebuf) - 1;
     }
   }
   grid.values = malloc(grid.h * grid.w * sizeof(enum position));

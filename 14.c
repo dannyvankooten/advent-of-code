@@ -112,7 +112,7 @@ void print_binary(unsigned long n) {
 
 int32_t day14() {
   // assert(apply_bitmask("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X", 11) == 73);
-  FILE* f = fopen("inputs/14.input", "r");
+  FILE* f = fopen("inputs/14.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

@@ -65,7 +65,7 @@ int day5() {
   assert(decode("FFFBBBFRRR").seat == 119);
   assert(decode("BBFFBBFRLL").seat == 820);
 
-  FILE* f = fopen("inputs/05.input", "r");
+  FILE* f = fopen("inputs/05.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

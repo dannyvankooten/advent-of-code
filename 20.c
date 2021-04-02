@@ -264,7 +264,7 @@ int day20() {
     err(EXIT_FAILURE, "could not allocate memory for tiles");
   }
 
-  int32_t ntiles = parse_tiles_from_input(tiles, "inputs/20.input");
+  int32_t ntiles = parse_tiles_from_input(tiles, "inputs/20.txt");
   // print_tiles(tiles, ntiles);
 
   // init empty image

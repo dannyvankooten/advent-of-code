@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
+#include "inputs/04.h"
 // https://adventofcode.com/2020/day/4#part2
 
 bool is_passport_valid(char passport[]) {
@@ -95,49 +95,44 @@ bool is_valid_pid(char* v) {
 enum field_key { BYR = 0, IYR, EYR, HGT, HCL, ECL, PID, CID };
 
 int day4() {
-  FILE* f = fopen("inputs/04.input", "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char buf[BUFSIZ];
   char fields[8] = {0};
   char key[32];
   char value[32];
   size_t i;
   int64_t valid_pp_count = 0;
   int64_t v;
+  const unsigned char *s = input;
 
-  while (fgets(buf, BUFSIZ, f) != NULL) {
-    char* str = buf;
-
+  while (*s != '\0') {
     // blank line, new passport
-    if (*buf == '\n') {
+    if (*s == '\n') {
       if (is_passport_valid(fields)) {
         valid_pp_count++;
       }
       memset(fields, 0, 8 * sizeof(char));
+      s++;
       continue;
     }
 
-    while (*str != '\n' && *str != '\0') {
+    while (*s != '\n' && *s != '\0') {
       // parse key
-      for (i = 0; *str != ':'; i++) {
-        key[i] = *str++;
+      for (i = 0; *s != ':'; i++) {
+        key[i] = *s++;
       }
       key[i] = '\0';
 
       // skip :
-      str++;
+      s++;
 
       // parse value (or skip for now)
-      for (i = 0; *str != ' ' && *str != '\n'; i++) {
-        value[i] = *str++;
+      for (i = 0; *s != ' ' && *s != '\n' && *s != '\0'; i++) {
+        value[i] = *s++;
       }
       value[i] = '\0';
 
       // skip spaces
-      while (*str == ' ') {
-        str++;
+      while (*s == ' ') {
+        s++;
       }
 
       // add to fields and then check validity
@@ -168,6 +163,8 @@ int day4() {
         fields[CID] = 1;
       }
     }
+
+    if(*s == '\n') s++;
   }
 
   // last line
@@ -177,6 +174,5 @@ int day4() {
 
   printf("%" PRId64 "\n", valid_pp_count);
   assert(valid_pp_count == 150);
-  fclose(f);
   return 0;
 }

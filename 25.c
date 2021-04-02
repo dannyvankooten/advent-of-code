@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+// TODO:
+// Look at https://en.wikipedia.org/wiki/Discrete_logarithm#Algorithms 
 int day25() {
   int32_t card_pubkey = 1965712;
   int32_t door_pubkey = 19072108;

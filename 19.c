@@ -92,7 +92,7 @@ int32_t message_matches_rule(rule_t rule,
 }
 
 int day19() {
-  FILE* f = fopen("inputs/19.input", "r");
+  FILE* f = fopen("inputs/19.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

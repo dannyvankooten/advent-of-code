@@ -20,7 +20,7 @@ typedef struct bag bag_t;
 ht* bags;
 bag_t* mbags;
 
-void parse_rules_from_input(const char* input_file) {
+void parse_rules_from_input() {
   int32_t i;
   int32_t qty;
   int32_t cap = 1024;
@@ -30,14 +30,14 @@ void parse_rules_from_input(const char* input_file) {
     err(EXIT_FAILURE, "error allocating memory for bags");
   }
 
-  FILE* f = fopen(input_file, "r");
+  FILE* f = fopen("inputs/07.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "could not open input file");
   }
   char linebuf[BUFSIZ] = {0};
   bags = ht_create();
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
-    char* str = linebuf;
+    char* s = linebuf;
     bag_t* bag = &mbags[size++];
     if (size == cap) {
       cap *= 2;
@@ -51,51 +51,51 @@ void parse_rules_from_input(const char* input_file) {
     bag->color[0] = '\0';
 
     // parse up to " contain "
-    char* pos = strstr(str, " bags contain ");
-    for (i = 0; str < pos;) {
-      bag->color[i++] = *str++;
+    char* pos = strstr(s, " bags contain ");
+    for (i = 0; s < pos;) {
+      bag->color[i++] = *s++;
     }
     bag->color[i] = '\0';
 
     // skip " bags contain "
-    str += strlen(" bags contain ");
+    s += strlen(" bags contain ");
 
     // parse all children
     while (1) {
-      while (*str == ' ')
-        str++;
+      while (*s == ' ')
+        s++;
 
       // parse child quantity
       qty = 0;
-      while (*str >= '0' && *str <= '9') {
-        qty = qty * 10 + *str - '0';
-        str++;
+      while (*s >= '0' && *s <= '9') {
+        qty = qty * 10 + *s - '0';
+        s++;
       }
 
       bag->children[bag->nchildren].qty = qty;
 
       // skip whitespace
-      while (*str == ' ')
-        str++;
+      while (*s == ' ')
+        s++;
 
       // parse child color
-      pos = strstr(str, " bag");
-      for (i = 0; str < pos;) {
-        bag->children[bag->nchildren].color[i++] = *str++;
+      pos = strstr(s, " bag");
+      for (i = 0; s < pos;) {
+        bag->children[bag->nchildren].color[i++] = *s++;
       }
       bag->children[bag->nchildren].color[i] = '\0';
       bag->nchildren++;
 
       // skip forward to after next comma or dot
-      while (*str != ',' && *str != '.') {
-        str++;
+      while (*s != ',' && *s != '.') {
+        s++;
       }
 
       // if it was a dot, we're done parsing children
-      if (*str == '.') {
+      if (*s == '.') {
         break;
       } else {
-        str++;  // skip ,
+        s++;  // skip ,
       }
     }
 
@@ -157,7 +157,7 @@ int32_t count_children(bag_t* b) {
 }
 
 int day7() {
-  parse_rules_from_input("inputs/07.input");
+  parse_rules_from_input();
   bag_t* shiny_gold = find_bag("shiny gold");
   assert(shiny_gold != NULL);
 

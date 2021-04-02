@@ -174,7 +174,7 @@ int day18() {
   assert(eval("2 * 6 * 2 + 2 * 8 * (3 + 2 * (9 * 8) + 6 + 9 + 2)") == 170880);
 
   int64_t sum = 0;
-  FILE* f = fopen("inputs/18.input", "r");
+  FILE* f = fopen("inputs/18.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

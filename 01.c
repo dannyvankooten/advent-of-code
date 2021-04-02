@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "inputs/01.h"
 
 int 
 intcmp(const void *p1, const void *p2) {
@@ -16,22 +17,18 @@ intcmp(const void *p1, const void *p2) {
 }
 
 int day1() {
-  FILE* f = fopen("inputs/01.input", "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char linebuf[BUFSIZ];
   int32_t numbers[200] = {0};
   int32_t n = 0;
-  while ((fgets(linebuf, BUFSIZ, f) != NULL)) {
-    char* s = linebuf;
+  const unsigned char *s = input;
+  while (*s != '\0') {
     while (*s >= '0' && *s <= '9') {
       numbers[n] = (numbers[n] * 10) + (*s - '0');
       s++;
     }
+
+    if (*s == '\n') s++;
     n++;
   }
-  fclose(f);
 
   // Since the 3 numbers need to sum to 2020 and most input numbers are over half that
   // We're likely to find out answer sooner on a sorted list (small to large).

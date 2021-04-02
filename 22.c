@@ -219,7 +219,7 @@ int day22() {
     err(EXIT_FAILURE, "error allocating memory for games");
   }
 
-  game_t* game = parse_input("inputs/22.input");
+  game_t* game = parse_input("inputs/22.txt");
   player_t* winner = play_game(game);
   int64_t score = 0;
 

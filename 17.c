@@ -18,7 +18,7 @@ typedef struct grid grid_t;
 
 grid_t read_input() {
   char linebuf[BUFSIZ] = {0};
-  FILE* f = fopen("inputs/17.input", "r");
+  FILE* f = fopen("inputs/17.txt", "r");
   if (!f)
     err(EXIT_FAILURE, "error reading input file");
 

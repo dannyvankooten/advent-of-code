@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/08.h"
 
 enum instruction_types { NOOP, ACC, JUMP };
 
@@ -18,7 +19,8 @@ struct Instructions {
   size_t size;
 };
 
-struct Instruction parse_instruction_line(char* line) {
+const unsigned char *
+ parse_instruction_line(const unsigned char* line, struct Instruction *ins) {
   char buf[32];
   int32_t i = 0;
   while (*line != ' ') {
@@ -26,13 +28,12 @@ struct Instruction parse_instruction_line(char* line) {
   };
   buf[i] = '\0';
 
-  struct Instruction ins;
   if (strcmp(buf, "nop") == 0) {
-    ins.type = NOOP;
+    ins->type = NOOP;
   } else if (strcmp(buf, "acc") == 0) {
-    ins.type = ACC;
+    ins->type = ACC;
   } else if (strcmp(buf, "jmp") == 0) {
-    ins.type = JUMP;
+    ins->type = JUMP;
   } else {
     err(EXIT_FAILURE, "Invalid op type");
   }
@@ -42,7 +43,7 @@ struct Instruction parse_instruction_line(char* line) {
     line++;
 
   // read sign
-  ins.sign = *line == '+' ? 1 : -1;
+  ins->sign = *line == '+' ? 1 : -1;
   line++;
 
   // skip spaces
@@ -55,12 +56,12 @@ struct Instruction parse_instruction_line(char* line) {
     v = v * 10 + (*line - '0');
     line++;
   }
-  ins.value = v * ins.sign;
-  return ins;
+  ins->value = v * ins->sign;
+  return line;
 }
 
 int day8() {
-  const char* file = "inputs/08.input";
+  const unsigned char *s = input;
   struct Instructions ins = {
       .cap = 64,
       .size = 0,
@@ -71,13 +72,9 @@ int day8() {
   }
 
   // Parse input file
-  FILE* f = fopen(file, "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char linebuf[BUFSIZ] = {0};
-  while (fgets(linebuf, BUFSIZ, f) != NULL) {
-    struct Instruction i = parse_instruction_line(linebuf);
+  while (*s != '\0') {
+    struct Instruction* i = &ins.values[ins.size++];
+    s = parse_instruction_line(s, i);
     if (ins.size == ins.cap) {
       ins.cap *= 2;
       ins.values = realloc(ins.values, ins.cap * sizeof(struct Instruction));
@@ -85,9 +82,9 @@ int day8() {
         err(EXIT_FAILURE, "Error allocating memory for instruction values");
       }
     }
-    ins.values[ins.size++] = i;
+
+    if (*s == '\n') s++;
   }
-  fclose(f);
 
   int32_t* seen = malloc(ins.size * sizeof(int32_t));
   if (!seen) {

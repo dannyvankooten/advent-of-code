@@ -13,7 +13,7 @@ if [ -f "$FILE" ]; then
     fi
 fi;
 
-touch "$1.input"
+touch "$1.txt"
 touch $FILE
 cat > $FILE <<- EOM
 #include <stdio.h>
@@ -22,7 +22,7 @@ cat > $FILE <<- EOM
 #include <assert.h>
 
 int main() {
-    FILE *f = fopen("$1.input", "r");
+    FILE *f = fopen("$1.txt", "r");
     if (!f) err(EXIT_FAILURE, "error reading input file");
     char linebuf[BUFSIZ] = {0};
     while (fgets(linebuf, BUFSIZ, f) != NULL) {

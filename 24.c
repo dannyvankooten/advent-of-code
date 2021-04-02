@@ -173,7 +173,7 @@ int day24() {
     return 1;
   }
 
-  FILE* f = fopen("inputs/24.input", "r");
+  FILE* f = fopen("inputs/24.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

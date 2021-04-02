@@ -4,26 +4,23 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/09.h"
 
 int day9() {
-  FILE* f = fopen("inputs/09.input", "r");
-  if (!f) {
-    return 1;
-  }
+  const unsigned char *s = input;
   int64_t numbers[1000];
   size_t numbers_n = 0;
   int64_t invalid_n = 104054607;
-  char linebuf[BUFSIZ] = {0};
-  while (fgets(linebuf, BUFSIZ, f) != NULL) {
+  while (*s != '\0') {
     int64_t n = 0;
-    char* s = linebuf;
     while (*s >= '0' && *s <= '9') {
       n = n * 10 + (*s - '0');
       s++;
     }
     numbers[numbers_n++] = n;
+
+    if (*s == '\n') s++;
   }
-  fclose(f);
 
   // loop through numbers to find contiguous set
   // that sums to invalid_n (127)
@@ -53,7 +50,9 @@ int day9() {
     }
   }
 
-  printf("%ld\n", largest + smallest);
+  int64_t answer = largest + smallest;
+  printf("%ld\n", answer);
+  assert(answer == 13935797);
 
   return EXIT_SUCCESS;
 }

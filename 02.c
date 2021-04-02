@@ -2,18 +2,12 @@
 #include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "inputs/02.h"
 
 int day2() {
-  FILE* f = fopen("inputs/02.input", "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char buf[BUFSIZ];
   int32_t count_valid = 0;
-
-  while ((fgets(buf, BUFSIZ, f) != NULL)) {
-    char* s = buf;
-
+  const unsigned char *s = input;
+  while (*s != '\0') {
     // read lower limit
     int32_t lower_limit = 0;
     while (*s >= '0' && *s <= '9') {
@@ -45,8 +39,10 @@ int day2() {
         (s[higher_limit - 1] == c && s[lower_limit - 1] != c)) {
       count_valid++;
     }
+
+    while (*s != '\n' && *s != '\0') s++;
+    if (*s == '\n') s++;
   }
-  fclose(f);
 
   printf("%d\n", count_valid);
   assert(count_valid == 342);

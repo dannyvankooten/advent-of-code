@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#define M_PI 3.14159265358979323846 /* pi */
+
 struct instruction {
   char action;
   int32_t value;
@@ -35,7 +37,7 @@ void move_waypoint(struct ship* ship, char dir, int32_t value) {
       break;
   }
 }
-#define M_PI 3.14159265358979323846 /* pi */
+
 
 void rotate_waypoint(struct ship* ship, int value) {
   double v = (double)value * M_PI / 180.0;
@@ -51,7 +53,7 @@ int day12() {
   if (!instructions) {
     err(EXIT_FAILURE, "error allocating memory for instructions");
   }
-  FILE* f = fopen("inputs/12.input", "r");
+  FILE* f = fopen("inputs/12.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }

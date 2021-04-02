@@ -40,7 +40,7 @@ static void* erealloc(void* ptr, size_t size) {
 }
 
 static size_t parse_input(food_t* dest) {
-  FILE* fp = fopen("inputs/21.input", "r");
+  FILE* fp = fopen("inputs/21.txt", "r");
   if (!fp) {
     err(EXIT_FAILURE, "error reading input file");
   }

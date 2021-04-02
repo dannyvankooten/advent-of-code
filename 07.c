@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "ht.h"
 
-struct Bag {
+struct bag {
     char color[32];
     int32_t nchildren;
     struct {
@@ -14,18 +14,18 @@ struct Bag {
         int32_t qty;
     } children[16];
 };
+typedef struct bag bag_t;
 
 ht* bags;
-struct Bag *mbags;
+bag_t *mbags;
 
 void
 parse_rules_from_input(char *input_file) {
     int32_t i;
     int32_t qty;
-
     int32_t cap = 1024;
     int32_t size = 0;
-    mbags = (struct Bag *) malloc(cap * sizeof(struct Bag));
+    mbags = (bag_t *) malloc(cap * sizeof(bag_t));
     if (!mbags) {
         err(EXIT_FAILURE, "error allocating memory for bags");
     }
@@ -38,15 +38,15 @@ parse_rules_from_input(char *input_file) {
     bags = ht_create();
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         char *str = linebuf;
-        struct Bag *bag = &mbags[size++];
+        bag_t *bag = &mbags[size++];
         if (size == cap) {
             cap *= 2;
-            mbags = (struct Bag *) realloc(mbags, cap * sizeof(struct Bag));
+            mbags = (bag_t *) realloc(mbags, cap * sizeof(bag_t));
             if (!mbags) {
                 err(EXIT_FAILURE, "error allocating memory for bags");
             }
         }
-        //struct Bag *bag = malloc(sizeof(struct Bag));
+        //bag_t *bag = malloc(sizeof(bag_t));
         bag->nchildren = 0;
         bag->color[0] = '\0';
         
@@ -85,7 +85,7 @@ parse_rules_from_input(char *input_file) {
             bag->nchildren++;
 
             // skip forward to after next comma or dot
-            while (*(str) != ',' && *str != '.') {
+            while (*str != ',' && *str != '.') {
                 str++;
             }
 
@@ -105,15 +105,15 @@ parse_rules_from_input(char *input_file) {
     fclose(f);
 }
 
-struct Bag *
+bag_t *
 find_bag(const char color[32]) {
-    struct Bag *b;
-    b = (struct Bag *) ht_get(bags, color);
+    bag_t *b;
+    b = (bag_t *) ht_get(bags, color);
     return b;
 }
 
 int32_t 
-may_bag_contain_color(struct Bag *b, const char color[32]) {
+may_bag_contain_color(bag_t *b, const char color[32]) {
     if (b == NULL) {
         return 0;
     }
@@ -142,7 +142,7 @@ int32_t search_bags_for_color(const char color[32]) {
     return count;
 }
 
-int32_t count_children(struct Bag *b)
+int32_t count_children(bag_t *b)
 {
     if (b == NULL) {
         return 0;
@@ -159,7 +159,7 @@ int32_t count_children(struct Bag *b)
 int day7() 
 {
     parse_rules_from_input("07.input");
-    struct Bag *shiny_gold = find_bag("shiny gold");
+    bag_t *shiny_gold = find_bag("shiny gold");
     assert(shiny_gold != NULL);
 
     printf("%d\n", search_bags_for_color("shiny gold"));

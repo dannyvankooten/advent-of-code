@@ -42,11 +42,14 @@ ht* ht_create(void) {
 
 void ht_destroy(ht* table) {
     // First free allocated keys.
+
+    #ifdef HT_DUPKEYS
     for (size_t i = 0; i < table->capacity; i++) {
         if (table->entries[i].key != NULL) {
             free((void*)table->entries[i].key);
         }
     }
+    #endif
 
     // Then free entries array and table itself.
     free(table->entries);
@@ -112,10 +115,12 @@ static const char* ht_set_entry(ht_entry* entries, size_t capacity,
 
     // Didn't find key, allocate+copy if needed, then insert it.
     if (plength != NULL) {
+        #ifdef HT_DUPKEYS
         key = strdup(key);
         if (key == NULL) {
             return NULL;
         }
+        #endif
         (*plength)++;
     }
     entries[index].key = (char*)key;

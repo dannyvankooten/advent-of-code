@@ -65,3 +65,4 @@ Total:   958 ms
 - Gprof, https://sourceware.org/binutils/docs/gprof/index.html
 - GDB, https://www.gnu.org/software/gdb/
 - Cachegrind, https://valgrind.org/docs/manual/cg-manual.html
+- Clang-format, https://clang.llvm.org/docs/ClangFormat.html

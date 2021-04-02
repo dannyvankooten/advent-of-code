@@ -1,153 +1,149 @@
+#include <assert.h>
+#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <err.h>
-#include <assert.h>
 #include <string.h>
 
-enum instruction_types {
-    NOOP,
-    ACC,
-    JUMP
-};
+enum instruction_types { NOOP, ACC, JUMP };
 
 struct Instruction {
-    enum instruction_types type;
-    char sign;
-    int32_t value;
+  enum instruction_types type;
+  char sign;
+  int32_t value;
 };
 
 struct Instructions {
-    struct Instruction *values;
-    size_t cap;
-    size_t size;
+  struct Instruction* values;
+  size_t cap;
+  size_t size;
 };
 
-struct Instruction 
-parse_instruction_line(char *line) 
-{
-    char buf[32];
-    int32_t i = 0;
-    while (*line != ' ') {
-        buf[i++] = *line++;
-    };
-    buf[i] = '\0';
+struct Instruction parse_instruction_line(char* line) {
+  char buf[32];
+  int32_t i = 0;
+  while (*line != ' ') {
+    buf[i++] = *line++;
+  };
+  buf[i] = '\0';
 
-    struct Instruction ins;
-    if (strcmp(buf, "nop") == 0) {
-        ins.type = NOOP;
-    } else if(strcmp(buf, "acc") == 0) {
-        ins.type = ACC;
-    } else if (strcmp(buf, "jmp") == 0) {
-        ins.type = JUMP;
-    } else {
-        err(EXIT_FAILURE, "Invalid op type");
-    }
+  struct Instruction ins;
+  if (strcmp(buf, "nop") == 0) {
+    ins.type = NOOP;
+  } else if (strcmp(buf, "acc") == 0) {
+    ins.type = ACC;
+  } else if (strcmp(buf, "jmp") == 0) {
+    ins.type = JUMP;
+  } else {
+    err(EXIT_FAILURE, "Invalid op type");
+  }
 
-    // skip spaces
-    while (*line == ' ') line++;
-
-    // read sign
-    ins.sign = *line == '+' ? 1 : -1;
+  // skip spaces
+  while (*line == ' ')
     line++;
 
-    // skip spaces
-    while (*line == ' ') line++;
+  // read sign
+  ins.sign = *line == '+' ? 1 : -1;
+  line++;
 
-    // read value
-    int32_t v = 0;
-    while (*line != '\n' && *line != '\0') {
-        v = v * 10 + (*line - '0');
-        line++;
-    }
-    ins.value = v * ins.sign;
-    return ins;    
+  // skip spaces
+  while (*line == ' ')
+    line++;
+
+  // read value
+  int32_t v = 0;
+  while (*line != '\n' && *line != '\0') {
+    v = v * 10 + (*line - '0');
+    line++;
+  }
+  ins.value = v * ins.sign;
+  return ins;
 }
 
 int day8() {
-    const char *file = "08.input"; 
-    struct Instructions ins = {
-        .cap = 64,
-        .size = 0,
-        .values = malloc(64 * sizeof (struct Instruction)),
-    };
-    if (!ins.values) {
+  const char* file = "inputs/08.input";
+  struct Instructions ins = {
+      .cap = 64,
+      .size = 0,
+      .values = malloc(64 * sizeof(struct Instruction)),
+  };
+  if (!ins.values) {
+    err(EXIT_FAILURE, "Error allocating memory for instruction values");
+  }
+
+  // Parse input file
+  FILE* f = fopen(file, "r");
+  if (!f) {
+    err(EXIT_FAILURE, "error reading input file");
+  }
+  char linebuf[BUFSIZ] = {0};
+  while (fgets(linebuf, BUFSIZ, f) != NULL) {
+    struct Instruction i = parse_instruction_line(linebuf);
+    if (ins.size == ins.cap) {
+      ins.cap *= 2;
+      ins.values = realloc(ins.values, ins.cap * sizeof(struct Instruction));
+      if (!ins.values) {
         err(EXIT_FAILURE, "Error allocating memory for instruction values");
+      }
     }
+    ins.values[ins.size++] = i;
+  }
+  fclose(f);
 
-    // Parse input file
-    FILE *f = fopen(file, "r");
-    if (!f) {
-        err(EXIT_FAILURE, "error reading input file");
-    }
-    char linebuf[BUFSIZ] = {0};
-    while (fgets(linebuf, BUFSIZ, f) != NULL) {
-        struct Instruction i = parse_instruction_line(linebuf);
-        if (ins.size == ins.cap) {
-            ins.cap *= 2;
-            ins.values = realloc(ins.values, ins.cap * sizeof(struct Instruction));
-            if (!ins.values) {
-                err(EXIT_FAILURE, "Error allocating memory for instruction values");
-            }
+  int32_t* seen = malloc(ins.size * sizeof(int32_t));
+  if (!seen) {
+    err(EXIT_FAILURE, "error allocating memory for seen array");
+  }
+  struct Instruction i;
+
+  for (size_t c = 0; c < ins.size; c++) {
+    int32_t acc = 0;
+    size_t ip;
+    memset(seen, 0, ins.size * sizeof(0));
+
+    for (ip = 0; ip < ins.size;) {
+      i = ins.values[ip];
+
+      // break if we've seen this instruction already
+      if (seen[ip] == 1) {
+        break;
+      }
+      seen[ip] = 1;
+
+      enum instruction_types type = i.type;
+      if (c == ip) {
+        if (type == NOOP && i.value != 0) {
+          type = JUMP;
+        } else if (type == JUMP) {
+          type = NOOP;
         }
-        ins.values[ins.size++] = i;
-    }
-    fclose(f);
+      }
 
-    int32_t *seen = malloc(ins.size * sizeof(int32_t));
-    if (!seen) {
-        err(EXIT_FAILURE, "error allocating memory for seen array");
-    }
-    struct Instruction i;
+      switch (type) {
+        case NOOP:
+          // Do nothing special
+          break;
 
-    for (size_t c=0; c < ins.size; c++) {
-        int32_t acc = 0;
-        size_t ip;
-        memset(seen, 0, ins.size * sizeof(0));
+        case ACC:
+          acc += i.value;
+          break;
 
-        for (ip=0; ip < ins.size; ) {
-            i = ins.values[ip];
+        case JUMP:
+          ip += i.value;
+          continue;  // continue without increment instruction pointer
+          break;
+      }
 
-            // break if we've seen this instruction already
-            if (seen[ip] == 1) {
-                break;
-            }
-            seen[ip] = 1;
-
-            enum instruction_types type = i.type;
-            if (c == ip) {
-                if (type == NOOP && i.value != 0) {
-                    type = JUMP;
-                } else if (type == JUMP) {
-                    type = NOOP;
-                }
-            }
-
-            switch (type) {
-                case NOOP:
-                // Do nothing special
-                break;
-
-                case ACC:
-                acc += i.value;
-                break;
-
-                case JUMP:
-                ip += i.value;
-                continue; // continue without increment instruction pointer
-                break;
-            }
-
-            ip++;
-        }
-
-        // Print result if we made it to end of program
-        if (ip == ins.size) {
-            printf("%d\n", acc);
-            assert(acc == 2092);
-        }
+      ip++;
     }
 
-    free(ins.values);
-    free(seen);
-    return 0;
+    // Print result if we made it to end of program
+    if (ip == ins.size) {
+      printf("%d\n", acc);
+      assert(acc == 2092);
+    }
+  }
+
+  free(ins.values);
+  free(seen);
+  return 0;
 }

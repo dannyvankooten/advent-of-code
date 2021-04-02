@@ -26,6 +26,9 @@ parse_rules_from_input(char *input_file) {
     int32_t cap = 1024;
     int32_t size = 0;
     mbags = (struct Bag *) malloc(cap * sizeof(struct Bag));
+    if (!mbags) {
+        err(EXIT_FAILURE, "error allocating memory for bags");
+    }
 
     FILE *f = fopen(input_file, "r");
     if (!f) {
@@ -39,6 +42,9 @@ parse_rules_from_input(char *input_file) {
         if (size == cap) {
             cap *= 2;
             mbags = (struct Bag *) realloc(mbags, cap * sizeof(struct Bag));
+            if (!mbags) {
+                err(EXIT_FAILURE, "error allocating memory for bags");
+            }
         }
         //struct Bag *bag = malloc(sizeof(struct Bag));
         bag->nchildren = 0;

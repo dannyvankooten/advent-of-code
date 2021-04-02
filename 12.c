@@ -48,10 +48,13 @@ void rotate_waypoint(struct ship *ship, int value) {
 int day12() {
     int instructions_n = 0;
     struct instruction *instructions = malloc(800 * sizeof(struct instruction));
-    if (!instructions) err(EXIT_FAILURE, "oom");
-
+    if (!instructions) {
+        err(EXIT_FAILURE, "error allocating memory for instructions");
+    }
     FILE *f = fopen("12.input", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char linebuf[BUFSIZ] = {0};
     char *s;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {

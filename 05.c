@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <err.h>
 
 struct Seat {
     int row;
@@ -66,7 +67,7 @@ int day5() {
 
     FILE *f = fopen("05.input", "r");
     if (!f) {
-        return 1;
+        err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ] = {0};
 
@@ -90,8 +91,8 @@ int day5() {
     }
     fclose(f);    
 
-    for (int r=1; r<127; r++) {
-        for (int c=0; c<8; c++) {
+    for (int r=1; r < 127; r++) {
+        for (int c=0; c < 8; c++) {
             if (seats[r][c] == 0) {
                 printf("%d\n", r*8+c);
                 return 0;

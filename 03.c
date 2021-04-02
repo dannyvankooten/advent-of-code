@@ -2,6 +2,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <err.h>
 
 const int_fast8_t SQ_TREE = 1;
 const int_fast8_t SQ_OPEN = 0;
@@ -12,10 +13,13 @@ unsigned long count_trees(int_fast8_t *grid, int slope_y, int slope_x);
 int day3() {
     FILE *f = fopen("03.input", "r");
     if (!f) {
-        return 1;
+        err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ] = {0};
     int_fast8_t *grid = calloc(HEIGHT * WIDTH, sizeof(int_fast8_t));
+    if (!grid) {
+        err(EXIT_FAILURE, "error allocating memory for grid values");
+    }
     int y = 0;
     int x = 0;
 

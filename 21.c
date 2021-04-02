@@ -21,6 +21,29 @@ typedef struct {
     size_t noptions;
 } allergen_t;
 
+
+static 
+void *
+emalloc(size_t size) {
+    void *ptr = malloc(size);
+    if (!ptr) {
+        err(EXIT_FAILURE, "error allocating memory");
+    }
+
+    return ptr;
+}
+
+static 
+void *
+erealloc(void *ptr, size_t size) {
+    ptr = realloc(ptr, size);
+    if (!ptr) {
+        err(EXIT_FAILURE, "error allocating memory");
+    }
+
+    return ptr;
+}
+
 static 
 size_t  
 parse_input(food_t *dest) {
@@ -38,14 +61,14 @@ parse_input(food_t *dest) {
         food_t *f = &dest[n++];
         f->ningredients = 0;
         f->nallergens = 0;
-        f->ingredients = malloc(i_cap * MAX_NAME_LENGTH * sizeof(char));
-        f->allergens = malloc(a_cap * MAX_NAME_LENGTH * sizeof(char));
+        f->ingredients = emalloc(i_cap * MAX_NAME_LENGTH * sizeof(char));
+        f->allergens = emalloc(a_cap * MAX_NAME_LENGTH * sizeof(char));
         
         char *s = linebuf;
         while (*s != '(') {
             if (f->ningredients == i_cap) {
                 i_cap *= 2;
-                f->ingredients = realloc(f->ingredients, i_cap * sizeof(char[MAX_NAME_LENGTH]));
+                f->ingredients = erealloc(f->ingredients, i_cap * sizeof(char[MAX_NAME_LENGTH]));
             }
 
             char *ingredient = f->ingredients[f->ningredients++];
@@ -64,7 +87,7 @@ parse_input(food_t *dest) {
             while (*s != ')') {
                 if (f->nallergens == a_cap) {
                     a_cap *= 2;
-                    f->allergens = realloc(f->allergens, a_cap  * sizeof(char[MAX_NAME_LENGTH]));
+                    f->allergens = erealloc(f->allergens, a_cap  * sizeof(char[MAX_NAME_LENGTH]));
                 }
                 char *allergen = f->allergens[f->nallergens++];
                 char *a = allergen;
@@ -157,12 +180,12 @@ remove_option_from_allergen(allergen_t *a, size_t index) {
 }
 
 int day21() {
-    food_t * foods = malloc(28 * sizeof(food_t));
+    food_t * foods = emalloc(28 * sizeof(food_t));
     size_t nfoods = parse_input(foods);
 
     // go over each allergen, finding intersection of ingredients as we go
     size_t nallergens = 0;
-    allergen_t *allergen_list = malloc(28 * sizeof(allergen_t));
+    allergen_t *allergen_list = emalloc(28 * sizeof(allergen_t));
     for (size_t i = 0; i < nfoods; i++) {
         food_t *f = &foods[i];
         
@@ -171,7 +194,7 @@ int day21() {
             if (a == NULL) {
                 a = &allergen_list[nallergens++];
                 a->name = f->allergens[j];
-                a->options = malloc(f->ningredients * sizeof(char *));
+                a->options = emalloc(f->ningredients * sizeof(char *));
                 a->noptions = f->ningredients;
                 for (size_t k=0; k < f->ningredients; k++) {
                     a->options[k] = f->ingredients[k];

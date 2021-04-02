@@ -5,3 +5,4 @@ vgcore*
 */cachegrind.out.*
 *.gcc
 *.clang
+aoc2020

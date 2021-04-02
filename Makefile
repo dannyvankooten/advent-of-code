@@ -1,4 +1,3 @@
-CC = clang
 CFLAGS += -Wextra -Wall
 
 debug: CFLAGS += -DDEBUG -g -DSTEP
@@ -8,4 +7,4 @@ release: CFLAGS += -Ofast -march=native
 release: all
 
 all:
-	$(CC) $(CFLAGS) *.c -lm
+	$(CC) $(CFLAGS) *.c -lm -o aoc2020

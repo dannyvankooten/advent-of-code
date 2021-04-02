@@ -147,7 +147,7 @@ count_adjacent_black_tiles(color_t *grid, int32_t x, int32_t y) {
 
 void
 apply_rules(color_t *grid) {
-    color_t new_grid[GRIDSIZE_SQ] = { WHITE };
+    color_t new_grid[GRIDSIZE_SQ];
 
     for (int32_t y=0; y < GRIDSIZE; y++) {
         for (int32_t x=0; x < GRIDSIZE; x++) {
@@ -160,13 +160,13 @@ apply_rules(color_t *grid) {
                         *new_color = BLACK;
                         black_tile_count++;
                     } else {
-                        // *new_color = WHITE;
+                        *new_color = WHITE;
                     }
                 break;
 
                 case BLACK:
                     if (black_neighbors == 0 || black_neighbors > 2) {
-                        // *new_color = WHITE;
+                        *new_color = WHITE;
                         black_tile_count--;
                     } else {
                         *new_color = BLACK;

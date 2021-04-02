@@ -51,7 +51,9 @@ int day6() {
 
     // Actual input
     FILE *f = fopen("06.input", "r");
-    if (!f) err(EXIT_FAILURE, "Error reading input file.");
+    if (!f) {
+        err(EXIT_FAILURE, "Error reading input file.");
+    }
 
     char line_buf[BUFSIZ] = {0};
     char group_buf[BUFSIZ] = {0};

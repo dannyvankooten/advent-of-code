@@ -361,6 +361,9 @@ int day20() {
     // generate our final image, plain char array
     int32_t final_image_size = (W-2) * image_size;
     char *final_image = malloc((W-2) * image_size * (H-2) * image_size);
+    if (!final_image) {
+        err(EXIT_FAILURE, "error allocating memory for image");
+    }
     remove_image_borders(final_image, image, image_size);
 
     

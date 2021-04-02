@@ -250,7 +250,7 @@ day22() {
     // pre-allocate memory for main game and enough sub-games
     games_memory = malloc(50 * sizeof(game_t));
     if (!games_memory) {
-        return 1;
+        err(EXIT_FAILURE, "error allocating memory for games");
     }
 
     game_t *game = parse_input("22.input");

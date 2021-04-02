@@ -103,6 +103,9 @@ int day19() {
 
     // parse rules
     rule_t *rules = malloc(200 * sizeof(rule_t));
+    if (!rules) {
+        err(EXIT_FAILURE, "error allocating memory for rules");
+    }
     for (int i=0; i < 200; i++) {
         for (int j=0; j<3; j++) {
             rules[i].main[j] = -1;

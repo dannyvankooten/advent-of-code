@@ -1,10 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
- 
+#include <err.h>
+
 int day1()  {
     FILE *f = fopen("01.input", "r");
     if (!f) {
-        return 1;
+        err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ];
     int numbers[BUFSIZ];

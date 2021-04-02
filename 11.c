@@ -134,7 +134,9 @@ static void transmute_grid(struct grid *grid) {
 
 int day11() {
     FILE *f = fopen("11.input", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char linebuf[BUFSIZ] = {0};
 
     struct grid grid = {
@@ -144,9 +146,14 @@ int day11() {
     };
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         grid.h++;
-        grid.w = grid.w > 0 ? grid.w : (int) strlen(linebuf) - 1;
+        if (grid.w == 0) {
+            grid.w = (int) strlen(linebuf) - 1;
+        }
     }
     grid.values = malloc(grid.h * grid.w * sizeof(enum position));
+    if (!grid.values) {
+        err(EXIT_FAILURE, "error allocating memory for grid values");
+    }
     fseek(f, 0, SEEK_SET);
     int y = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {

@@ -1,8 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <err.h>
 
 int day2() {
 	FILE *f = fopen("02.input", "r");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char buf[BUFSIZ];
     char token[16];
     int count_valid = 0;

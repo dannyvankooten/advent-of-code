@@ -70,22 +70,33 @@ int day8() {
         .size = 0,
         .values = malloc(64 * sizeof (struct Instruction)),
     };
+    if (!ins.values) {
+        err(EXIT_FAILURE, "Error allocating memory for instruction values");
+    }
 
     // Parse input file
     FILE *f = fopen(file, "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char linebuf[BUFSIZ] = {0};
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         struct Instruction i = parse_instruction_line(linebuf);
-        if (ins.size + 1 >= ins.cap) {
+        if (ins.size == ins.cap) {
             ins.cap *= 2;
             ins.values = realloc(ins.values, ins.cap * sizeof(struct Instruction));
+            if (!ins.values) {
+                err(EXIT_FAILURE, "Error allocating memory for instruction values");
+            }
         }
         ins.values[ins.size++] = i;
     }
     fclose(f);
 
     int *seen = malloc(ins.size * sizeof(int));
+    if (!seen) {
+        err(EXIT_FAILURE, "error allocating memory for seen array");
+    }
     struct Instruction i;
 
     for (size_t c=0; c < ins.size; c++) {

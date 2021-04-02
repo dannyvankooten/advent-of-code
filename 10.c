@@ -18,7 +18,9 @@ compare(const void *p1, const void *p2) {
 
 int day10() {
     FILE *f = fopen("10.input", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file"); 
+    }
 
     int64_t adapter_joltages[108];
     size_t adapter_n = 0;

@@ -111,7 +111,7 @@ int
 day4() {
 	FILE *f = fopen("04.input", "r");
     if (!f) {
-        return 1;
+        err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ];
     char fields[8] = {0};

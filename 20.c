@@ -352,8 +352,6 @@ int day20() {
         }
     }
 
-
-
     // print_image_ids(image, image_size);
     // print_image(image, image_size);
 

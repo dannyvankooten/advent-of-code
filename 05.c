@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,33 +6,35 @@
 #include <err.h>
 
 struct Seat {
-    int row;
-    int column;
-    int seat;
+    int32_t row;
+    int32_t column;
+    int32_t seat;
 };
 
-int decode_row(char *v) {
-    int l = 0;
-    int h = 127;
+int32_t
+decode_row(char *v) {
+    int32_t l = 0;
+    int32_t h = 127;
 
-    for (int i=0; i < 6; i++) {
-        int d = ((h+1) - l) / 2;
+    for (int8_t i=0; i < 6; i++) {
+        int32_t d = ((h+1) - l) / 2;
         if (v[i] == 'F') {
             h -= d;
         } else {
             l += d;
         }
     }
-    int row = v[6] == 'F' ? l : h;
+    int32_t row = v[6] == 'F' ? l : h;
     return row;
 }
 
-int decode_column(char *v) {
-    int l = 0;
-    int h = 7;
+int32_t
+decode_column(char *v) {
+    int32_t l = 0;
+    int32_t h = 7;
 
-    for (int i=0; i < 2; i++) {
-        int d = ((h+1) - l) / 2;
+    for (int8_t i=0; i < 2; i++) {
+        int32_t d = ((h+1) - l) / 2;
 
         if (v[i] == 'L') {
             h -= d;
@@ -40,14 +43,14 @@ int decode_column(char *v) {
         }
     }
 
-    int column = v[2] == 'L' ? l : h;
+    int32_t column = v[2] == 'L' ? l : h;
     return column;
 }
 
 struct Seat 
 decode(char *v) {
-    int r = decode_row(v);
-    int c = decode_column(v+7);
+    int32_t r = decode_row(v);
+    int32_t c = decode_column(v+7);
     struct Seat s = {
         .column = c,
         .row = r,
@@ -73,7 +76,7 @@ int day5() {
 
     // find seat with highest seat ID
     struct Seat s;
-    int max_seat_id = 0;
+    int32_t max_seat_id = 0;
     while ((fgets(buf, BUFSIZ, f) != NULL)) {
         s = decode(buf);
         if (s.seat > max_seat_id) {
@@ -81,9 +84,10 @@ int day5() {
         }
     }
     printf("%d\n", max_seat_id);
+    assert(max_seat_id == 933);
 
     // find our seat (missing from list, not at (unknown) front or back)
-    int seats[128][8] = {0};
+    int8_t seats[128][8] = {0};
     fseek(f, 0, SEEK_SET);
     while ((fgets(buf, BUFSIZ, f) != NULL)) {
         s = decode(buf);
@@ -91,14 +95,18 @@ int day5() {
     }
     fclose(f);    
 
-    for (int r=1; r < 127; r++) {
-        for (int c=0; c < 8; c++) {
+    int32_t result = 0;
+    for (int8_t r=1; r < 127; r++) {
+        for (int8_t c=0; c < 8; c++) {
             if (seats[r][c] == 0) {
-                printf("%d\n", r*8+c);
-                return 0;
+                result = r * 8 + c;
+                goto RESULT_FOUND;
             }
         }
     }
 
+    RESULT_FOUND: ;
+    printf("%d\n", result);
+    assert(result == 711);
     return 0;
 }

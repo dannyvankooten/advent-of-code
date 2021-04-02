@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
+#include <assert.h>
 
 int day2() {
 	FILE *f = fopen("02.input", "r");
@@ -8,48 +9,40 @@ int day2() {
         err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ];
-    char token[16];
-    int count_valid = 0;
+    int32_t count_valid = 0;
 
     while ((fgets(buf, BUFSIZ, f) != NULL)) {
-        char *l = buf;
+        char *s = buf;
         
         // read lower limit
-        char *t = token;
-        int lower_limit = 0;
-        while (*l != '-') {
-            *t = *l;
-            t++; 
-            l++;
+        int32_t lower_limit = 0;
+        while (*s >= '0' && *s <= '9') {
+            lower_limit = (lower_limit * 10) + (*s - '0');
+            s++;
         }
-        *t = '\0';
-        lower_limit = strtol(token, NULL, 10);
-
-        // consume "-"
-        l++;
+        
+        // '-'
+        s++; 
 
         // read higher limit
-        t = token;
-        int higher_limit = 0;
-        while (*l != ' ') {
-            *t = *l;
-            t++; 
-            l++;
+        int32_t higher_limit = 0;
+        while (*s >= '0' && *s <= '9') {
+            higher_limit = (higher_limit * 10) + (*s - '0');
+            s++;
         }
-        *t = '\0';
-        higher_limit = strtol(token, NULL, 10);
 
-        // consume space
-        while (*l == ' ') l++;
+        // ' '
+        s++;
 
         // read char requirement
-        char c = *l++;
+        char c = *s++;
 
-        // skip ":" and " "
-        while (*l == ' ' || *l == ':') l++;
+        // ": "
+        s += 2;
+
 
         // read until "\n", check if c is between low and higher limit
-        if ( (l[lower_limit-1] == c && l[higher_limit-1] != c ) || (l[higher_limit-1] == c && l[lower_limit-1] != c) ) {
+        if ( (s[lower_limit-1] == c && s[higher_limit-1] != c ) || (s[higher_limit-1] == c && s[lower_limit-1] != c) ) {
             count_valid++;
         }
          
@@ -57,5 +50,6 @@ int day2() {
     fclose(f);
 
     printf("%d\n", count_valid);
+    assert(count_valid == 342);
     return 0;
 }

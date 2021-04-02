@@ -3,12 +3,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
+#include <assert.h>
 
-const int_fast8_t SQ_TREE = 1;
-const int_fast8_t SQ_OPEN = 0;
-const int HEIGHT = 323;
-const int WIDTH = 31;
-unsigned long count_trees(int_fast8_t *grid, int slope_y, int slope_x);
+const int8_t SQ_TREE = 1;
+const int8_t SQ_OPEN = 0;
+const int32_t HEIGHT = 323;
+const int32_t WIDTH = 31;
+uint64_t count_trees(int_fast8_t *grid, int slope_y, int slope_x);
 
 int day3() {
     FILE *f = fopen("03.input", "r");
@@ -16,19 +17,18 @@ int day3() {
         err(EXIT_FAILURE, "error reading input file");
     }
     char buf[BUFSIZ] = {0};
-    int_fast8_t *grid = calloc(HEIGHT * WIDTH, sizeof(int_fast8_t));
+    int8_t *grid = calloc(HEIGHT * WIDTH, sizeof(int8_t));
     if (!grid) {
         err(EXIT_FAILURE, "error allocating memory for grid values");
     }
-    int y = 0;
-    int x = 0;
 
+    int32_t y = 0;
     while (fgets(buf, BUFSIZ, f) != NULL) {
-        x = 0;
-        char *str = buf;
-        while (*str != '\n' && *str != '\0') {
-            grid[y * WIDTH + x] = (*str == '#') ? SQ_TREE : SQ_OPEN;
-            str++;
+        int32_t x = 0;
+        char *s = buf;
+        while (*s != '\n' && *s != '\0') {
+            grid[y * WIDTH + x] = (*s == '#') ? SQ_TREE : SQ_OPEN;
+            s++;
             x++;
         }
 
@@ -54,14 +54,14 @@ int day3() {
         * count_trees(grid, 2, 1);
 
     printf("%" PRId64 "\n", product);
-
+    assert(product == 4355551200);
     free(grid);
     return 0;
 }
 
-unsigned long count_trees(int_fast8_t *grid, int slope_y, int slope_x) {
-    unsigned long tree_count = 0;
-    for (int y=0, x = 0; y < 322; y += slope_y, x += slope_x) {
+uint64_t count_trees(int_fast8_t *grid, int slope_y, int slope_x) {
+    uint64_t tree_count = 0;
+    for (int32_t y=0, x = 0; y < 322; y += slope_y, x += slope_x) {
         if (x >= 31) {
             x -= 31;
         }

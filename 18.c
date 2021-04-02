@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
@@ -6,7 +7,12 @@
 #include <limits.h>
 #include <string.h>
 
-int tokens_read;
+typedef enum precedence {
+    LOWEST = 1,
+    PRODUCT,
+    SUM,
+    CALL,
+} precedence_t;
 
 typedef struct token {
     enum token_type {
@@ -17,8 +23,8 @@ typedef struct token {
         TOK_RPAREN,
         TOK_EOF
     } type;
-    long long value;
-    int precedence;
+    int64_t value;
+    precedence_t precedence;
 } token_t;
 
 static const char *token_names[] = {
@@ -31,14 +37,8 @@ static const char *token_names[] = {
 };
 
 static char *s;
-long long _eval();
 
-enum precedence {
-    LOWEST = 1,
-    PRODUCT,
-    SUM,
-    CALL,
-};
+int64_t _eval();
 
 token_t
 gettoken() {
@@ -77,15 +77,13 @@ gettoken() {
                 err(EXIT_FAILURE, "Invalid token at '%s'", s);
             }
 
-            char buf[64];
-            char *n = buf;
-            while (isdigit(*s)) {
-                *n++ = *s++;
-            }
-            *n = '\0';
             tok.type = TOK_NUMBER;
-            tok.value = strtoll(buf, NULL, 10);
-        break;
+            tok.value = 0;
+            while (isdigit(*s)) {
+                tok.value = (tok.value * 10) + (*s - '0');
+                s++;
+            }
+            break;
     }
 
     return tok;
@@ -99,8 +97,8 @@ nexttoken() {
     return tok;
 }
 
-long long 
-_eval_infix_expression(long long left) {
+int64_t 
+_eval_infix_expression(int64_t left) {
     // parse operator
     token_t op = gettoken();
     if (op.type != TOK_ASTERISK && op.type != TOK_PLUS) {
@@ -108,7 +106,7 @@ _eval_infix_expression(long long left) {
     }
 
     // evaluate right
-    long long right = _eval(op.precedence);
+    int64_t right = _eval(op.precedence);
 
     switch (op.type) {
         case TOK_ASTERISK:
@@ -127,10 +125,9 @@ _eval_infix_expression(long long left) {
     return left;
 }
 
-
-
-long long _eval(int precedence) {
-    long long left;
+int64_t 
+_eval(precedence_t precedence) {
+    int64_t left;
 
     token_t tok = gettoken();
     switch (tok.type) {
@@ -163,11 +160,11 @@ long long _eval(int precedence) {
     return left;
 }
 
-long long eval(char *input) {
+int64_t 
+eval(char *input) {
     s = input;
-    return _eval(1);
+    return _eval(LOWEST);
 }
-
 
 int day18() {
     assert(eval("1 + 2 * 3 + 4 * 5 + 6") == 231);
@@ -181,15 +178,18 @@ int day18() {
     assert(eval("9 + 3 * ((2 * 7) * 4 + 9 + 8 * (6 + 5) * 7) * 5 + 9") == 3803184);
     assert(eval("2 * 6 * 2 + 2 * 8 * (3 + 2 * (9 * 8) + 6 + 9 + 2)") == 170880);
 
-    long long sum = 0LL;
+    int64_t sum = 0;
     FILE *f = fopen("18.input", "r");
-    if (!f) err(EXIT_FAILURE, "error reading input file");
+    if (!f) {
+        err(EXIT_FAILURE, "error reading input file");
+    }
     char linebuf[BUFSIZ] = {0};
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
         sum += eval(linebuf);
     }
     fclose(f);
 
-    printf("%lld\n", sum);
+    printf("%ld\n", sum);
+    assert(sum == 122438593522757);
     return 0;
 }

@@ -119,17 +119,17 @@ int32_t day16() {
 
             // loop over rules
             // if digit is not in any range, add to sum of invalid values
-            valid_any = 0;
+            valid_any = false;
             for (size_t i=0; i < nrules; i++) {
                 if (
                     (d >= rules[i].ranges[0] && d <= rules[i].ranges[1]) 
                     || (d >= rules[i].ranges[2] && d <= rules[i].ranges[3]) 
                     ) {
-                    valid_any = 1;
+                    valid_any = true;
                     break;
                 }
             }
-            if (0 == valid_any) {
+            if (! valid_any) {
                 goto SKIPTICKET;
             }
 

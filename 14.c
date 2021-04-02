@@ -187,7 +187,7 @@ int32_t day14() {
     int64_t sum = 0;
     for (size_t i=0; i < size; i++) {
         #ifdef STEP
-        printf("\n%d  \tmask=\t\t%.36s\n", i, mask);
+        printf("\n%ld  \tmask=\t\t%.36s\n", i, mask);
         #endif
         
         switch (instructions[i].type) {

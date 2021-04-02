@@ -57,6 +57,7 @@ Total:   958 ms
 - Linear probing, https://en.wikipedia.org/wiki/Linear_probing
 - Left recursion, https://en.wikipedia.org/wiki/Left_recursion
 - Dynamic programming, https://en.wikipedia.org/wiki/Dynamic_programming
+- How to C (as of 2016), https://matt.sh/howto-c
 
 ### Tools
 

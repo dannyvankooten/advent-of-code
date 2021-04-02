@@ -6,12 +6,12 @@
 
 struct instruction {
     char action;
-    int value;
+    int32_t value;
 };
 
 struct position {
-    int x;
-    int y;
+    int32_t x;
+    int32_t y;
 };
 
 struct ship {
@@ -19,7 +19,7 @@ struct ship {
     struct position waypoint;
 };
 
-void move_waypoint(struct ship *ship, char dir, int value) {
+void move_waypoint(struct ship *ship, char dir, int32_t value) {
     switch (dir) {
         case 'N':
             ship->waypoint.y += value;
@@ -39,14 +39,14 @@ void move_waypoint(struct ship *ship, char dir, int value) {
 
 void rotate_waypoint(struct ship *ship, int value) {
     double v = (double) value * M_PI / 180.0;
-    int x1 = round(ship->waypoint.x * cos(v) - ship->waypoint.y * sin(v));
-    int y1 = round(ship->waypoint.x * sin(v) + ship->waypoint.y * cos(v));
+    int32_t x1 = round(ship->waypoint.x * cos(v) - ship->waypoint.y * sin(v));
+    int32_t y1 = round(ship->waypoint.x * sin(v) + ship->waypoint.y * cos(v));
     ship->waypoint.x = x1;
     ship->waypoint.y = y1;
 }
 
 int day12() {
-    int instructions_n = 0;
+    int32_t instructions_n = 0;
     struct instruction *instructions = malloc(800 * sizeof(struct instruction));
     if (!instructions) {
         err(EXIT_FAILURE, "error allocating memory for instructions");
@@ -56,21 +56,19 @@ int day12() {
         err(EXIT_FAILURE, "error reading input file");
     }
     char linebuf[BUFSIZ] = {0};
-    char *s;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
-        struct instruction ins;
-        s = linebuf;
+        struct instruction *ins = &instructions[instructions_n++];
+        char *s = linebuf;
 
         // parse single character
-        ins.action = *s++;
+        ins->action = *s++;
 
         // parse digit
-        ins.value = 0;
+        ins->value = 0;
         while (*s >= '0' && *s <= '9') {
-            ins.value = (ins.value * 10) + (*s - '0');
+            ins->value = (ins->value * 10) + (*s - '0');
             s++;
         }
-        instructions[instructions_n++] = ins;        
     }
     fclose(f);
 
@@ -78,9 +76,9 @@ int day12() {
         .pos = {0, 0},
         .waypoint = {10, 1},
     };
-    for (int i=0; i<instructions_n; i++) {
+    for (int32_t i=0; i < instructions_n; i++) {
         struct instruction ins = instructions[i];
-         #ifdef STEP
+        #ifdef STEP
         printf("ship <%d, %d> \twaypoint <%d, %d>.\n", ship.pos.x, ship.pos.y, ship.waypoint.x, ship.waypoint.y);
         printf("%c%d\n", ins.action, ins.value);
         getc(stdin);
@@ -105,7 +103,9 @@ int day12() {
         }
     }
 
-    printf("%d\n", abs(ship.pos.x) + abs(ship.pos.y));
+    int32_t manhattan_distance = abs(ship.pos.x) + abs(ship.pos.y);
+    printf("%d\n", manhattan_distance);
+    assert(manhattan_distance == 46530);
 
     free(instructions);
     return 0;

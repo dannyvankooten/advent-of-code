@@ -112,7 +112,8 @@ find_bag(const char color[32]) {
     return b;
 }
 
-int32_t may_bag_contain_color(struct Bag *b, const char color[32]) {
+int32_t 
+may_bag_contain_color(struct Bag *b, const char color[32]) {
     if (b == NULL) {
         return 0;
     }

@@ -165,7 +165,8 @@ ingredient_can_contain_allergen(allergen_t *list, size_t size, char *ingredient)
     return false;
 }
 
-int cmp_allergen(void const *p1, void const *p2) { 
+int
+cmp_allergen(void const *p1, void const *p2) { 
     allergen_t *a = (allergen_t *) p1;
     allergen_t *b = (allergen_t *) p2;
     return strcmp(a->name, b->name);

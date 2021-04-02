@@ -23,7 +23,6 @@ int day13() {
 
     s++; // newline
 
-
     // parse bus schedules from 2nd line
     int64_t buses[64] = {0};
     size_t nbuses = 0;

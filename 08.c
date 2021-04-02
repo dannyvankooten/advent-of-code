@@ -13,7 +13,7 @@ enum instruction_types {
 struct Instruction {
     enum instruction_types type;
     char sign;
-    int value;
+    int32_t value;
 };
 
 struct Instructions {
@@ -26,7 +26,7 @@ struct Instruction
 parse_instruction_line(char *line) 
 {
     char buf[32];
-    int i = 0;
+    int32_t i = 0;
     while (*line != ' ') {
         buf[i++] = *line++;
     };
@@ -54,7 +54,7 @@ parse_instruction_line(char *line)
     while (*line == ' ') line++;
 
     // read value
-    int v = 0;
+    int32_t v = 0;
     while (*line != '\n' && *line != '\0') {
         v = v * 10 + (*line - '0');
         line++;
@@ -93,14 +93,14 @@ int day8() {
     }
     fclose(f);
 
-    int *seen = malloc(ins.size * sizeof(int));
+    int32_t *seen = malloc(ins.size * sizeof(int32_t));
     if (!seen) {
         err(EXIT_FAILURE, "error allocating memory for seen array");
     }
     struct Instruction i;
 
     for (size_t c=0; c < ins.size; c++) {
-        int acc = 0;
+        int32_t acc = 0;
         size_t ip;
         memset(seen, 0, ins.size * sizeof(0));
 
@@ -143,8 +143,8 @@ int day8() {
         // Print result if we made it to end of program
         if (ip == ins.size) {
             printf("%d\n", acc);
+            assert(acc == 2092);
         }
-        
     }
 
     free(ins.values);

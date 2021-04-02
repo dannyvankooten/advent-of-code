@@ -4,25 +4,26 @@
 #include <stdlib.h>
 #include <err.h>
 #include <string.h>
-
+#include <stdbool.h>
+#include <assert.h>
 
 // https://adventofcode.com/2020/day/4#part2
 
-char 
+bool 
 is_passport_valid(char passport[]) {
     static const char valid_1[] = {1, 1, 1, 1, 1, 1, 1, 1};
     if (memcmp(passport, valid_1, 8 * sizeof(char)) == 0) {
-        return 1;
+        return true;
     }
 
     static const char valid_2[] = {1, 1, 1, 1, 1, 1, 1, 0};
     return memcmp(passport, valid_2, 8 * sizeof(char)) == 0;
 }
 
-char
+bool
 is_valid_hgt(char *v) {
     int32_t n = 0;
-    int32_t i = 0;
+    int8_t i = 0;
 
     while (*v >= '0' && *v <= '9') {
         n = n * 10 + (*v - '0');
@@ -30,7 +31,7 @@ is_valid_hgt(char *v) {
         v++;
     }
     if (i == 0 || i > 3) {
-        return 0;
+        return false;
     }
 
     if (strcmp(v, "cm") == 0) {
@@ -41,59 +42,59 @@ is_valid_hgt(char *v) {
         return n >= 59 && n <= 76;
     }
 
-    return 0;
+    return false;
 } 
 
-char
+bool
 is_valid_hcl(char *v) {
    if (v[0] != '#') {
-        return 0;
+        return false;
     }
     
-    for (int i=1; i < 7; i++) {
+    for (int8_t i=1; i < 7; i++) {
         if (v[i] == '\0') {
-            return 0;
+            return false;
         }
 
         if (!('a' <= v[i] && v[i] <= 'f')
             && !('0' <= v[i] && v[i] <= '9')) {
-                return 0;    
+                return false;    
         }
     }
 
     if (v[7] != '\0') {
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 } 
 
-char
+bool
 is_valid_ecl(char *v) {
     static const char *valid_values[] = { "amb", "blu", "brn", "gry", "grn", "hzl", "oth" };
 
-    for (int i=0; i < 7; i++) {
+    for (int8_t i=0; i < 7; i++) {
         if (strcmp(v, valid_values[i]) == 0) {
-            return 1;
+            return true;
         }
     }
 
-    return 0;
+    return false;
 } 
 
-char
+bool
 is_valid_pid(char *v) {
-    for (int i=0; i < 9; i++) {
+    for (int8_t i=0; i < 9; i++) {
         if (v[i] < '0' || v[i] > '9' || v[i] == '\0') {
-            return 0;
+            return false;
         }
     }
 
     if (v[9] != '\0') {
-        return 0;
+        return false;
     }
 
-    return 1;
+    return true;
 } 
 
 enum field_key {
@@ -147,7 +148,7 @@ day4() {
             for (i=0; *str != ' ' && *str != '\n'; i++) {
                 value[i] = *str++;
             }
-            value[i] = 0;
+            value[i] = '\0';
 
             // skip spaces
             while (*str == ' ') {
@@ -190,6 +191,7 @@ day4() {
     }
 
     printf("%" PRId64 "\n", valid_pp_count);
+    assert(valid_pp_count == 150);
     fclose(f);
     return 0;
 }

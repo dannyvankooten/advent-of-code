@@ -1,28 +1,26 @@
 #include <ctype.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
 #include <assert.h>
 #include <ctype.h>
 #include <string.h>
+#include <stdbool.h>
 
 struct rule {
     char ch;
-    char is_char;
-
-    int main[3];
-    int nmain;
-
-    int alt[3];
-    int nalt;
-    
-    int index;
+    bool is_char;
+    int32_t main[3];
+    int32_t nmain;
+    int32_t alt[3];
+    int32_t nalt;
+    int32_t index;
 };
-
 typedef struct rule rule_t;
 
-int 
-message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
+int32_t 
+message_matches_rule(rule_t rule, rule_t *rules, char *m, int32_t depth) {
     // for (int i=0; i < depth; i++) printf("    |");
     // print_rule(rule);
     // printf("   (msg = %s)", m);
@@ -33,11 +31,11 @@ message_matches_rule(rule_t rule, rule_t *rules, char *m, short depth) {
     }
 
     // first, try main branch
-    short characters_matched = 0;
-    short inc;
-    short r;
+    int32_t characters_matched = 0;
+    int32_t inc;
+    int32_t r;
     char *tmp = m ;
-    int rid;
+    int32_t rid;
 
     for (r=0; r < rule.nmain; r++) {
         rid = rule.main[r];
@@ -106,68 +104,68 @@ int day19() {
     if (!rules) {
         err(EXIT_FAILURE, "error allocating memory for rules");
     }
-    for (int i=0; i < 200; i++) {
-        for (int j=0; j<3; j++) {
-            rules[i].main[j] = -1;
-            rules[i].alt[j] = -1;
-            rules[i].nmain = 0;
-            rules[i].nalt = 0;
-            rules[i].index = 0;
+    for (int32_t i=0; i < 200; i++) {
+        rules[i].nmain = 0;
+        rules[i].nalt = 0;
+        rules[i].index = 0;
+        for (int8_t j=0; j < 3; j++) {
+            rules[i].main[j] = 0;
+            rules[i].alt[j] = 0;
         }
     }
-    int nrules = 0;
+    int32_t nrules = 0;
     
     while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
         char *s = linebuf;
-        char tmp[64];
-
+      
         // parse rule index
-        char *t = tmp;
-        while (*s != ':') {
-            *t++ = *s++;
+        int32_t rule_idx = 0;
+        while (isdigit(*s)) {
+            rule_idx = (rule_idx * 10) + (*s - '0');
+            s++;
         }
-        *t = '\0';
-        int rule_idx = (int) strtol(tmp, NULL, 10);
-        rules[rule_idx].index = rule_idx;
+        rule_t *r = &rules[rule_idx];
+        r->index = rule_idx;
         if (rule_idx >= nrules) {
             nrules = rule_idx + 1;
         }
 
-        s++; // :
+        s += 2; // ": "
 
-        // parse options
-        for (int i=0; *s != '\n' && *s != '|' && *s != '\0';) {
-            while (*s == ' ' || *s == '"') s++;
-            if (isalpha(*s)) {
-                rules[rule_idx].is_char = 1;
-                rules[rule_idx].ch = *s++;
+        // parse 1st set options
+        int32_t i;
+        r->is_char = false;
+        for (i=0; *s != '\n' && *s != '|' && *s != '\0';) {
+            if (*s == '"' && isalpha(*(s+1))) {
+                r->is_char = true;
+                r->ch = *(s+1);
+                s += 2;
+                break;
             } else {
-                rules[rule_idx].is_char = 0;
-                t = tmp;
+                r->main[i] = 0;
                 while (isdigit(*s)) {
-                    *t++ = *s++;
+                    r->main[i] = (r->main[i] * 10) + (*s - '0');
+                    s++;
                 }
-                *t = '\0';
-                rules[rule_idx].main[i++] = strtol(tmp, NULL, 10);
+                i++;
+                if (*s == ' ') s++;
             }
-            while (*s == ' ' || *s == '"') s++;
-            rules[rule_idx].nmain = i;
         }
-
+        r->nmain = i;
+        while (*s == ' ') s++;
         if (*s == '|') {
-            s++;
-            for (int i=0; *s != '\n' && *s != '\0';) {
-                while (*s == ' ' || *s == '"') s++;
-                t = tmp;
+            s += 2; // "| "
+            for (i=0; *s != '\n' && *s != '\0';) {
+                r->alt[i] = 0;
                 while (isdigit(*s)) {
-                    *t++ = *s++;
+                    r->alt[i] = (r->alt[i] * 10) + (*s - '0');
+                    s++;
                 }
-                *t = '\0';
-                rules[rule_idx].alt[i++] = strtol(tmp, NULL, 10);
-                while (*s == ' ' || *s == '"') s++;
-                rules[rule_idx].nalt = i;
+                i++;
+                if (*s == ' ') s++; // ' '
+                
             }   
-
+            r->nalt = i;
         }
     }
 
@@ -185,24 +183,17 @@ int day19() {
     // assert(message_matches_rule(zero, rules, "aaaabbaabbaaaaaaabbbabbbaaabbaabaaa", 0) > 0);
     // assert(message_matches_rule(zero, rules, "aabbbbbaabbbaaaaaabbbbbababaaaaabbaaabba", 0) > 0);
 
-    int count = 0;
+    int32_t count = 0;
     while (fgets(linebuf, BUFSIZ, f) != NULL) {
-        // remove trailing linebreak
-        //linebuf[strlen(linebuf)] = '\0';
-
         // check if message matches rule 0
         if (message_matches_rule(zero, rules, linebuf, 0) > 0) {
             count++;
         }
     }
     printf("%d\n", count);
+    assert(count == 350);
 
     fclose(f);
-
     free(rules);
     return 0;
 }
-
-/*
-"a" ("a" "a" )
-*/

@@ -1,8 +1,8 @@
 #!/bin/bash
 
-if [ "$#" -lt 1 ]; then
-    echo "Provide a day number. Example: new 01"
-    exit
+if [ $# != 1 ]; then
+    echo "Usage: $(basename "$0") <day-number>" >&2
+    exit 1
 fi
 
 FILE="$1.c"

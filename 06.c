@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <err.h>
@@ -5,11 +6,11 @@
 #include <string.h>
 #include <ctype.h>
 
-int
+int32_t
 count_yes_answers(char *str) {
     char group_answers[26];
     char user_answers[26] = {0};
-    for (int i=0; i<26; i++) group_answers[i] = -1;
+    for (int8_t i=0; i<26; i++) group_answers[i] = -1;
 
     while (*str >= 'a' && *str <= 'z') {
         user_answers[*str - 'a'] = 1;
@@ -17,7 +18,7 @@ count_yes_answers(char *str) {
 
         if (*str == '\n' || *str == '\0') {
             // go over 'a' to 'z' and mark them as answered if in user_answers
-            for (int i=0; i < 26; i++) {
+            for (int8_t i=0; i < 26; i++) {
                 group_answers[i] = user_answers[i] == 1 && (group_answers[i] == 1 || group_answers[i] == -1) ? 1 : 0;
             };
             
@@ -26,13 +27,13 @@ count_yes_answers(char *str) {
                 break;
             }
 
-            for (int i=0; i<26; i++) user_answers[i] = 0;
+            for (int8_t i=0; i<26; i++) user_answers[i] = 0;
             str++;
         }
     }
 
-    int y_count = 0;
-    for (int i=0; i < 26; i++) {
+    int32_t y_count = 0;
+    for (int8_t i=0; i < 26; i++) {
         if (group_answers[i] == 1) {
             y_count++;
         }
@@ -57,7 +58,7 @@ int day6() {
 
     char line_buf[BUFSIZ] = {0};
     char group_buf[BUFSIZ] = {0};
-    int sum = 0;
+    int32_t sum = 0;
 
     while(fgets(line_buf, BUFSIZ, f) != NULL) {
         if (*line_buf == '\n') {

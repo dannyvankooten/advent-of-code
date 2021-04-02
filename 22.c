@@ -229,8 +229,7 @@ int day22() {
   }
   printf("%ld\n", score);
   assert(score == 33469);
+  games_memory_ptr = 0;
   free(games_memory);
   return 0;
 }
-
-//

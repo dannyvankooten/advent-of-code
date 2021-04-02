@@ -45,7 +45,7 @@ int64_t run_day(int8_t day, int8_t samples) {
     functions[day - 1]();
     gettimeofday(&time_end, NULL);
     timersub(&time_end, &time_start, &time_diff);
-    int64_t elapsed_time = (int64_t)time_diff.tv_usec;
+    int64_t elapsed_time = (int64_t) (time_diff.tv_sec * 1000000) + (int64_t) time_diff.tv_usec;
     if (elapsed_time < best_elapsed_time) {
       best_elapsed_time = elapsed_time;
     }
@@ -58,10 +58,10 @@ int main(int argc, char** argv) {
   int8_t n_samples = 1;
   int8_t day = 0;
 
-  // parse args
+  // parse CLI args
   for (int8_t i = 1; i < argc; i++) {
     if (strcmp(argv[i], "--bench") == 0) {
-      n_samples = 10;
+      n_samples = 100;
     } else if (isdigit(*argv[i])) {
       while (*argv[i] != '\0') {
         day = day * 10 + (*argv[i] - '0');
@@ -70,12 +70,14 @@ int main(int argc, char** argv) {
     }
   }
 
+  // run a single day
   if (day > 0) {
     int64_t elapsed_time = run_day(day, n_samples);
     printf("Ran in %8ld μs\n", elapsed_time);
     return 0;
   }
 
+  // run all days consecutively
   int64_t total_time = 0;
   for (int8_t d = 1; d <= 25; d++) {
     printf("Day %d:\t", d);

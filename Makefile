@@ -1,10 +1,19 @@
-CFLAGS += -Wextra -Wall
+CFLAGS+=-Wextra -Wall
+BIN=build/aoc2020
 
-debug: CFLAGS += -DDEBUG -g -DSTEP
-debug: all
+all: release
 
-release: CFLAGS += -Ofast -march=native
-release: all
+debug: CFLAGS+=-DDEBUG -g
+debug: BIN=build/aoc2020debug
+debug: $(BIN)
 
-all:
-	$(CC) $(CFLAGS) *.c -lm -o aoc2020
+release: CFLAGS+=-DNDEBUG -Ofast -march=native
+release: $(BIN)
+
+$(BIN): *.c
+	mkdir -p build
+	$(CC) $(CFLAGS) $^ -lm -o $(BIN)
+
+.PHONY: clean
+clean: 
+	rm build/*

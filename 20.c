@@ -9,6 +9,13 @@
 #include <string.h>
 #include "inputs/20.h"
 
+enum edge {
+  EDGE_N,
+  EDGE_E,
+  EDGE_S,
+  EDGE_W,
+};
+
 typedef struct tile tile_t;
 struct tile {
   int32_t id;
@@ -126,12 +133,12 @@ void flip(char* grid, int32_t size, char ax) {
   memcpy(grid, new_grid, size * size);
 }
 
-bool tiles_edges_match(tile_t* t1, tile_t* t2, char edge) {
+bool tiles_edges_match(tile_t* t1, tile_t* t2, enum edge e) {
   int32_t x1, x2, y1, y2;
 
   // edge can be one of 'N', 'E', 'S', 'W'
-  switch (edge) {
-    case 'N':
+  switch (e) {
+    case EDGE_N:
       y1 = 0;
       y2 = H - 1;
       for (int32_t x = 0; x < W; x++) {
@@ -140,7 +147,7 @@ bool tiles_edges_match(tile_t* t1, tile_t* t2, char edge) {
         }
       }
       break;
-    case 'S':
+    case EDGE_S:
       y1 = H - 1;
       y2 = 0;
       for (int32_t x = 0; x < W; x++) {
@@ -149,7 +156,7 @@ bool tiles_edges_match(tile_t* t1, tile_t* t2, char edge) {
         }
       }
       break;
-    case 'E':
+    case EDGE_E:
       x1 = W - 1;
       x2 = 0;
       for (int32_t y = 0; y < H; y++) {
@@ -158,7 +165,7 @@ bool tiles_edges_match(tile_t* t1, tile_t* t2, char edge) {
         }
       }
       break;
-    case 'W':
+    case EDGE_W:
       x1 = 0;
       x2 = W - 1;
       for (int32_t y = 0; y < H; y++) {
@@ -168,7 +175,7 @@ bool tiles_edges_match(tile_t* t1, tile_t* t2, char edge) {
       }
       break;
     default:
-      err(EXIT_FAILURE, "invalid edge argument: %c", edge);
+      err(EXIT_FAILURE, "invalid edge argument: %d", e);
       break;
   }
 
@@ -242,13 +249,12 @@ void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
 }
 
 int32_t count_sea_monster_in_image(const char* image,
-                                   int32_t image_size,
-                                   const monster_t* monster) {
+                                   int32_t image_size) {
   int32_t count = 0;
-  for (int32_t y = 0; y < image_size - monster->height; y++) {
-    for (int32_t x = 0; x < image_size - monster->width; x++) {
+  for (int32_t y = 0; y < image_size - sea_monster.height; y++) {
+    for (int32_t x = 0; x < image_size - sea_monster.width; x++) {
       const char* i = &image[y * image_size + x];
-      const char* m = monster->body;
+      const char* m = sea_monster.body;
       int32_t y_search = y;
       int32_t x_search = x;
 
@@ -256,10 +262,13 @@ int32_t count_sea_monster_in_image(const char* image,
         i++;
         m++;
 
+        // reached end of monster, it's a match!
         if (*m == '\0') {
           count++;
         }
 
+        // monster line matched, 
+        // move to same x position in next row
         if (*m == '\n') {
           y_search++;
           x_search = x;
@@ -285,7 +294,7 @@ int day20() {
   // init empty image
   int32_t image_size = (int32_t)sqrt((double)ntiles);
   tile_t** image =
-      (tile_t**)calloc(image_size * image_size * 2, sizeof(tile_t*));
+      (tile_t**)calloc(image_size * image_size, sizeof(tile_t*));
   if (!image) {
     err(EXIT_FAILURE, "could not allocate memory for image");
   }
@@ -316,7 +325,7 @@ STARTOVER:;
       }
 
       for (int8_t r = 0; r < 4; r++) {
-        if (tiles_edges_match(t1, t2, 'E')) {
+        if (tiles_edges_match(t1, t2, EDGE_E)) {
           if (t1->x == image_size - 1) {
             shift_image(image, image_size, 0, -1);
           }
@@ -324,7 +333,7 @@ STARTOVER:;
           t2->x = t1->x + 1;
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, 'S')) {
+        } else if (tiles_edges_match(t1, t2, EDGE_S)) {
           if (t1->y == image_size - 1) {
             shift_image(image, image_size, -1, 0);
           }
@@ -333,8 +342,8 @@ STARTOVER:;
 
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, 'N')) {
-          // if t1 was at northern edge, shift it down
+        } else if (tiles_edges_match(t1, t2, EDGE_N)) {
+          // if t1 was at northern edge, shift it south
           if (t1->y == 0) {
             shift_image(image, image_size, 1, 0);
           }
@@ -342,8 +351,8 @@ STARTOVER:;
           t2->x = t1->x;
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, 'W')) {
-          // if t1 was at western edge, shift it down
+        } else if (tiles_edges_match(t1, t2, EDGE_W)) {
+          // if t1 was at western edge, shift it east
           if (t1->x == 0) {
             shift_image(image, image_size, 0, 1);
           }
@@ -367,7 +376,7 @@ STARTOVER:;
 
   // generate our final image, plain char array
   int32_t final_image_size = (W - 2) * image_size;
-  char* final_image = malloc((W - 2) * image_size * (H - 2) * image_size);
+  char* final_image = (char*) malloc(final_image_size * final_image_size);
   if (!final_image) {
     err(EXIT_FAILURE, "error allocating memory for image");
   }
@@ -377,7 +386,7 @@ STARTOVER:;
   for (int32_t r = 0; r < 3; r++) {
     for (int32_t f = 0; f < 2; f++) {
       sea_monster_count = count_sea_monster_in_image(
-          final_image, final_image_size, &sea_monster);
+          final_image, final_image_size);
       if (sea_monster_count > 0) {
         goto DETERMINE_WATER_ROUGHNESS;
       }
@@ -391,13 +400,10 @@ DETERMINE_WATER_ROUGHNESS:;
 
   // count # in monster
   int32_t c1 = 0;
-  const char* m = sea_monster.body;
-  while (*m != '\0') {
+  for (const char *m = sea_monster.body; *m != '\0'; m++) {
     if (*m == '#') {
       c1++;
     }
-
-    m++;
   }
 
   // count # in image

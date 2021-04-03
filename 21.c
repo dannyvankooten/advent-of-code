@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <err.h>
 #include <inttypes.h>
 #include <stdbool.h>
@@ -5,6 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/21.h"
 
 #define MAX_NAME_LENGTH 32
 
@@ -40,31 +42,27 @@ static void* erealloc(void* ptr, size_t size) {
 }
 
 static size_t parse_input(food_t* dest) {
-  FILE* fp = fopen("inputs/21.txt", "r");
-  if (!fp) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-
+  const unsigned char *s = input;
   size_t n = 0;
   size_t i_cap = 16;
   size_t a_cap = 8;
 
-  char linebuf[BUFSIZ] = {0};
-  while (fgets(linebuf, BUFSIZ, fp) != NULL) {
+  // mxmxvkd kfcds sqjhc nhms (contains dairy, fish)
+  while (*s != '\0') {
     food_t* f = &dest[n++];
     f->ningredients = 0;
     f->nallergens = 0;
     f->ingredients = emalloc(i_cap * MAX_NAME_LENGTH * sizeof(char));
     f->allergens = emalloc(a_cap * MAX_NAME_LENGTH * sizeof(char));
 
-    char* s = linebuf;
     while (*s != '(') {
       if (f->ningredients == i_cap) {
         i_cap *= 2;
         f->ingredients =
-            erealloc(f->ingredients, i_cap * sizeof(char[MAX_NAME_LENGTH]));
+            erealloc(f->ingredients, i_cap * MAX_NAME_LENGTH * sizeof(char));
       }
 
+      // patse ingredient name
       char* ingredient = f->ingredients[f->ningredients++];
       char* i = ingredient;
       while (*s != ' ') {
@@ -72,32 +70,36 @@ static size_t parse_input(food_t* dest) {
       }
       *i = '\0';
 
-      s++;  // skip space
+      s++;  // skip ' '
     }
+    
+    s += strlen("(contains ");  // skip forward to first allergen
 
-    if (*s == '(') {
-      s += strlen("(contains ");  // skip forward to first allergen
-
-      while (*s != ')') {
-        if (f->nallergens == a_cap) {
-          a_cap *= 2;
-          f->allergens =
-              erealloc(f->allergens, a_cap * sizeof(char[MAX_NAME_LENGTH]));
-        }
-        char* allergen = f->allergens[f->nallergens++];
-        char* a = allergen;
-        while (*s != ',' && *s != ')') {
-          *a++ = *s++;
-        }
-        *a = '\0';
-
-        // skip , and space
-        if (*s == ',' && *(s + 1) == ' ')
-          s += 2;
+    while (*s != ')') {
+      if (f->nallergens == a_cap) {
+        a_cap *= 2;
+        f->allergens =
+            erealloc(f->allergens, a_cap * MAX_NAME_LENGTH * sizeof(char));
       }
+      
+      // parse allergen name
+      char* allergen = f->allergens[f->nallergens++];
+      char* a = allergen;
+      while (*s != ',' && *s != ')') {
+        *a++ = *s++;
+      }
+      *a = '\0';
+
+      // skip , and space
+      if (*s == ',' && *(s + 1) == ' ')
+        s += 2;
     }
+
+    s++; // ')'
+    
+    if (*s == '\n') s++;
   }
-  fclose(fp);
+
   return n;
 }
 
@@ -228,6 +230,7 @@ int day21() {
     }
   }
   printf("%" PRId64 "\n", count);
+  assert(count == 1685);
 
   // find each allergen with only 1 option
   // remove this option from all other allergens, repeat until stable
@@ -259,13 +262,26 @@ int day21() {
     }
   }
 
+  // sort alphabetically by allergen (so not ingredient name)
   qsort(allergen_list, nallergens, sizeof(allergen_t), cmp_allergen);
+
+  // copy every option to answer string
+  char answer[BUFSIZ] = { '\0' };
+  char *s = answer;
   for (size_t i = 0; i < nallergens; i++) {
-    if (i > 0)
-      printf(",");
-    printf("%s", allergen_list[i].options[0]);
+    if (i > 0) {
+      *s++ = ',';
+    }
+
+    char *s2 = allergen_list[i].options[0];
+    while (*s2 != '\0') {
+      *s++ = *s2++;
+    }
+    *s = '\0';
   }
-  printf("\n");
+  printf("%s\n", answer);
+
+  assert(strcmp(answer, "ntft,nhx,kfxr,xmhsbd,rrjb,xzhxj,chbtp,cqvc") == 0);
 
   // free foods, ingredients and allergens
   for (size_t i = 0; i < nallergens; i++) {

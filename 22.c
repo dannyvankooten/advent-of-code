@@ -6,8 +6,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/types.h>
+#include <ctype.h>
 
+#include "inputs/22.h"
 #define NDEBUG 1
 
 typedef struct player player_t;
@@ -58,42 +59,42 @@ game_t* copy_game(game_t* g1, int8_t card_p1, int8_t card_p2) {
   return g2;
 }
 
-static game_t* parse_input(char* file) {
+static game_t* parse_input() {
   game_t* game = new_game();
-  FILE* f = fopen(file, "r");
-  if (!f)
-    err(EXIT_FAILURE, "error reading input file");
-  char linebuf[BUFSIZ] = {0};
+  const unsigned char *s = input;
 
   // skip line: "Player 1:"
-  char* s = fgets(linebuf, BUFSIZ, f);
-  assert(s != NULL);
+  while (*s != '\n') s++;
+  s++; // skip '\n'
 
-  while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
+  while (*s != '\n') {
     int8_t n = 0;
-    s = linebuf;
     while (*s >= '0' && *s <= '9') {
       n = (n * 10) + (*s - '0');
       s++;
     }
     game->p1.deck[game->p1.ncards++] = n;
+    s++; // skip '\n'
   }
 
-  // skip line: "Player 2:"
-  s = fgets(linebuf, BUFSIZ, f);
-  assert(s != NULL);
+  s++; // skip empty newline
 
-  while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
+  // skip line: "Player 2:"
+  while (*s != '\n') s++;
+  s++;
+
+  while (*s != '\0') {
     int8_t n = 0;
-    s = linebuf;
     while (*s >= '0' && *s <= '9') {
       n = (n * 10) + (*s - '0');
       s++;
     }
+
     game->p2.deck[game->p2.ncards++] = n;
+
+    while (*s == '\n') s++; // skip trailing '\n'
   }
 
-  fclose(f);
   return game;
 }
 
@@ -219,7 +220,7 @@ int day22() {
     err(EXIT_FAILURE, "error allocating memory for games");
   }
 
-  game_t* game = parse_input("inputs/22.txt");
+  game_t* game = parse_input();
   player_t* winner = play_game(game);
   int64_t score = 0;
 

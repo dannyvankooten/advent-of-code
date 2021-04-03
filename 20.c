@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <err.h>
 #include <math.h>
 #include <stdbool.h>
@@ -6,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/20.h"
 
 typedef struct tile tile_t;
 struct tile {
@@ -33,32 +35,45 @@ const struct monster {
 #define W 10
 #define H 10
 
-int32_t parse_tiles_from_input(tile_t* tiles, char* file) {
+int32_t parse_tiles_from_input(tile_t* tiles) {
   int32_t ntiles = 0;
-  FILE* f = fopen(file, "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char linebuf[BUFSIZ] = {0};
-  while (fgets(linebuf, BUFSIZ, f) != NULL) {
+  const unsigned char *s = input;
+  while (*s != '\0') {
     tile_t* t = &tiles[ntiles++];
     t->x = -1;
     t->y = -1;
 
     // first line contains the tile ID: Tile 2311:
-    sscanf(linebuf, "Tile %d:", &t->id);
+    s += 5;
+    t->id = 0;
+    while (isdigit(*s)) {
+      t->id = (t->id * 10) + (*s - '0');
+      s++;
+    }
+
+    s++; // ':'
+    s++; // '\n'
 
     int32_t y = 0;
-    while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
-      char* s = linebuf;
+    while (*s != '\0') {
       for (int32_t x = 0; *s != '\n' && *s != '\0'; s++, x++) {
         t->grid[y * W + x] = *s;
       }
 
-      y++;
+      // linebreak: new row
+      if (*s == '\n') {
+        s++;
+        y++;
+      }
+
+      // empty line: new tile
+      if (*s == '\n') {
+        s++;
+        break;
+      }
     }
   }
-  fclose(f);
+
   return ntiles;
 }
 
@@ -264,7 +279,7 @@ int day20() {
     err(EXIT_FAILURE, "could not allocate memory for tiles");
   }
 
-  int32_t ntiles = parse_tiles_from_input(tiles, "inputs/20.txt");
+  int32_t ntiles = parse_tiles_from_input(tiles);
   // print_tiles(tiles, ntiles);
 
   // init empty image

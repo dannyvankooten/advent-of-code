@@ -196,10 +196,9 @@ int day21() {
         // we've seen allergen before,
         // remove all options which are not an ingredient for current
         // food
-        for (size_t k = 0; k < a->noptions; k++) {
+        for (int32_t k = a->noptions - 1; k >= 0; k--) {
           if (!food_has_ingredient(f, a->options[k])) {
             remove_option_from_allergen(a, k);
-            k--; // decrement option index because we just removed an option
           }
         }
       }

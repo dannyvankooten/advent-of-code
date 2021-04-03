@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/24.h"
 
 typedef enum {
   WHITE = 0,
@@ -35,8 +36,8 @@ void print_direction(direction_t d) {
   printf("%s", names[d]);
 }
 
-int32_t parse_line(direction_t* directions, char* line) {
-  char* s = line;
+int32_t parse_line(direction_t* directions, const unsigned char* line) {
+  const unsigned char* s = line;
   int32_t ndirections = 0;
   while (*s != '\n' && *s != '\0') {
     switch (*s++) {
@@ -173,18 +174,16 @@ int day24() {
     return 1;
   }
 
-  FILE* f = fopen("inputs/24.txt", "r");
-  if (!f) {
-    err(EXIT_FAILURE, "error reading input file");
-  }
-  char linebuf[BUFSIZ] = {0};
+  const char unsigned *s = input;
   direction_t* directions = (direction_t*)malloc(sizeof(direction_t) * 50);
   if (!directions) {
     err(EXIT_FAILURE, "error allocating memory for directions");
   }
 
-  while (fgets(linebuf, BUFSIZ, f) != NULL) {
-    int32_t ndirections = parse_line(directions, linebuf);
+  while (*s != '\0') {
+    int32_t ndirections = parse_line(directions, s);
+    while (*s != '\n' && *s != '\0') s++;
+    if (*s == '\n') s++;
 
     // go back to start tile
     int32_t x = GRIDSIZE / 2;
@@ -231,7 +230,6 @@ int day24() {
     }
     flip_tile(&grid[(y * GRIDSIZE) + x]);
   }
-  fclose(f);
 
   printf("%d\n", black_tile_count);
   assert(black_tile_count == 244);

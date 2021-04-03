@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "inputs/21.h"
+// #include "inputs/21_test.h"
 
 #define MAX_NAME_LENGTH 32
 
@@ -167,9 +168,7 @@ int cmp_allergen(void const* p1, void const* p2) {
 }
 
 void remove_option_from_allergen(allergen_t* a, size_t index) {
-  for (size_t i = index + 1; i < a->noptions; i++) {
-    a->options[i - 1] = a->options[i];
-  }
+  a->options[index] = a->options[a->noptions - 1];
   a->noptions--;
 }
 
@@ -200,6 +199,7 @@ int day21() {
         for (size_t k = 0; k < a->noptions; k++) {
           if (!food_has_ingredient(f, a->options[k])) {
             remove_option_from_allergen(a, k);
+            k--; // decrement option index because we just removed an option
           }
         }
       }
@@ -225,7 +225,6 @@ int day21() {
                                           ingredient)) {
         continue;
       }
-
       count++;
     }
   }

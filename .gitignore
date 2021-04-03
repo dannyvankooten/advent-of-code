@@ -1,10 +1,8 @@
 a.out 
 vgcore*
-*/gmon.out
-*/prof_output
-*/cachegrind.out.*
-*.gcc
-*.clang
+**/gmon.out
+**/prof_output
+**/cachegrind.out.*
 aoc2020
 aoc2020debug
 build/

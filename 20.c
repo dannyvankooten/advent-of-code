@@ -324,26 +324,32 @@ STARTOVER:;
         continue;
       }
 
+      // skip tiles at edge of image or for which all neighbors are known
+      bool neighbors[4] = {
+        t1->y > 0 ? image[(t1->y-1) * image_size + t1->x] : false,                      // N
+        t1->x < image_size - 1 ? image[t1->y * image_size + t1->x + 1] != NULL : true,  // E
+        t1->y < image_size - 1 ? image[(t1->y+1) * image_size + t1->x] != NULL : true,  // S
+        t1->x > 0 ? image[t1->y * image_size + t1->x - 1] != NULL : false,              // W
+      };
+      if (neighbors[EDGE_N] && neighbors[EDGE_E] && neighbors[EDGE_S] && neighbors[EDGE_W]) {
+        continue;
+      }
+      
+      flip(t2->grid, W, 'y');
+
       for (int8_t r = 0; r < 4; r++) {
-        if (tiles_edges_match(t1, t2, EDGE_E)) {
-          if (t1->x == image_size - 1) {
-            shift_image(image, image_size, 0, -1);
-          }
+        if (!neighbors[EDGE_E] && tiles_edges_match(t1, t2, EDGE_E)) {
           t2->y = t1->y;
           t2->x = t1->x + 1;
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, EDGE_S)) {
-          if (t1->y == image_size - 1) {
-            shift_image(image, image_size, -1, 0);
-          }
+        } else if (!neighbors[EDGE_S] && tiles_edges_match(t1, t2, EDGE_S)) {
           t2->y = t1->y + 1;
           t2->x = t1->x;
-
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, EDGE_N)) {
-          // if t1 was at northern edge, shift it south
+        } else if (!neighbors[EDGE_N] && tiles_edges_match(t1, t2, EDGE_N)) {
+          // if t1 was at northern edge, shift entire image south
           if (t1->y == 0) {
             shift_image(image, image_size, 1, 0);
           }
@@ -351,8 +357,8 @@ STARTOVER:;
           t2->x = t1->x;
           image[t2->y * image_size + t2->x] = t2;
           goto STARTOVER;
-        } else if (tiles_edges_match(t1, t2, EDGE_W)) {
-          // if t1 was at western edge, shift it east
+        } else if (!neighbors[EDGE_W] && tiles_edges_match(t1, t2, EDGE_W)) {
+          // if t1 was at western edge, shift entire image east
           if (t1->x == 0) {
             shift_image(image, image_size, 0, 1);
           }
@@ -362,17 +368,17 @@ STARTOVER:;
           goto STARTOVER;
         }
 
-        if (r == 3) {
-          flip(t2->grid, W, 'x');
-        } else {
-          rotate(t2->grid, W);
-        }
+        // rotate tile, then re-attempt matching its edges
+        rotate(t2->grid, W);
       }
+      
+      
     }
   }
 
   // print_image_ids(image, image_size);
   // print_image(image, image_size);
+  assert(image[image_size*image_size-1] != NULL);
 
   // generate our final image, plain char array
   int32_t final_image_size = (W - 2) * image_size;

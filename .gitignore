@@ -1,8 +1,8 @@
 a.out 
-vgcore*
-**/gmon.out
-**/prof_output
-**/cachegrind.out.*
 aoc2020
 aoc2020debug
-build/
+**/vgcore*
+**/gmon.out
+**/prof_output
+**/cachegrind.out*
+**/*.gcda

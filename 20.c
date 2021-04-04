@@ -9,17 +9,29 @@
 #include <string.h>
 #include "inputs/20.h"
 
+#define W 10
+#define H 10
+
+
 enum edge {
   EDGE_N,
   EDGE_E,
   EDGE_S,
   EDGE_W,
+  EDGE_NONE = -1,
 };
+typedef enum edge edge_t;
+
+enum ax {
+  AX_X = 'x',
+  AX_Y = 'y',
+};
+typedef enum ax ax_t;
 
 typedef struct tile tile_t;
 struct tile {
   int32_t id;
-  char grid[100];
+  char grid[W*H];
   int32_t x;
   int32_t y;
 };
@@ -38,9 +50,6 @@ const struct monster {
         "#    ##    ##    ###\n"
         " #  #  #  #  #  #   ",
 };
-
-#define W 10
-#define H 10
 
 int32_t parse_tiles_from_input(tile_t* tiles) {
   int32_t ntiles = 0;
@@ -109,28 +118,98 @@ void rotate(char* grid, int32_t size) {
     }
   }
 
-  memcpy(grid, new_grid, size * size);
+  memcpy(grid, new_grid, size * size * sizeof(char));
 }
 
-void flip(char* grid, int32_t size, char ax) {
+void flip(char* grid, int32_t size, ax_t ax) {
   // 0 1 2 3 4 5 6 7 8 9
   // 9 8 7 6 5 4 3 2 1 0
   char new_grid[size * size];
+  
   for (int32_t y = 0; y < size; y++) {
     for (int32_t x = 0; x < size; x++) {
       switch (ax) {
-        case 'x':
+        case AX_X:
           new_grid[y * size + (size - 1 - x)] = grid[y * size + x];
           break;
 
-        case 'y':
+        case AX_Y:
           new_grid[(size - 1 - y) * size + x] = grid[y * size + x];
           break;
       }
     }
   }
 
-  memcpy(grid, new_grid, size * size);
+  memcpy(grid, new_grid, size * size * sizeof(char));
+}
+
+
+void
+extract_edge(tile_t* t, edge_t e, char dest[W]) {
+  switch (e) {
+    case EDGE_N:
+      for (int32_t y=0, x=0; x < W; x++) {
+        dest[x] = t->grid[y * W + x];
+      }
+    break;
+
+    case EDGE_E:
+      for (int32_t y=0, x=W-1; y < H; y++) {
+        dest[y] = t->grid[y * W + x];
+      }
+    break;
+
+    case EDGE_S:
+      for (int32_t y=H-1, x=0; x < W; x++) {
+        dest[x] = t->grid[y * W + x];
+      }
+    break;
+
+    case EDGE_W:
+      for (int32_t y=0, x=0; y < H; y++) {
+        dest[y] = t->grid[y * W + x];
+      }
+    break;
+
+    default: 
+      err(EXIT_FAILURE, "can not extract EDGE_NONE"); 
+      break;
+  }
+}
+
+bool 
+fit_other_on_edge(tile_t* t1, tile_t *t2, edge_t e1) {
+  char edge[W];
+  char edge2[W];
+  extract_edge(t1, e1, edge);
+
+  /*
+  while (e2 != (e1+2)%4) {
+    rotate(t2->grid, W);
+    e2 = (e2 + 1) % 4;
+  }
+  */
+
+  // The problem is that if you rotate somtething from N or E to S or W, the order reverses
+  // So we're matching incorrectly
+
+  // So if we need to rotate from N or E to S or W, we should reverse check
+
+  for (edge_t e2=EDGE_N; e2 <= EDGE_W; e2++) {    
+    extract_edge(t2, e2, edge2);
+
+    // printf("Comparing: ");
+    // for(int i=0; i < W; i++) {
+    //   printf("%c", edge[i]);
+    // }
+    // printf(" with ");
+    // for(int i=0; i < W; i++) {
+    //   printf("%c", edge2[i]);
+    // }
+
+  }
+
+  return false;
 }
 
 bool tiles_edges_match(tile_t* t1, tile_t* t2, enum edge e) {
@@ -243,9 +322,7 @@ void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
     }
   }
 
-  for (int32_t i = 0; i < size * size; i++) {
-    image[i] = new_image[i];
-  }
+  memcpy(image, new_image, size*size*sizeof(tile_t *));
 }
 
 int32_t count_sea_monster_in_image(const char* image,
@@ -305,6 +382,7 @@ int day20() {
   tiles[0].x = 0;
 
 STARTOVER:;
+  print_image_ids(image, image_size);
   for (int32_t i = 0; i < ntiles; i++) {
     // only work with tiles already in image
     tile_t* t1 = &tiles[i];
@@ -313,65 +391,59 @@ STARTOVER:;
     }
 
     for (int32_t j = 0; j < ntiles; j++) {
-      // skip self
-      if (i == j) {
-        continue;
-      }
-
       // skip tiles already in image
-      tile_t* t2 = &tiles[j];
+      tile_t* t2 = &tiles[j]; // (incl. self)
       if (t2->x >= 0) {
         continue;
       }
 
       // skip tiles at edge of image or for which all neighbors are known
-      bool neighbors[4] = {
-        t1->y > 0 ? image[(t1->y-1) * image_size + t1->x] : false,                      // N
-        t1->x < image_size - 1 ? image[t1->y * image_size + t1->x + 1] != NULL : true,  // E
-        t1->y < image_size - 1 ? image[(t1->y+1) * image_size + t1->x] != NULL : true,  // S
-        t1->x > 0 ? image[t1->y * image_size + t1->x - 1] != NULL : false,              // W
+      const bool neighbors[4] = {
+        false, 
+        false,
+        false,
+        false,
+        // t1->y > 0 ? image[(t1->y-1) * image_size + t1->x] : false,                      // N
+        // t1->x < image_size - 1 ? image[t1->y * image_size + t1->x + 1] != NULL : true,  // E
+        // t1->y < image_size - 1 ? image[(t1->y+1) * image_size + t1->x] != NULL : true,  // S
+        // t1->x > 0 ? image[t1->y * image_size + t1->x - 1] != NULL : false,              // W
       };
       if (neighbors[EDGE_N] && neighbors[EDGE_E] && neighbors[EDGE_S] && neighbors[EDGE_W]) {
         continue;
       }
-      
-      flip(t2->grid, W, 'y');
 
-      for (int8_t r = 0; r < 4; r++) {
-        if (!neighbors[EDGE_E] && tiles_edges_match(t1, t2, EDGE_E)) {
-          t2->y = t1->y;
-          t2->x = t1->x + 1;
-          image[t2->y * image_size + t2->x] = t2;
-          goto STARTOVER;
-        } else if (!neighbors[EDGE_S] && tiles_edges_match(t1, t2, EDGE_S)) {
-          t2->y = t1->y + 1;
-          t2->x = t1->x;
-          image[t2->y * image_size + t2->x] = t2;
-          goto STARTOVER;
-        } else if (!neighbors[EDGE_N] && tiles_edges_match(t1, t2, EDGE_N)) {
-          // if t1 was at northern edge, shift entire image south
-          if (t1->y == 0) {
-            shift_image(image, image_size, 1, 0);
-          }
-          t2->y = t1->y - 1;
-          t2->x = t1->x;
-          image[t2->y * image_size + t2->x] = t2;
-          goto STARTOVER;
-        } else if (!neighbors[EDGE_W] && tiles_edges_match(t1, t2, EDGE_W)) {
-          // if t1 was at western edge, shift entire image east
-          if (t1->x == 0) {
-            shift_image(image, image_size, 0, 1);
-          }
-          t2->y = t1->y;
-          t2->x = t1->x - 1;
-          image[t2->y * image_size + t2->x] = t2;
-          goto STARTOVER;
+      // flip(t2->grid, W, AX_Y);
+      
+      if (!neighbors[EDGE_E] && fit_other_on_edge(t1, t2, EDGE_E)) {
+        t2->y = t1->y;
+        t2->x = t1->x + 1;
+        image[t2->y * image_size + t2->x] = t2;
+        goto STARTOVER;
+      } else if (!neighbors[EDGE_S] && fit_other_on_edge(t1, t2, EDGE_S)) {
+        t2->y = t1->y + 1;
+        t2->x = t1->x;
+        image[t2->y * image_size + t2->x] = t2;
+        goto STARTOVER;
+      } else if (!neighbors[EDGE_N] && fit_other_on_edge(t1, t2, EDGE_N)) {
+        // if t1 was at northern edge, shift entire image south
+        if (t1->y == 0) {
+          shift_image(image, image_size, 1, 0);
         }
-
-        // rotate tile, then re-attempt matching its edges
-        rotate(t2->grid, W);
+        t2->y = t1->y - 1;
+        t2->x = t1->x;
+        image[t2->y * image_size + t2->x] = t2;
+        goto STARTOVER;
+      } else if (!neighbors[EDGE_W] && fit_other_on_edge(t1, t2, EDGE_W)) {
+        // if t1 was at western edge, shift entire image east
+        if (t1->x == 0) {
+          shift_image(image, image_size, 0, 1);
+        }
+        t2->y = t1->y;
+        t2->x = t1->x - 1;
+        image[t2->y * image_size + t2->x] = t2;
+        goto STARTOVER;
       }
-      
+
       
     }
   }
@@ -397,7 +469,7 @@ STARTOVER:;
         goto DETERMINE_WATER_ROUGHNESS;
       }
 
-      flip(final_image, final_image_size, 'x');
+      flip(final_image, final_image_size, AX_Y);
     }
     rotate(final_image, final_image_size);
   }

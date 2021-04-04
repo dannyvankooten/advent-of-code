@@ -28,6 +28,13 @@ enum ax {
 };
 typedef enum ax ax_t;
 
+enum match {
+  NO_MATCH,
+  MATCH,
+  INVERSE_MATCH
+};
+typedef enum match match_t;
+
 typedef struct tile tile_t;
 struct tile {
   int32_t id;
@@ -145,7 +152,9 @@ void flip(char* grid, int32_t size, ax_t ax) {
 
 
 void
-extract_edge(tile_t* t, edge_t e, char dest[W]) {
+extract_edge(tile_t* t, edge_t e, char dest[W], bool inverse) {
+// extract_edge(tile_t* t, edge_t e, char dest[W]) {
+
   switch (e) {
     case EDGE_N:
       for (int32_t y=0, x=0; x < W; x++) {
@@ -175,90 +184,64 @@ extract_edge(tile_t* t, edge_t e, char dest[W]) {
       err(EXIT_FAILURE, "can not extract EDGE_NONE"); 
       break;
   }
+
+  if (inverse) {
+    char tmp;
+    for (int32_t i=0, j = W-1; i < j; i++, j--) {
+      tmp = dest[i];
+      dest[i] = dest[j];
+      dest[j] = tmp;
+    }
+  }
+}
+
+match_t
+cmp_edges(char edge_1[W], char edge_2[W]) {
+  // edges match as-is
+  if (memcmp(edge_1, edge_2, W * sizeof(char)) == 0) {
+    return MATCH;
+  }
+
+  // reversed edge matches
+  int32_t i;
+  for (i=0; i < W; i++) {
+    if (edge_1[i] != edge_2[W-1-i]) {
+      break;
+    }
+  }
+  if (i == W) {
+    return INVERSE_MATCH;
+  }
+
+  // no match
+  return NO_MATCH;
 }
 
 bool 
 fit_other_on_edge(tile_t* t1, tile_t *t2, edge_t e1) {
-  char edge[W];
-  char edge2[W];
-  extract_edge(t1, e1, edge);
+  char edge_t1[W];
+  char edge_t2[W];
+  extract_edge(t1, e1, edge_t1, false);
+  edge_t desired_edge = (e1 + 2) % 4;
 
-  /*
-  while (e2 != (e1+2)%4) {
-    rotate(t2->grid, W);
-    e2 = (e2 + 1) % 4;
-  }
-  */
+  for (edge_t actual_edge=EDGE_N; actual_edge <= EDGE_W; actual_edge++) {    
+    extract_edge(t2, actual_edge, edge_t2, (desired_edge / 2) != (actual_edge / 2));
+    match_t match = cmp_edges(edge_t1, edge_t2);
+    if (match > 0) {
+       while (actual_edge != desired_edge) {
+          rotate(t2->grid, W);
+          actual_edge = (actual_edge + 1) % 4;
+        }
 
-  // The problem is that if you rotate somtething from N or E to S or W, the order reverses
-  // So we're matching incorrectly
+        if (match == INVERSE_MATCH) {
+          flip(t2->grid, W, desired_edge == EDGE_N || desired_edge == EDGE_S ? AX_X : AX_Y);
+        }
 
-  // So if we need to rotate from N or E to S or W, we should reverse check
-
-  for (edge_t e2=EDGE_N; e2 <= EDGE_W; e2++) {    
-    extract_edge(t2, e2, edge2);
-
-    // printf("Comparing: ");
-    // for(int i=0; i < W; i++) {
-    //   printf("%c", edge[i]);
-    // }
-    // printf(" with ");
-    // for(int i=0; i < W; i++) {
-    //   printf("%c", edge2[i]);
-    // }
-
+        return true;
+    }
   }
 
   return false;
-}
-
-bool tiles_edges_match(tile_t* t1, tile_t* t2, enum edge e) {
-  int32_t x1, x2, y1, y2;
-
-  // edge can be one of 'N', 'E', 'S', 'W'
-  switch (e) {
-    case EDGE_N:
-      y1 = 0;
-      y2 = H - 1;
-      for (int32_t x = 0; x < W; x++) {
-        if (t1->grid[y1 * W + x] != t2->grid[y2 * W + x]) {
-          return false;
-        }
-      }
-      break;
-    case EDGE_S:
-      y1 = H - 1;
-      y2 = 0;
-      for (int32_t x = 0; x < W; x++) {
-        if (t1->grid[y1 * W + x] != t2->grid[y2 * W + x]) {
-          return false;
-        }
-      }
-      break;
-    case EDGE_E:
-      x1 = W - 1;
-      x2 = 0;
-      for (int32_t y = 0; y < H; y++) {
-        if (t1->grid[y * W + x1] != t2->grid[y * W + x2]) {
-          return false;
-        }
-      }
-      break;
-    case EDGE_W:
-      x1 = 0;
-      x2 = W - 1;
-      for (int32_t y = 0; y < H; y++) {
-        if (t1->grid[y * W + x1] != t2->grid[y * W + x2]) {
-          return false;
-        }
-      }
-      break;
-    default:
-      err(EXIT_FAILURE, "invalid edge argument: %d", e);
-      break;
-  }
-
-  return true;
 }
 
 void remove_image_borders(char* image, tile_t** tiles, int32_t image_size) {
@@ -382,7 +365,6 @@ int day20() {
   tiles[0].x = 0;
 
 STARTOVER:;
-  print_image_ids(image, image_size);
   for (int32_t i = 0; i < ntiles; i++) {
     // only work with tiles already in image
     tile_t* t1 = &tiles[i];
@@ -399,31 +381,25 @@ STARTOVER:;
 
       // skip tiles at edge of image or for which all neighbors are known
       const bool neighbors[4] = {
-        false, 
-        false,
-        false,
-        false,
-        // t1->y > 0 ? image[(t1->y-1) * image_size + t1->x] : false,                      // N
-        // t1->x < image_size - 1 ? image[t1->y * image_size + t1->x + 1] != NULL : true,  // E
-        // t1->y < image_size - 1 ? image[(t1->y+1) * image_size + t1->x] != NULL : true,  // S
-        // t1->x > 0 ? image[t1->y * image_size + t1->x - 1] != NULL : false,              // W
+        t1->y > 0 ? image[(t1->y-1) * image_size + t1->x] : false,                      // N
+        t1->x < image_size - 1 ? image[t1->y * image_size + t1->x + 1] != NULL : true,  // E
+        t1->y < image_size - 1 ? image[(t1->y+1) * image_size + t1->x] != NULL : true,  // S
+        t1->x > 0 ? image[t1->y * image_size + t1->x - 1] != NULL : false,              // W
       };
       if (neighbors[EDGE_N] && neighbors[EDGE_E] && neighbors[EDGE_S] && neighbors[EDGE_W]) {
         continue;
-      }
-
-      // flip(t2->grid, W, AX_Y);
+      }      
       
       if (!neighbors[EDGE_E] && fit_other_on_edge(t1, t2, EDGE_E)) {
         t2->y = t1->y;
         t2->x = t1->x + 1;
         image[t2->y * image_size + t2->x] = t2;
-        goto STARTOVER;
+        continue;
       } else if (!neighbors[EDGE_S] && fit_other_on_edge(t1, t2, EDGE_S)) {
         t2->y = t1->y + 1;
         t2->x = t1->x;
         image[t2->y * image_size + t2->x] = t2;
-        goto STARTOVER;
+        continue;
       } else if (!neighbors[EDGE_N] && fit_other_on_edge(t1, t2, EDGE_N)) {
         // if t1 was at northern edge, shift entire image south
         if (t1->y == 0) {
@@ -432,7 +408,7 @@ STARTOVER:;
         t2->y = t1->y - 1;
         t2->x = t1->x;
         image[t2->y * image_size + t2->x] = t2;
-        goto STARTOVER;
+        continue;
       } else if (!neighbors[EDGE_W] && fit_other_on_edge(t1, t2, EDGE_W)) {
         // if t1 was at western edge, shift entire image east
         if (t1->x == 0) {
@@ -441,16 +417,20 @@ STARTOVER:;
         t2->y = t1->y;
         t2->x = t1->x - 1;
         image[t2->y * image_size + t2->x] = t2;
-        goto STARTOVER;
+        continue;
       }
+    }
+  }
 
-      
+  // repeat fitting if image is not yet fully figured out yet
+  for (int32_t i=0; i < image_size * image_size; i++) {
+    if (image[i] == NULL) {
+      goto STARTOVER;
     }
   }
 
   // print_image_ids(image, image_size);
   // print_image(image, image_size);
-  assert(image[image_size*image_size-1] != NULL);
 
   // generate our final image, plain char array
   int32_t final_image_size = (W - 2) * image_size;

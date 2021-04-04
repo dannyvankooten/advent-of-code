@@ -3,7 +3,7 @@ BIN=aoc2020
 
 all: release
 
-debug: CFLAGS+=-DDEBUG -g
+debug: CFLAGS+=-DDEBUG -g -pg
 debug: BIN=aoc2020debug
 debug: $(BIN)
 

@@ -8,9 +8,9 @@
 enum instruction_types { NOOP, ACC, JUMP };
 
 struct Instruction {
+  int32_t value;
   enum instruction_types type;
   char sign;
-  int32_t value;
 };
 
 struct Instructions {

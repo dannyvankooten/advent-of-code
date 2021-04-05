@@ -7,15 +7,15 @@
 #include <string.h>
 
 struct rule {
-  char type[64];
+  char type[40];
   int32_t ranges[4];
   size_t position;
 };
 typedef struct rule rule_t;
 
 struct ticket {
-  int32_t values[32];
-  size_t nvalues;
+  int16_t values[31];
+  uint16_t nvalues;
 };
 typedef struct ticket ticket_t;
 

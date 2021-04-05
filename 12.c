@@ -7,8 +7,8 @@
 #define M_PI 3.14159265358979323846 /* pi */
 
 struct instruction {
-  char action;
   int32_t value;
+  char action;
 };
 
 struct position {

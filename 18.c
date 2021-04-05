@@ -15,6 +15,8 @@ typedef enum precedence {
 } precedence_t;
 
 typedef struct token {
+  int64_t value;
+  precedence_t precedence;
   enum token_type {
     TOK_NUMBER,
     TOK_PLUS,
@@ -23,14 +25,11 @@ typedef struct token {
     TOK_RPAREN,
     TOK_EOF
   } type;
-  int64_t value;
-  precedence_t precedence;
 } token_t;
 
 static const char* token_names[] = {
     "NUMBER", "PLUS", "ASTERISK", "LPAREN", "RPAREN", "EOF",
 };
-
 static char* s;
 
 int64_t _eval();

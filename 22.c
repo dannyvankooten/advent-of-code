@@ -13,19 +13,18 @@
 
 typedef struct player player_t;
 struct player {
-  int8_t deck[50];
-  int8_t ncards;
   size_t offset;
+  int8_t deck[50];
+  uint8_t ncards;
 };
 
 typedef struct game game_t;
 struct game {
   player_t p1;
   player_t p2;
-  int64_t index;
-  int64_t round;
+  uint16_t index;
+  uint16_t round;
   bool ended;
-  int8_t* previous_decks;
 };
 
 player_t* play_game(game_t* g);

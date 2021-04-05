@@ -18,8 +18,8 @@ struct grid {
   int32_t h;
   enum position* values;
   enum position* alt_values;
-  bool stable;
   int32_t occupied_seat_count;
+  bool stable;
 };
 typedef struct grid grid_t;
 

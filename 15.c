@@ -8,26 +8,29 @@
 
 #define N 30000000
 #define BOUNDARY 1000000
-#define HM_PROBING_ATTEMPTS 3
+#define HM_PROBING_ATTEMPTS 2
 
-typedef struct {
+typedef struct hashmap_entry hashmap_entry_t;
+typedef struct hashmap hashmap_t;
+
+struct hashmap_entry {
   int32_t key;
   int32_t value;
-} hashmap_entry_t;
+};
 
-typedef struct {
+struct hashmap {
   // int32_t *keys;
   // int32_t *values;
   hashmap_entry_t* entries;
   int32_t cap;
-} hashmap_t;
+};
 
 hashmap_t* hm_new(int32_t size) {
   hashmap_t* hm = (hashmap_t*)malloc(sizeof(hashmap_t));
   if (!hm) {
     err(EXIT_FAILURE, "could not allocate memory for hashmap");
   }
-  hm->cap = size;
+  hm->cap = size * 2;
   hm->entries = (hashmap_entry_t*)calloc(hm->cap, sizeof(hashmap_entry_t));
   if (!hm->entries) {
     err(EXIT_FAILURE, "could not allocate memory for hashmap entries");
@@ -44,13 +47,13 @@ int32_t hm_get(hashmap_t* restrict hm, int32_t key, int32_t new_value) {
   while (hm->entries[index].key != key) {
     // exhausted linear probing attempts
     // assume item was not in hashmap yet
-    if (tries++ > HM_PROBING_ATTEMPTS && hm->entries[index].key == 0) {
+    if (++tries > HM_PROBING_ATTEMPTS && hm->entries[index].key == 0) {
       hm->entries[index].key = key;
       break;
     }
    
     // try next index, wrap around if at end 
-    if (index++ >= hm->cap) {
+    if (++index >= hm->cap) {
       index = 0;
     }
   }
@@ -81,8 +84,8 @@ static int32_t parse_input(int32_t* numbers, char* s) {
 int day15() {
   int32_t numbers[6];
   int32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
-  int32_t* seen = calloc(BOUNDARY, sizeof(int32_t));
-  hashmap_t* ht = hm_new(N - BOUNDARY);
+  int32_t* restrict seen = calloc(BOUNDARY, sizeof(int32_t));
+  hashmap_t* restrict ht = hm_new(N - BOUNDARY);
 
   int32_t i = 0;
   int32_t prev = 0;

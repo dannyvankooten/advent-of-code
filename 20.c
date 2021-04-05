@@ -38,16 +38,16 @@ typedef enum match match_t;
 typedef struct tile tile_t;
 struct tile {
   int32_t id;
+  int8_t x;
+  int8_t y;
   char grid[W*H];
-  int32_t x;
-  int32_t y;
 };
 
 typedef struct monster monster_t;
 const struct monster {
   int32_t width;
   int32_t height;
-  char* body;
+  const char* body;
 } sea_monster = {
     .width = 20,
     .height = 3,

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <ctype.h>
 #include <err.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -8,12 +9,12 @@
 #include "ht.h"
 
 struct bag {
-  char color[32];
-  int32_t nchildren;
+  uint8_t nchildren;
+  char color[24];
   struct {
-    char color[32];
-    int32_t qty;
-  } children[16];
+    char color[24];
+    uint8_t qty;
+  } children[6];
 };
 typedef struct bag bag_t;
 

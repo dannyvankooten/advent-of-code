@@ -3,28 +3,16 @@
 #include <stdlib.h>
 #include <inttypes.h>
 #include <err.h>
+#include "intmap.h"
 
-typedef struct {
-    size_t key;
-    int64_t value;
-} hashmap_entry_t;
-
-typedef struct {
-    // uint32_t *keys;
-    // uint32_t *values;
-    hashmap_entry_t *entries;
-    size_t cap;
-} hashmap_t;
-
-static
-hashmap_t *
-hm_new(size_t size) {
-    hashmap_t *hm = (hashmap_t *) malloc(sizeof(hashmap_t));
+intmap_t *
+intmap_new(size_t size) {
+    intmap_t *hm = (intmap_t *) malloc(sizeof(intmap_t));
     if (!hm) {
         err(EXIT_FAILURE, "could not allocate memory for hashmap");
     }
     hm->cap = size * 3;
-    hm->entries = (hashmap_entry_t *) calloc(hm->cap, sizeof(hashmap_entry_t));
+    hm->entries = (intmap_entry_t *) calloc(hm->cap, sizeof(intmap_entry_t));
     if (!hm->entries) {
         err(EXIT_FAILURE, "could not allocate memory for hashmap entries");
     }
@@ -42,9 +30,8 @@ hash_func (size_t key)
   return key;
 }
 
-static
 int64_t 
-hm_get(hashmap_t *hm, size_t key) {
+intmap_get(intmap_t *hm, size_t key) {
     size_t index = hash_func(key) % hm->cap;
     u_int8_t tries = 0;
 
@@ -64,9 +51,8 @@ hm_get(hashmap_t *hm, size_t key) {
     return hm->entries[index].value;
 }
 
-static 
 int64_t  
-hm_set(hashmap_t *hm, size_t key, int64_t value) {
+intmap_set(intmap_t *hm, size_t key, int64_t value) {
     size_t index = hash_func(key) % hm->cap;
 
     u_int8_t tries = 0;
@@ -98,4 +84,10 @@ hm_set(hashmap_t *hm, size_t key, int64_t value) {
     return 0;
     // hm->keys[index] = key;
     // hm->values[index] = value;
+}
+
+void
+intmap_free(intmap_t *m) {
+    free(m->entries);
+    free(m);
 }

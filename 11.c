@@ -188,6 +188,7 @@ int day11() {
   printf("%d\n", grid.occupied_seat_count);
   assert(grid.occupied_seat_count == 1990);
 
+  free(grid.alt_values);
   free(grid.values);
   return 0;
 }

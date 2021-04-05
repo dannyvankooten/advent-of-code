@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "hm_int.h"
+#include "intmap.h"
 
 int64_t 
 modpow(int64_t x, int32_t exp, int32_t mod) 
@@ -30,10 +30,10 @@ int32_t
 discrete_log(int32_t subject, int32_t value, int32_t mod) {
   int32_t e = 1;
   int32_t modw = (int32_t) sqrt((double) mod);
-  hashmap_t *hm = hm_new(modw);
+  intmap_t *hm = intmap_new(modw);
 
   for (int32_t i=0; i < modw; i++) {
-    hm_set(hm, e, i);
+    intmap_set(hm, e, i);
     e = (e * subject) % mod;
   }
   int64_t f = modpow(subject, mod-modw-1, mod);
@@ -41,10 +41,9 @@ discrete_log(int32_t subject, int32_t value, int32_t mod) {
   // baby step giant step
   int32_t r;
   for(int32_t i=0; i < modw; i++) {
-    r = hm_get(hm, value);
+    r = intmap_get(hm, value);
     if (r != 0) {
-      free(hm->entries);
-      free(hm);
+      intmap_free(hm);
       return i * modw + r;
     }
 

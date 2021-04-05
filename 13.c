@@ -21,10 +21,8 @@ int day13() {
     ready_timestamp = (ready_timestamp * 10) + (*s - '0');
     s++;
   }
-  // Part 1
-  printf("%" PRId64 "\n", ready_timestamp);
 
-  s++;  // newline
+  s++;  // Skip '\n'
 
   // parse bus schedules from 2nd line
   int64_t buses[64] = {0};

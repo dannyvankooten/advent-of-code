@@ -5,50 +5,46 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+#include <sys/types.h>
 
 #define N 30000000
-#define BOUNDARY 1000000
+#define BOUNDARY 524288 // 2 ^ 20
+#define HM_CAP 16777216 // 2 ^ 24
 #define HM_PROBING_ATTEMPTS 2
 
-typedef struct hashmap_entry hashmap_entry_t;
 typedef struct hashmap hashmap_t;
-
-struct hashmap_entry {
-  int32_t key;
-  int32_t value;
-};
-
 struct hashmap {
-  // int32_t *keys;
-  // int32_t *values;
-  hashmap_entry_t* entries;
-  int32_t cap;
+  uint32_t cap;
+  uint32_t *keys;
+  uint32_t *values;
 };
 
-hashmap_t* hm_new(int32_t size) {
+hashmap_t* hm_new() {
   hashmap_t* hm = (hashmap_t*)malloc(sizeof(hashmap_t));
   if (!hm) {
     err(EXIT_FAILURE, "could not allocate memory for hashmap");
   }
-  hm->cap = size * 2;
-  hm->entries = (hashmap_entry_t*)calloc(hm->cap, sizeof(hashmap_entry_t));
-  if (!hm->entries) {
-    err(EXIT_FAILURE, "could not allocate memory for hashmap entries");
+  hm->cap = HM_CAP;
+  uint32_t *space = (uint32_t*) calloc(hm->cap * 2, sizeof(uint32_t));
+  if (!space) {
+    err(EXIT_FAILURE, "error allocating memory for hashmap keys and values");
   }
-  // hm->keys = (int32_t *) calloc(hm->cap, sizeof(int32_t));
-  // hm->values = (int32_t *) malloc(hm->cap * sizeof(int32_t));
+  hm->keys = space;
+  hm->values = space + hm->cap;
   return hm;
 }
 
-int32_t hm_get(hashmap_t* restrict hm, int32_t key, int32_t new_value) {
-  int32_t index = key % hm->cap;
-  int_fast8_t tries = 0;
-  
-  while (hm->entries[index].key != key) {
+uint32_t 
+hm_get(hashmap_t* restrict hm, uint32_t key, uint32_t new_value) {
+  // uint32_t index = key % HM_CAP;
+  uint32_t index = key & (HM_CAP - 1); 
+  uint_fast8_t tries = 0;
+
+  while (hm->keys[index] != key) {
     // exhausted linear probing attempts
     // assume item was not in hashmap yet
-    if (++tries > HM_PROBING_ATTEMPTS && hm->entries[index].key == 0) {
-      hm->entries[index].key = key;
+    if (++tries >= HM_PROBING_ATTEMPTS && hm->keys[index] == 0) {
+      hm->keys[index] = key;
       break;
     }
    
@@ -58,16 +54,16 @@ int32_t hm_get(hashmap_t* restrict hm, int32_t key, int32_t new_value) {
     }
   }
 
-  int32_t old_value = hm->entries[index].value;
-  hm->entries[index].value = new_value;
+  uint32_t old_value = hm->values[index];
+  hm->values[index] = new_value;
   return old_value;
 }
 
-static int32_t parse_input(int32_t* numbers, char* s) {
-  int32_t n = 0;
+static uint32_t parse_input(uint32_t* restrict numbers, const char* s) {
+  uint32_t n = 0;
 
   while (*s != '\0') {
-    int32_t num = 0;
+    uint32_t num = 0;
     while (*s >= '0' && *s <= '9') {
       num = (num * 10) + (*s++ - '0');
     }
@@ -82,19 +78,18 @@ static int32_t parse_input(int32_t* numbers, char* s) {
 }
 
 int day15() {
-  int32_t numbers[6];
-  int32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
-  int32_t* restrict seen = calloc(BOUNDARY, sizeof(int32_t));
-  hashmap_t* restrict ht = hm_new(N - BOUNDARY);
-
-  int32_t i = 0;
-  int32_t prev = 0;
+  uint32_t numbers[6];
+  uint32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
+  uint32_t* restrict seen = calloc(BOUNDARY, sizeof(uint32_t));
+  hashmap_t* restrict ht = hm_new();
+  uint32_t i = 0;
+  uint32_t prev = 0;
   for (; i < nnumbers; i++) {
     seen[numbers[i]] = i + 1;
     prev = numbers[i];
   }
 
-  int32_t last_seen_at;
+  uint32_t last_seen_at;
   for (; i < N; i++) {
     if (prev < BOUNDARY) {
       last_seen_at = seen[prev];
@@ -114,7 +109,7 @@ int day15() {
   assert(prev == 37385);
 
   free(seen);
-  free(ht->entries);
+  free(ht->keys);
   free(ht);
   return 0;
 }

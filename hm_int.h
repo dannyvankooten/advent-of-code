@@ -51,14 +51,12 @@ hm_get(hashmap_t *hm, size_t key) {
     while (hm->entries[index].key != key) {
          // exhausted linear probing attempts
         // assume item was not in hashmap yet
-        tries++;
-        if (tries > 1) {
+        if (++tries > 5) {
             return 0;
         }
 
         // wrap around
-        index++;
-        if (index >= hm->cap) {
+        if (++index >= hm->cap) {
             index = 0;
         }
     }

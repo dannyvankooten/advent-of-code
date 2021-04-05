@@ -1,8 +1,10 @@
 #include <ctype.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/time.h>
+#include <unistd.h>
 
 int day1();
 int day2();
@@ -54,13 +56,24 @@ int64_t run_day(int8_t day, int8_t samples) {
   return best_elapsed_time;
 }
 
+static void usage(const char *argv0) {
+	printf("Usage: %s [1-25] [options]\n", argv0);
+	puts(
+			"Options:\n"
+			"\t-h, --help       Show this help text\n"
+			"\t-b, --bench      Run 10 times, take best time\n");
+}
+
 int main(int argc, char** argv) {
   int8_t n_samples = 1;
   int8_t day = 0;
 
   // parse CLI args
   for (int8_t i = 1; i < argc; i++) {
-    if (strcmp(argv[i], "--bench") == 0) {
+    if (strcmp(argv[i], "--help") == 0 || strcmp(argv[i], "-h") == 0) {
+			usage(argv[0]);
+			return EXIT_SUCCESS;
+		} else if (strcmp(argv[i], "--bench") == 0 || strcmp(argv[i], "-b") == 0) {
       n_samples = 10;
     } else if (isdigit(*argv[i])) {
       while (*argv[i] != '\0') {
@@ -70,7 +83,7 @@ int main(int argc, char** argv) {
     }
   }
 
-  // run a single day
+  // run a single day 
   if (day > 0) {
     int64_t elapsed_time = run_day(day, n_samples);
     printf("Ran in %8ld μs\n", elapsed_time);
@@ -79,15 +92,20 @@ int main(int argc, char** argv) {
 
   // run all days consecutively
   int64_t total_time = 0;
+  int64_t times[25] = {0};
   for (int8_t d = 1; d <= 25; d++) {
-    printf("Day %d:\t", d);
-    freopen("/dev/null", "w", stdout);
     int64_t elapsed_time = run_day(d, n_samples);
-    freopen("/dev/tty", "w", stdout);
-    printf("%8ld μs\n", elapsed_time);
+    times[d-1] = elapsed_time;
     total_time += elapsed_time;
   }
 
+  // print timings per day
+  for (int32_t i=0; i < 25; i++) {
+    printf("Day %d:\t", i+1);
+    printf("%8ld μs\n", times[i]);
+  }
+
+  // print total time
   printf("Total:\t%8ld μs (%.2f s)\n", total_time,
          (double)total_time / 1000000.0);
   return 0;

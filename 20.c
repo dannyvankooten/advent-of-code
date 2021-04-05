@@ -223,7 +223,7 @@ fit_other_on_edge(tile_t* t1, tile_t *t2, edge_t e1) {
   char edge_t2[W];
   extract_edge(t1, e1, edge_t1, false);
   edge_t desired_edge = (e1 + 2) % 4;
-
+  
   for (edge_t actual_edge=EDGE_N; actual_edge <= EDGE_W; actual_edge++) {    
     extract_edge(t2, actual_edge, edge_t2, (desired_edge / 2) != (actual_edge / 2));
     match_t match = cmp_edges(edge_t1, edge_t2);
@@ -287,8 +287,9 @@ void print_image_ids(tile_t** image, int32_t size) {
 
 void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
   tile_t* new_image[size * size];
-  for (int32_t i = 0; i < size * size; i++)
-    new_image[i] = NULL;
+  memset(new_image, 0, size * size * sizeof(tile_t*));
+  // for (int32_t i = 0; i < size * size; i++)
+  //   new_image[i] = NULL;
   tile_t* t;
 
   for (int32_t y = 0; y < size - shift_y; y++) {
@@ -305,7 +306,7 @@ void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
     }
   }
 
-  memcpy(image, new_image, size*size*sizeof(tile_t *));
+  memcpy(image, new_image, size * size * sizeof(tile_t*));
 }
 
 int32_t count_sea_monster_in_image(const char* image,

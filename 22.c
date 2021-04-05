@@ -13,8 +13,8 @@
 
 typedef struct player player_t;
 struct player {
-  size_t offset;
-  int8_t deck[50];
+  uint16_t offset;
+  uint8_t deck[50];
   uint8_t ncards;
 };
 
@@ -24,7 +24,7 @@ struct game {
   player_t p2;
   uint16_t index;
   uint16_t round;
-  bool ended;
+  player_t* winner;
 };
 
 player_t* play_game(game_t* g);
@@ -38,7 +38,7 @@ game_t* new_game() {
   game->p1.offset = 0;
   game->p2.ncards = 0;
   game->p2.offset = 0;
-  game->ended = false;
+  game->winner = NULL;
   game->index = 1;
   game->round = 0;
   return game;
@@ -48,12 +48,27 @@ game_t* copy_game(game_t* g1, int8_t card_p1, int8_t card_p2) {
   game_t* g2 = new_game();
   g2->index = g1->index + 1;
   g2->p1.ncards = card_p1;
+  int8_t largest_card_p1 = 0;
+  int8_t largest_card_p2 = 0;
   for (int8_t i = 0; i < card_p1; i++) {
     g2->p1.deck[i] = g1->p1.deck[(g1->p1.offset + i) % 50];
+    if (g2->p1.deck[i] > largest_card_p1) {
+      largest_card_p1 = g2->p1.deck[i];
+    }
   }
   g2->p2.ncards = card_p2;
   for (int8_t i = 0; i < card_p2; i++) {
     g2->p2.deck[i] = g1->p2.deck[(g1->p2.offset + i) % 50];
+    if (g2->p2.deck[i] > largest_card_p2) {
+      largest_card_p2 = g2->p2.deck[i];
+    }
+  }
+
+  // if sub-game starts with player 1 holding the highest card
+  // immediately declare him as winner
+  if (largest_card_p1 > largest_card_p2) {
+    g2->winner = &g2->p1;
+    
   }
   return g2;
 }
@@ -138,7 +153,7 @@ player_t* play_round(game_t* g) {
 #ifndef NDEBUG
     printf("Player 1 wins because we've been here before!\n");
 #endif
-    g->ended = true;
+    g->winner = p1;
     return p1;
   }
 
@@ -152,21 +167,13 @@ player_t* play_round(game_t* g) {
   printf("Player 2 plays: %d\n", card_p2);
 #endif
 
-  // Speed-up sub-games
-  // if (g->index > 1 && card_p1 > (p1->ncards + p2->ncards)) {
-  //     g->ended = true;
-  //     p1->ncards = 50;
-  //     p2->ncards = 0;
-  //     return p1;
-  // }
-
   if (card_p1 <= p1->ncards && card_p2 <= p2->ncards) {
 #ifndef NDEBUG
     printf("Playing a sub-game to determine the winner.\n");
 #endif
     game_t* sub_game = copy_game(g, card_p1, card_p2);
     winner = play_game(sub_game);
-    winner = winner == &sub_game->p1 ? p1 : p2;
+    winner = (winner == &sub_game->p1) ? p1 : p2;
     games_memory_ptr--;
   }
 
@@ -191,7 +198,7 @@ player_t* play_round(game_t* g) {
 #endif
 
   if (loser->ncards == 0) {
-    g->ended = true;
+    g->winner = winner;
 
 #ifndef NDEBUG
     printf("The winner of game %" PRId64
@@ -204,12 +211,11 @@ player_t* play_round(game_t* g) {
 }
 
 player_t* play_game(game_t* game) {
-  player_t* winner = NULL;
-  while (!game->ended) {
-    winner = play_round(game);
+  while (game->winner == NULL) {
+    play_round(game);
   }
-  assert(winner != NULL);
-  return winner;
+  assert(game->winner != NULL);
+  return game->winner;
 }
 
 int day22() {

@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 		} else if (strcmp(argv[i], "--bench") == 0 || strcmp(argv[i], "-b") == 0) {
       n_samples = 10;
     } else if (isdigit(*argv[i])) {
-      while (*argv[i] != '\0') {
+      while (isdigit(*argv[i])) {
         day = day * 10 + (*argv[i] - '0');
         argv[i]++;
       }

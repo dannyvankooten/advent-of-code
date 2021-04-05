@@ -100,6 +100,10 @@ int32_t count_occupied_seats_in_los(grid_t* grid, int pos_y, int pos_x) {
 //     }
 // }
 
+/* 
+A seat is permanently occupied if it has more than 8-n (n=5 for part 2) permanently empty neighbours and no permanently occupied neighbours yet. 
+It is permanently empty if it has a permanently occupied neighbour :)
+*/
 static void transmute_grid(grid_t* restrict grid) {
   grid->stable = true;
   for (int32_t y = 0; y < grid->h; y++) {

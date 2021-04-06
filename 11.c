@@ -21,14 +21,13 @@ struct seat {
 };
 
 struct grid {
+  int32_t occupied_seat_count;
   int32_t nseats;
-  seat_t *seats;
-  
   int32_t width;
   int32_t height;
+  seat_t *seats;
   enum position* values;
   enum position* new_values;
-  int32_t occupied_seat_count;
 };
 typedef struct grid grid_t;
 

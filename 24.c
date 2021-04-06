@@ -7,26 +7,54 @@
 #include <string.h>
 #include "inputs/24.h"
 
+#define GRIDSIZE 140
+#define GRIDSIZE_SQ GRIDSIZE * GRIDSIZE
+#define isodd(v) (v & 1)
+#define iseven(v) (v & 1) == 0
+
 typedef enum {
   WHITE = 0,
   BLACK = 1,
 } color_t;
 
-typedef enum { NE, NW, E, W, SE, SW } direction_t;
+typedef enum { NE, E, SE, SW,  W, NW } direction_t;
 
-static const int32_t GRIDSIZE = 128;
-static const int32_t GRIDSIZE_SQ = GRIDSIZE * GRIDSIZE;
-int32_t black_tile_count = 0;
+typedef struct {
+  int32_t black_tile_count;
+  color_t* tiles;
+  color_t* new_tiles;
+} grid_t;
 
-void flip_tile(color_t* restrict color) {
+static const int8_t directions[2][6][2] = {
+  {
+    // even rows
+    { 0, -1 },  // NE
+    { 1, 0 },   // E
+    { 0, 1 },   // SE
+    { -1, 1 },  // SW
+    { -1, 0 },  // W
+    { -1, -1 }, // NW
+  },
+  {
+    // odd rows
+    { 1, -1},   // NE
+    { 1, 0},   // E
+    { 1, 1},  // SE
+    { 0, 1},   // SW
+    { -1, 0},   // W  
+    { 0, -1},   // NW
+  }
+};
+
+void flip_tile(color_t* restrict color, int32_t* restrict black_tile_count) {
   switch (*color) {
     case WHITE:
-      black_tile_count++;
+      (*black_tile_count)++;
       *color = BLACK;
       break;
 
     case BLACK:
-      black_tile_count--;
+      (*black_tile_count)--;
       *color = WHITE;
       break;
   }
@@ -37,8 +65,7 @@ void print_direction(direction_t d) {
   printf("%s", names[d]);
 }
 
-int32_t parse_line(direction_t* restrict directions, const unsigned char* restrict line) {
-  const unsigned char* s = line;
+int32_t parse_line(direction_t* restrict directions, const unsigned char* restrict s) {
   int32_t ndirections = 0;
   while (*s != '\n' && *s != '\0') {
     switch (*s++) {
@@ -79,35 +106,13 @@ int32_t parse_line(direction_t* restrict directions, const unsigned char* restri
   return ndirections;
 }
 
-#define isodd(v) (v & 1)
-#define iseven(v) (v & 1) == 0
-
+static inline
 int32_t
 count_adjacent_black_tiles(color_t* restrict grid, int32_t x, int32_t y) {
   int32_t count = 0;
-  static const int32_t directions[2][6][2] = {
-    {
-        // even
-      { -1, -1 },
-      { 0, -1 },
-      { -1, 0 },
-      { 1, 0 },
-      { -1, 1 },
-      { 0, 1 },
-    },
-    {
-        // odd
-      { 0, -1},
-      { 1, -1},
-      { -1, 0},
-      { +1, 0},
-      { 0, +1},
-      { +1, +1},
-    }
-  };
-  int32_t parity = y & 1; // 1 for odd, 0 for even
+  int8_t parity = y & 1; // 1 for odd, 0 for even
 
-  for (int32_t i=0; i < 6; i++) {
+  for (int8_t i=0; i < 6; i++) {
     int32_t dx = directions[parity][i][0];
     int32_t dy = directions[parity][i][1];
     count += grid[(y + dy) * GRIDSIZE + (x + dx)];
@@ -116,20 +121,17 @@ count_adjacent_black_tiles(color_t* restrict grid, int32_t x, int32_t y) {
   return count;
 }
 
-void apply_rules(color_t* restrict grid, int32_t bounds[4]) {
-  color_t new_grid[GRIDSIZE_SQ];
-  memcpy(new_grid, grid, GRIDSIZE_SQ * sizeof(color_t));
+void apply_rules(grid_t* restrict grid, int32_t bounds[4]) {
+  memcpy(grid->new_tiles, grid->tiles, GRIDSIZE_SQ * sizeof(color_t));
 
   for (int32_t y = bounds[2]; y <= bounds[3]; y++) {
     for (int32_t x = bounds[0]; x <= bounds[1]; x++) {
-      int32_t black_neighbors = count_adjacent_black_tiles(grid, x, y);
-      color_t* color = &grid[y * GRIDSIZE + x];
-      color_t* new_color = &new_grid[y * GRIDSIZE + x];
-      switch (*color) {
+      int32_t black_neighbors = count_adjacent_black_tiles(grid->tiles, x, y);
+      switch (grid->tiles[y * GRIDSIZE + x]) {
         case WHITE:
           if (black_neighbors == 2) {
-            *new_color = BLACK;
-            black_tile_count++;
+            grid->new_tiles[y * GRIDSIZE + x] = BLACK;
+            grid->black_tile_count++;
 
             if (x == bounds[1]) {
               bounds[1]++; 
@@ -142,32 +144,38 @@ void apply_rules(color_t* restrict grid, int32_t bounds[4]) {
             } else if (y == bounds[2]) {
               bounds[2]--;
             } 
-          }
+          } 
           break;
 
         case BLACK:
           if (black_neighbors == 0 || black_neighbors > 2) {
-            *new_color = WHITE;
-            black_tile_count--;
+            grid->new_tiles[y * GRIDSIZE + x] = WHITE;
+            grid->black_tile_count--;
           } 
           break;
       }
     }
-  }
+  } 
 
-  memcpy(grid, new_grid, GRIDSIZE_SQ * sizeof(color_t));
+  // swap out pointers
+  color_t* tmp = grid->tiles;
+  grid->tiles = grid->new_tiles;
+  grid->new_tiles = tmp;
 }
 
 int day24() {
-  black_tile_count = 0;
-  color_t* grid = (color_t*)calloc(GRIDSIZE_SQ, sizeof(color_t));
-  if (!grid) {
-    return 1;
+  grid_t grid = {
+    .tiles = (color_t*)calloc(GRIDSIZE_SQ * 2, sizeof(color_t)),
+    .black_tile_count = 0,
+  };
+  if (!grid.tiles) {
+    err(EXIT_FAILURE, "error allocating memory for grid tiles");
   }
+  grid.new_tiles = &grid.tiles[GRIDSIZE_SQ];
 
   const char unsigned *s = input;
-  direction_t* directions = (direction_t*)malloc(sizeof(direction_t) * 50);
-  if (!directions) {
+  direction_t* dir_instructions = (direction_t*)malloc(sizeof(direction_t) * 50);
+  if (!dir_instructions) {
     err(EXIT_FAILURE, "error allocating memory for directions");
   }
 
@@ -177,57 +185,23 @@ int day24() {
   int32_t min_x = 1000;
 
   while (*s != '\0') {
-    int32_t ndirections = parse_line(directions, s);
+    int32_t n = parse_line(dir_instructions, s);
     while (*s != '\n' && *s != '\0') s++;
     if (*s == '\n') s++;
 
-    // go back to start tile
+    // go back to start tile (middle of grid)
     int32_t x = GRIDSIZE / 2;
     int32_t y = x;
-
    
-    for (int32_t i = 0; i < ndirections; i++) {
-      switch (directions[i]) {
-        case E:
-          x += 1;
-          break;
-
-        case W:
-          x -= 1;
-          break;
-
-        case NE:
-          if (isodd(y)) {
-            x++;
-          }
-          y -= 1;
-          break;
-
-        case NW:
-          if (iseven(y)) {
-            x--;
-          }
-          y -= 1;
-          break;
-
-        case SE:
-         if (isodd(y)) {
-            x++;
-            max_x = x > max_x ? x : max_x;
-          }
-          y += 1;
-          break;
-
-        case SW:
-          if (iseven(y)) {
-            x--;
-          }
-          y += 1;
-          break;
-      }
+    for (int8_t i = 0; i < n; i++) {
+      int8_t parity = y & 1;
+      int8_t dx = directions[parity][dir_instructions[i]][0];
+      int8_t dy = directions[parity][dir_instructions[i]][1];
+      x += dx;
+      y += dy;
     }
 
-    flip_tile(&grid[(y * GRIDSIZE) + x]);
+    flip_tile(&grid.tiles[(y * GRIDSIZE) + x], &grid.black_tile_count);
 
     if (y < min_y) {
       min_y = y;
@@ -242,17 +216,17 @@ int day24() {
     }
   }
 
-  printf("%d\n", black_tile_count);
-  assert(black_tile_count == 244);
+  printf("%d\n", grid.black_tile_count);
+  assert(grid.black_tile_count == 244);
 
   int32_t bounds[4] = {min_x-1, max_x+1, min_y-1, max_y+1};
   for (int32_t i = 0; i < 100; i++) {
-    apply_rules(grid, bounds);
+    apply_rules(&grid, bounds);
   }
-  printf("%d\n", black_tile_count);
-  assert(black_tile_count == 3665);
+  printf("%d\n", grid.black_tile_count);
+  assert(grid.black_tile_count == 3665);
 
-  free(directions);
-  free(grid);
+  free(dir_instructions);
+  free(grid.tiles);
   return 0;
 }

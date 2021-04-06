@@ -1,7 +1,7 @@
 #/bin/bash
 
-make clean
+rm aoc2020
 CFLAGS="-fprofile-generate -g" make release
 ./aoc2020 --bench &> /dev/null
-make clean
+rm aoc2020
 CFLAGS=-fprofile-use make release

@@ -3,67 +3,72 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "inputs/17.h"
 
-enum {
+#define GRIDSIZE 24
+
+typedef enum {
   STATE_ACTIVE = 1,
   STATE_INACTIVE = 0,
-};
+} state_t;
 
 struct grid {
-  int32_t size;
+  int8_t* neighbor_counts;
   char* values;
-  short* neighbor_counts;
+  char *new_values;
 };
 typedef struct grid grid_t;
 
 grid_t read_input() {
-  char linebuf[BUFSIZ] = {0};
-  FILE* f = fopen("inputs/17.txt", "r");
-  if (!f)
-    err(EXIT_FAILURE, "error reading input file");
+  const unsigned char *s = input;
 
   // assume high enough values to fit our infinite grid
-  grid_t g = {
-      .size = 21,
-  };
-  g.values = (char*)calloc(g.size * g.size * g.size * g.size, sizeof(char));
+  grid_t g;
+  g.values = (char*)calloc(GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * 2, sizeof(char));
   if (!g.values) {
     err(EXIT_FAILURE, "could not allocate grid values");
   }
+  g.new_values = &g.values[GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE];
   g.neighbor_counts =
-      (short*)malloc(g.size * g.size * g.size * g.size * sizeof(short));
+      (int8_t*)malloc(GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(int8_t));
   if (!g.neighbor_counts) {
     err(EXIT_FAILURE, "could not allocate neighbor counts");
   }
 
-  int32_t c = g.size / 2 - 2;  // centre point
+  int32_t c = (GRIDSIZE / 2) - 1;  // centre point
   int32_t x;
   int32_t y = c;
   int32_t z = c;
   int32_t w = c;
-  while (fgets(linebuf, BUFSIZ, f) != NULL) {
+  int32_t offset_2d = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+            + (z * GRIDSIZE * GRIDSIZE);
+
+  while (*s != '\0') {
     x = c;
-    char* s = linebuf;
     while (*s != '\n' && *s != '\0') {
-      g.values[(w * g.size * g.size * g.size) + (z * g.size * g.size) +
-               (g.size * y) + x] =
+      g.values[offset_2d
+            + (y * GRIDSIZE) + x] =
           (*s++ == '#') ? STATE_ACTIVE : STATE_INACTIVE;
       x++;
     }
+
+    if (*s == '\n') {
+      s++;
+    }
+
     y++;
   }
-  fclose(f);
 
   return g;
 }
 
 void print_grid(grid_t g) {
   int32_t count = 0;
-  for (int32_t z = 0; z < g.size; z++) {
+  for (int32_t z = 0; z < GRIDSIZE; z++) {
     printf("z=%d\n", z - 100 / 2 - 2);
-    for (int32_t y = 0; y < g.size; y++) {
-      for (int32_t x = 0; x < g.size; x++) {
-        if (g.values[(g.size * g.size * z) + (g.size * y) + x] ==
+    for (int32_t y = 0; y < GRIDSIZE; y++) {
+      for (int32_t x = 0; x < GRIDSIZE; x++) {
+        if (g.values[(GRIDSIZE * GRIDSIZE * z) + (GRIDSIZE * y) + x] ==
             STATE_ACTIVE) {
           printf("#");
           count++;
@@ -84,16 +89,18 @@ void add_one_to_all_neighbours(grid_t* g,
                                int32_t pos_y,
                                int32_t pos_z,
                                int32_t pos_w) {
-  int32_t idx;
-  int32_t idx_self = (pos_w * g->size * g->size * g->size) +
-                     (g->size * g->size * pos_z) + (g->size * pos_y) + pos_x;
-  ;
-  for (int32_t w = pos_w - 1; w <= pos_w + 1; w++) {
-    for (int32_t z = pos_z - 1; z <= pos_z + 1; z++) {
-      for (int32_t y = pos_y - 1; y <= pos_y + 1; y++) {
-        for (int32_t x = pos_x - 1; x <= pos_x + 1; x++) {
-          idx = (w * g->size * g->size * g->size) + (g->size * g->size * z) +
-                (g->size * y) + x;
+  int32_t idx_self = (pos_w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+                      + (pos_z * GRIDSIZE * GRIDSIZE) 
+                      + (pos_y * GRIDSIZE) 
+                      + pos_x;
+  for (int8_t w = pos_w - 1; w <= pos_w + 1; w++) {
+    for (int8_t z = pos_z - 1; z <= pos_z + 1; z++) {
+      for (int8_t y = pos_y - 1; y <= pos_y + 1; y++) {
+        for (int8_t x = pos_x - 1; x <= pos_x + 1; x++) {
+          int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+            + (z * GRIDSIZE * GRIDSIZE) 
+            + (y * GRIDSIZE) 
+            + x;
           if (idx == idx_self) {
             continue;
           }
@@ -107,14 +114,14 @@ void add_one_to_all_neighbours(grid_t* g,
 
 void update_neighbor_counts(grid_t* g) {
   memset(g->neighbor_counts, 0,
-         g->size * g->size * g->size * g->size * sizeof(short));
-  int32_t idx;
-  for (int32_t w = 1; w < g->size - 1; w++) {
-    for (int32_t z = 1; z < g->size - 1; z++) {
-      for (int32_t y = 1; y < g->size - 1; y++) {
-        for (int32_t x = 1; x < g->size - 1; x++) {
-          idx = (w * g->size * g->size * g->size) + (g->size * g->size * z) +
-                (g->size * y) + x;
+         GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
+  for (int8_t w = 1; w < GRIDSIZE - 1; w++) {
+    for (int8_t z = 1; z < GRIDSIZE - 1; z++) {
+      for (int8_t y = 1; y < GRIDSIZE - 1; y++) {
+        for (int8_t x = 1; x < GRIDSIZE - 1; x++) {
+          int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+            + (GRIDSIZE * GRIDSIZE * z) 
+            + (GRIDSIZE * y) + x;
           if (g->values[idx] == STATE_ACTIVE) {
             // add one to all neighbors
             add_one_to_all_neighbours(g, x, y, z, w);
@@ -126,27 +133,23 @@ void update_neighbor_counts(grid_t* g) {
 }
 
 int32_t transmute_grid(grid_t* g) {
-  char* values =
-      (char*)calloc(g->size * g->size * g->size * g->size, sizeof(char));
-  if (!values) {
-    err(EXIT_FAILURE, "error allocating memory for new grid values");
-  }
+  memset(g->new_values, STATE_INACTIVE, GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
 
   update_neighbor_counts(g);
-  int32_t idx;
-  int32_t active_neighbor_count;
   int32_t count = 0;
-  for (int32_t w = 1; w < g->size - 1; w++) {
-    for (int32_t z = 1; z < g->size - 1; z++) {
-      for (int32_t y = 1; y < g->size - 1; y++) {
-        for (int32_t x = 1; x < g->size - 1; x++) {
-          idx = (w * g->size * g->size * g->size) + (g->size * g->size * z) +
-                (g->size * y) + x;
-          active_neighbor_count = g->neighbor_counts[idx];
+  for (int32_t w = 1; w < GRIDSIZE - 1; w++) {
+    for (int32_t z = 1; z < GRIDSIZE - 1; z++) {
+      for (int32_t y = 1; y < GRIDSIZE - 1; y++) {
+        for (int32_t x = 1; x < GRIDSIZE - 1; x++) {
+          int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+              + (z * GRIDSIZE * GRIDSIZE) 
+              + (y * GRIDSIZE) 
+              + x;
+          int8_t active_neighbor_count = g->neighbor_counts[idx];
           switch (g->values[idx]) {
             case STATE_ACTIVE:
               if (active_neighbor_count == 2 || active_neighbor_count == 3) {
-                values[idx] = STATE_ACTIVE;
+                g->new_values[idx] = STATE_ACTIVE;
                 count++;
               }
               break;
@@ -156,7 +159,7 @@ int32_t transmute_grid(grid_t* g) {
               // If a cube is inactive but exactly 3 of its neighbors
               // are active, the cube becomes active.
               if (active_neighbor_count == 3) {
-                values[idx] = STATE_ACTIVE;
+                g->new_values[idx] = STATE_ACTIVE;
                 count++;
               }
               break;
@@ -165,8 +168,10 @@ int32_t transmute_grid(grid_t* g) {
       }
     }
   }
-  free(g->values);
-  g->values = values;
+
+  char *tmp = g->values;
+  g->values = g->new_values;
+  g->new_values = tmp;
   return count;
 }
 
@@ -186,6 +191,7 @@ int day17() {
   }
 
   printf("%d\n", count);
+  assert(count == 1380);
   free(g.neighbor_counts);
   free(g.values);
   return 0;

@@ -13,44 +13,29 @@ enum position {
   POS_OCCUPIED_SEAT = 1,
 };
 
+typedef struct seat seat_t;
+struct seat {
+  int32_t index;
+  int32_t neighbors[8];
+  int32_t nneighbors;
+};
+
 struct grid {
-  int32_t w;
-  int32_t h;
+  int32_t nseats;
+  seat_t *seats;
+  
+  int32_t width;
+  int32_t height;
   enum position* values;
-  enum position* alt_values;
+  enum position* new_values;
   int32_t occupied_seat_count;
-  bool stable;
 };
 typedef struct grid grid_t;
 
-int32_t count_occupied_adjacent_seats(grid_t* grid,
-                                      int32_t pos_y,
-                                      int32_t pos_x) {
-  int32_t y_start = pos_y - 1;
-  y_start = y_start < 0 ? 0 : y_start;
-  int32_t y_end = pos_y + 1;
-  y_end = y_end > grid->h - 1 ? grid->h - 1 : y_end;
-  int32_t x_start = pos_x - 1 < 0 ? 0 : pos_x - 1;
-  int32_t x_end = pos_x + 1 > grid->w - 1 ? grid->w - 1 : pos_x + 1;
+#define get_grid_value_by_coords(grid, x, y) grid->values[y * grid->width + x]
 
-  int32_t count = 0;
-  for (int32_t y = y_start; y <= y_end; y++) {
-    for (int32_t x = x_start; x <= x_end; x++) {
-      if (y == pos_y && x == pos_x) {
-        continue;
-      }
-      enum position v = grid->values[y * grid->w + x];
-      if (v == POS_OCCUPIED_SEAT) {
-        count++;
-      }
-    }
-  }
-  return count;
-}
-
-#define get_grid_value_by_coords(grid, x, y) grid->values[y * grid->w + x]
-
-int32_t count_occupied_seats_in_los(grid_t* grid, int pos_y, int pos_x) {
+void 
+collect_neighbors(grid_t* grid, seat_t *seat) {
   static const int8_t directions[8][2] = {
       {0, 1},    // right
       {0, -1},   // left
@@ -61,88 +46,97 @@ int32_t count_occupied_seats_in_los(grid_t* grid, int pos_y, int pos_x) {
       {1, -1},   // down-left
       {-1, -1},  // up-left
   };
-  int32_t count = 0;
+  int32_t pos_x = seat->index % grid->width;
+  int32_t pos_y = (seat->index - pos_x) / grid->width;
 
   for (int_fast8_t d = 0; d < 8; d++) {
     int_fast8_t dy = directions[d][0];
     int_fast8_t dx = directions[d][1];
     for (int32_t y = pos_y + dy, x = pos_x + dx;
-         y >= 0 && x >= 0 && x < grid->w && y < grid->h; x += dx, y += dy) {
+         y >= 0 && x >= 0 && x < grid->width && y < grid->height; x += dx, y += dy) {
       enum position value = get_grid_value_by_coords(grid, x, y);
       if (value != POS_FLOOR) {
-        count += value;
+        seat->neighbors[seat->nneighbors++] = y * grid->width + x;
         break;
       }
     }
   }
+}
 
+static void print_grid(grid_t *grid) {
+    for (int32_t y=0; y < grid->height; y++) {
+        for (int32_t x=0; x < grid->width; x++) {
+            switch (get_grid_value_by_coords(grid, x, y)) {
+                case POS_EMPTY_SEAT:
+                    printf("L");
+                break;
+
+                case POS_FLOOR:
+                    printf(".");
+                break;
+
+                case POS_OCCUPIED_SEAT:
+                    printf("#");
+                break;
+            }
+        }
+        printf("\n");
+    }
+}
+
+static 
+int
+count_occupied_neighbors(grid_t* restrict grid, int32_t* restrict neighbors, int32_t nneighbors) {
+  int32_t count = 0;
+  for (int32_t i=0; i < nneighbors; i++) {
+    if (grid->values[neighbors[i]] == POS_OCCUPIED_SEAT) {
+      count++;
+    }
+  }
   return count;
 }
 
-// static void print_grid(grid_t *grid) {
-//     for (int32_t y=0; y < grid->h; y++) {
-//         for (int32_t x=0; x < grid->w; x++) {
-//             switch (get_grid_value_by_coords(grid, x, y)) {
-//                 case POS_EMPTY_SEAT:
-//                     printf("L");
-//                 break;
-
-//                 case POS_FLOOR:
-//                     printf(".");
-//                 break;
-
-//                 case POS_OCCUPIED_SEAT:
-//                     printf("#");
-//                 break;
-//             }
-//         }
-//         printf("\n");
-//     }
-// }
-
 /* 
 A seat is permanently occupied if it has more than 8-n (n=5 for part 2) permanently empty neighbours and no permanently occupied neighbours yet. 
-It is permanently empty if it has a permanently occupied neighbour :)
+It is permanently empty if it has a permanently occupied neighbour. :)
 */
-static void transmute_grid(grid_t* restrict grid) {
-  grid->stable = true;
-  for (int32_t y = 0; y < grid->h; y++) {
-    for (int32_t x = 0; x < grid->w; x++) {
-      enum position value = grid->values[(y * grid->w) + x];
-      enum position* new_value = &grid->alt_values[(y * grid->w) + x];
-      switch (value) {
-        case POS_EMPTY_SEAT:
-          if (count_occupied_seats_in_los(grid, y, x) == 0) {
-            *new_value = POS_OCCUPIED_SEAT;
-            grid->occupied_seat_count++;
-            grid->stable = false;
-          } else {
-            *new_value = POS_EMPTY_SEAT;
-          }
-          break;
+static bool 
+transmute_grid(grid_t* restrict grid) {
+  bool changed = false;
+  memcpy(grid->new_values, grid->values, grid->width * grid->height * sizeof(enum position));
 
-        case POS_OCCUPIED_SEAT:
-          if (count_occupied_seats_in_los(grid, y, x) >= 5) {
-            *new_value = POS_EMPTY_SEAT;
-            grid->stable = false;
-            grid->occupied_seat_count--;
-          } else {
-            *new_value = POS_OCCUPIED_SEAT;
-          }
-          break;
-
-        case POS_FLOOR:
-          // Floor never changes
-          *new_value = POS_FLOOR;
-          break;
-      }
+  for (int32_t i=grid->nseats-1; i >= 0; i--) {
+    seat_t* seat = &grid->seats[i];
+    int32_t occupied_count = count_occupied_neighbors(grid, seat->neighbors, seat->nneighbors); 
+    enum position state = grid->values[seat->index];
+    if (state == POS_OCCUPIED_SEAT) {
+        if (occupied_count >= 5) {
+          grid->new_values[seat->index] = POS_EMPTY_SEAT;
+          grid->occupied_seat_count--;
+          changed = true;
+        } else {
+            // permanently seated, remove from list
+            grid->seats[i] = grid->seats[grid->nseats-1];
+            grid->nseats--;
+        }        
+    } else {
+        if (occupied_count == 0) {
+          grid->new_values[seat->index] = POS_OCCUPIED_SEAT;
+          grid->occupied_seat_count++;
+          changed = true;
+        } else {
+          // permanently empty, remove from list
+            grid->seats[i] = grid->seats[grid->nseats-1];
+            grid->nseats--;
+        }
     }
   }
 
   // swap out grid with new grid
   enum position* tmp = grid->values;
-  grid->values = grid->alt_values;
-  grid->alt_values = tmp;
+  grid->values = grid->new_values;
+  grid->new_values = tmp;
+  return changed;
 }
 
 static 
@@ -151,48 +145,65 @@ parse_input(grid_t* restrict grid) {
   const unsigned char *s = input;
   
   // parse width
-  while(s[grid->w] != '\n') grid->w++;
+  while (s[grid->width] != '\n') grid->width++;
+
+  // parse height
+  while (s[(grid->width+1) * grid->height] != '\0') grid->height++;
   
-  // allocate memory for values
-  grid->values = (enum position *) malloc(grid->w * 100 * sizeof(enum position));
+  // allocate memory for values (twice, for swapping out grid)
+  grid->values = (enum position *) malloc(grid->width * grid->height * 2 * sizeof(enum position));
   if (!grid->values) {
     err(EXIT_FAILURE, "error allocating memory for grid values");
   }
+  grid->new_values = &grid->values[grid->width * grid->height];
+  grid->seats = malloc(grid->width * grid->height * sizeof(seat_t));
+  grid->nseats = 0;
 
+  int32_t y = 0;
   while (*s != '\0') {
     for (int32_t x = 0; *s != '\n' && *s != '\0'; s++, x++) {
-      grid->values[grid->h * grid->w + x] = (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
+      enum position v = (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
+      grid->values[y * grid->width + x] = v;
+      grid->new_values[y * grid->width + x] = v;
+
+      // if this is a seat, add it to list of seats
+      if (v != POS_FLOOR) {
+        seat_t *seat = &grid->seats[grid->nseats++];
+        seat->nneighbors = 0;
+        seat->index = y * grid->width + x;
+      }
     }
-    grid->h++;
 
-    if (*s == '\n') s++;
+    y++;
+    
+    if (*s == '\n') { 
+      s++;
+    }
   }
 
-  grid->alt_values = (enum position *) malloc(grid->w * 100 * sizeof(enum position));
-  if (!grid->alt_values) {
-    err(EXIT_FAILURE, "error allocating memory for alt grid values");
-  }
+  assert(y == grid->height);
 
+  for (int32_t i=0; i < grid->nseats; i++) {
+    collect_neighbors(grid, &grid->seats[i]);
+  }
 }
 
 int day11() {
   grid_t grid = {
-      .h = 0,
-      .w = 0,
-      .stable = 0,
+      .height = 0,
+      .width = 0,
       .occupied_seat_count = 0,
   };
   parse_input(&grid);
-
-  while (!grid.stable) {
-    transmute_grid(&grid);
-  }
+    
+  // transmute grid until stable
+  while (transmute_grid(&grid));
 
   // count occupied seats
   printf("%d\n", grid.occupied_seat_count);
   assert(grid.occupied_seat_count == 1990);
-
-  free(grid.alt_values);
+  
+  free(grid.seats);
   free(grid.values);
   return 0;
 }

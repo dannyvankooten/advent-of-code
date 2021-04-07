@@ -101,11 +101,10 @@ void add_one_to_all_neighbours(grid_t* g,
             + (z * GRIDSIZE * GRIDSIZE) 
             + (y * GRIDSIZE) 
             + x;
-          if (idx == idx_self) {
-            continue;
-          }
 
-          g->neighbor_counts[idx] += 1;
+          if (idx != idx_self) {
+            g->neighbor_counts[idx] += 1;;
+          }          
         }
       }
     }
@@ -114,14 +113,15 @@ void add_one_to_all_neighbours(grid_t* g,
 
 void update_neighbor_counts(grid_t* g) {
   memset(g->neighbor_counts, 0,
-         GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
+         GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(int8_t));
   for (int8_t w = 1; w < GRIDSIZE - 1; w++) {
     for (int8_t z = 1; z < GRIDSIZE - 1; z++) {
       for (int8_t y = 1; y < GRIDSIZE - 1; y++) {
         for (int8_t x = 1; x < GRIDSIZE - 1; x++) {
           int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
-            + (GRIDSIZE * GRIDSIZE * z) 
-            + (GRIDSIZE * y) + x;
+            + (z * GRIDSIZE * GRIDSIZE) 
+            + (y * GRIDSIZE) 
+            + x;
           if (g->values[idx] == STATE_ACTIVE) {
             // add one to all neighbors
             add_one_to_all_neighbours(g, x, y, z, w);
@@ -133,9 +133,8 @@ void update_neighbor_counts(grid_t* g) {
 }
 
 int32_t transmute_grid(grid_t* g) {
-  memset(g->new_values, STATE_INACTIVE, GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
-
   update_neighbor_counts(g);
+  memset(g->new_values, STATE_INACTIVE, GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
   int32_t count = 0;
   for (int32_t w = 1; w < GRIDSIZE - 1; w++) {
     for (int32_t z = 1; z < GRIDSIZE - 1; z++) {
@@ -145,13 +144,18 @@ int32_t transmute_grid(grid_t* g) {
               + (z * GRIDSIZE * GRIDSIZE) 
               + (y * GRIDSIZE) 
               + x;
+
+          // check early to prevent following a pointer into the values grid below
           int8_t active_neighbor_count = g->neighbor_counts[idx];
+          if (active_neighbor_count < 2 || active_neighbor_count > 3) {
+            continue;
+          }
+
           switch (g->values[idx]) {
             case STATE_ACTIVE:
-              if (active_neighbor_count == 2 || active_neighbor_count == 3) {
-                g->new_values[idx] = STATE_ACTIVE;
-                count++;
-              }
+              // (active_neighbor_count == 2 || active_neighbor_count == 3)
+              g->new_values[idx] = STATE_ACTIVE;
+              count++;
               break;
 
             default:
@@ -169,6 +173,7 @@ int32_t transmute_grid(grid_t* g) {
     }
   }
 
+  // swap out pointers
   char *tmp = g->values;
   g->values = g->new_values;
   g->new_values = tmp;

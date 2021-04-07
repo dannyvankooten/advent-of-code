@@ -7,7 +7,7 @@ debug: CFLAGS+=-DDEBUG -g
 debug: BIN=aoc2020debug
 debug: $(BIN)
 
-profile: CFLAGS+= -pg
+profile: CFLAGS+= -pg 
 profile: BIN=aoc2020debug
 profile: $(BIN)
 

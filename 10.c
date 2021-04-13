@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include "inputs/10.h"
 
+static
 int compare(const void* p1, const void* p2) {
   long* a = (long*)p1;
   long* b = (long*)p2;

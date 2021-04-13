@@ -11,7 +11,8 @@ struct Seat {
   int32_t seat;
 };
 
-int32_t decode_row(char* v) {
+static
+int32_t decode_row(const char* v) {
   int32_t l = 0;
   int32_t h = 127;
 
@@ -27,7 +28,8 @@ int32_t decode_row(char* v) {
   return row;
 }
 
-int32_t decode_column(char* v) {
+static
+int32_t decode_column(const char* v) {
   int32_t l = 0;
   int32_t h = 7;
 
@@ -45,7 +47,8 @@ int32_t decode_column(char* v) {
   return column;
 }
 
-struct Seat decode(char* v) {
+static
+struct Seat decode(const char* v) {
   int32_t r = decode_row(v);
   int32_t c = decode_column(v + 7);
   struct Seat s = {

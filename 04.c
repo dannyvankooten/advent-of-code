@@ -9,7 +9,8 @@
 #include "inputs/04.h"
 // https://adventofcode.com/2020/day/4#part2
 
-bool is_passport_valid(char passport[]) {
+static
+bool is_passport_valid(const char passport[]) {
   static const char valid_1[] = {1, 1, 1, 1, 1, 1, 1, 1};
   if (memcmp(passport, valid_1, 8 * sizeof(char)) == 0) {
     return true;
@@ -19,7 +20,8 @@ bool is_passport_valid(char passport[]) {
   return memcmp(passport, valid_2, 8 * sizeof(char)) == 0;
 }
 
-bool is_valid_hgt(char* v) {
+static
+bool is_valid_hgt(const char* v) {
   int32_t n = 0;
   int8_t i = 0;
 
@@ -43,7 +45,8 @@ bool is_valid_hgt(char* v) {
   return false;
 }
 
-bool is_valid_hcl(char* v) {
+static
+bool is_valid_hcl(const char* v) {
   if (v[0] != '#') {
     return false;
   }
@@ -65,7 +68,8 @@ bool is_valid_hcl(char* v) {
   return true;
 }
 
-bool is_valid_ecl(char* v) {
+static
+bool is_valid_ecl(const char* v) {
   static const char* valid_values[] = {"amb", "blu", "brn", "gry",
                                        "grn", "hzl", "oth"};
 
@@ -78,7 +82,8 @@ bool is_valid_ecl(char* v) {
   return false;
 }
 
-bool is_valid_pid(char* v) {
+static
+bool is_valid_pid(const char* v) {
   for (int8_t i = 0; i < 9; i++) {
     if (v[i] < '0' || v[i] > '9' || v[i] == '\0') {
       return false;

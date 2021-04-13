@@ -42,7 +42,8 @@ static void* erealloc(void* ptr, size_t size) {
   return ptr;
 }
 
-static size_t parse_input(food_t* dest) {
+static size_t 
+parse_input(food_t* restrict dest) {
   const unsigned char *s = input;
   size_t n = 0;
   size_t i_cap = 16;
@@ -104,10 +105,10 @@ static size_t parse_input(food_t* dest) {
   return n;
 }
 
-void print_food(food_t* f) {
+static void 
+print_food(const food_t* f) {
   for (size_t j = 0; j < f->ningredients; j++) {
-    char* i = f->ingredients[j];
-    printf("%s ", i);
+    printf("%s ", f->ingredients[j]);
   }
 
   if (f->nallergens > 0) {
@@ -116,15 +117,15 @@ void print_food(food_t* f) {
       if (j > 0) {
         printf(", ");
       }
-      char* a = f->allergens[j];
-      printf("%s", a);
+      printf("%s", f->allergens[j]);
     }
     printf(")");
   }
   printf("\n");
 }
 
-bool food_has_ingredient(food_t* f, char* ingredient) {
+static bool 
+food_has_ingredient(const food_t* f, const char* ingredient) {
   for (size_t i = 0; i < f->ningredients; i++) {
     if (strcmp(f->ingredients[i], ingredient) == 0) {
       return true;
@@ -134,7 +135,8 @@ bool food_has_ingredient(food_t* f, char* ingredient) {
   return false;
 }
 
-allergen_t* get_allergen(allergen_t* list, size_t size, char* name) {
+static allergen_t* 
+get_allergen(allergen_t* list, const size_t size, const char* name) {
   for (size_t i = 0; i < size; i++) {
     if (strcmp(list[i].name, name) == 0) {
       return &list[i];
@@ -145,9 +147,10 @@ allergen_t* get_allergen(allergen_t* list, size_t size, char* name) {
 }
 
 // returns true if this ingredient is a possible option for any allergen
-bool ingredient_can_contain_allergen(allergen_t* list,
-                                     size_t size,
-                                     char* ingredient) {
+static bool 
+ingredient_can_contain_allergen(const allergen_t * list,
+                                     const size_t size,
+                                     const char* ingredient) {
   for (size_t i = 0; i < size; i++) {
     allergen_t a = list[i];
 
@@ -161,13 +164,15 @@ bool ingredient_can_contain_allergen(allergen_t* list,
   return false;
 }
 
-int cmp_allergen(void const* p1, void const* p2) {
+static int 
+cmp_allergen(void const* p1, void const* p2) {
   allergen_t* a = (allergen_t*)p1;
   allergen_t* b = (allergen_t*)p2;
   return strcmp(a->name, b->name);
 }
 
-void remove_option_from_allergen(allergen_t* a, size_t index) {
+static void 
+remove_option_from_allergen(allergen_t* restrict a, const size_t index) {
   a->options[index] = a->options[a->noptions - 1];
   a->noptions--;
 }

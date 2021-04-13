@@ -8,9 +8,10 @@
 // const char *test_input = "389125467";
 const char* input = "327465189";
 
-void print_raw(int32_t* cups);
+static void print_raw(const int32_t* restrict cups);
 
-static int32_t parse_input(int32_t* cups, const char* s) {
+static int32_t 
+parse_input(int32_t* cups, const char* s) {
   int32_t i = 1;
   int32_t first = (*s++ - '0');
   int32_t prev = first;
@@ -33,7 +34,8 @@ static int32_t parse_input(int32_t* cups, const char* s) {
   return first;
 }
 
-void print_raw(int32_t* cups) {
+static void 
+print_raw(const int32_t* restrict cups) {
   printf("| ");
   for (int32_t i = 1; i <= 9; i++) {
     printf("%2d | ", i);
@@ -45,7 +47,8 @@ void print_raw(int32_t* cups) {
   printf("\n\n");
 }
 
-void print_cups(int32_t* cups, int32_t first, size_t n, char* before) {
+static void 
+print_cups(const int32_t* cups, const int32_t first, const size_t n, const char* before) {
   printf("%s", before);
   int32_t c = first;
   for (size_t i = 0; i < n; i++, c = cups[c]) {

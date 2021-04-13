@@ -33,8 +33,8 @@ typedef struct grid grid_t;
 
 #define get_grid_value_by_coords(grid, x, y) grid->values[y * grid->width + x]
 
-void 
-collect_neighbors(grid_t* grid, seat_t *seat) {
+static void 
+collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
   static const int8_t directions[8][2] = {
       {0, 1},    // right
       {0, -1},   // left
@@ -62,7 +62,8 @@ collect_neighbors(grid_t* grid, seat_t *seat) {
   }
 }
 
-static void print_grid(grid_t *grid) {
+static void 
+print_grid(grid_t* restrict grid) {
     for (int32_t y=0; y < grid->height; y++) {
         for (int32_t x=0; x < grid->width; x++) {
             switch (get_grid_value_by_coords(grid, x, y)) {
@@ -83,8 +84,7 @@ static void print_grid(grid_t *grid) {
     }
 }
 
-static 
-int
+static int
 count_occupied_neighbors(grid_t* restrict grid, int32_t* restrict neighbors, int32_t nneighbors) {
   int32_t count = 0;
   for (int32_t i=0; i < nneighbors; i++) {
@@ -138,8 +138,7 @@ transmute_grid(grid_t* restrict grid) {
   return changed;
 }
 
-static 
-void 
+static void 
 parse_input(grid_t* restrict grid) {
   const unsigned char *s = input;
   

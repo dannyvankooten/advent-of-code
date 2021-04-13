@@ -19,7 +19,8 @@ struct grid {
 };
 typedef struct grid grid_t;
 
-grid_t read_input() {
+static grid_t 
+read_input() {
   const unsigned char *s = input;
 
   // assume high enough values to fit our infinite grid
@@ -62,7 +63,8 @@ grid_t read_input() {
   return g;
 }
 
-void print_grid(grid_t g) {
+static void 
+print_grid(grid_t g) {
   int32_t count = 0;
   for (int32_t z = 0; z < GRIDSIZE; z++) {
     printf("z=%d\n", z - 100 / 2 - 2);
@@ -84,7 +86,8 @@ void print_grid(grid_t g) {
   printf("count = %d\n", count);
 }
 
-void add_one_to_all_neighbours(grid_t* g,
+static void
+add_one_to_all_neighbours(grid_t* g,
                                int32_t pos_x,
                                int32_t pos_y,
                                int32_t pos_z,
@@ -111,7 +114,8 @@ void add_one_to_all_neighbours(grid_t* g,
   }
 }
 
-void update_neighbor_counts(grid_t* g) {
+static void 
+update_neighbor_counts(grid_t* restrict g) {
   memset(g->neighbor_counts, 0,
          GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(int8_t));
   for (int8_t w = 1; w < GRIDSIZE - 1; w++) {
@@ -132,7 +136,8 @@ void update_neighbor_counts(grid_t* g) {
   }
 }
 
-int32_t transmute_grid(grid_t* g) {
+static int32_t 
+transmute_grid(grid_t* restrict g) {
   update_neighbor_counts(g);
   memset(g->new_values, STATE_INACTIVE, GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(char));
   int32_t count = 0;

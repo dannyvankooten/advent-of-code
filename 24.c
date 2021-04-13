@@ -50,12 +50,14 @@ static const char directions[2][6][2] = {
   }
 };
 
-void print_direction(direction_t d) {
+static void 
+print_direction(const direction_t d) {
   static const char* names[] = {"NE", "NW", "E", "W", "SE", "SW"};
   printf("%s", names[d]);
 }
 
-int32_t parse_line(direction_t* restrict directions, const unsigned char* restrict s) {
+static int32_t 
+parse_line(direction_t* restrict directions, const unsigned char* restrict s) {
   int32_t ndirections = 0;
   while (*s != '\n' && *s != '\0') {
     switch (*s++) {
@@ -96,8 +98,8 @@ int32_t parse_line(direction_t* restrict directions, const unsigned char* restri
   return ndirections;
 }
 
-inline static void
-apply_to_neighbors(int8_t* neighbors, int32_t x, int32_t y, int8_t d) {
+static void
+apply_to_neighbors(int8_t* restrict neighbors, const int32_t x, const int32_t y, const int8_t d) {
   int8_t parity = y & 1;
   for (int8_t i=0; i < 6; i++) {
     int8_t dx = directions[parity][i][0];
@@ -106,7 +108,8 @@ apply_to_neighbors(int8_t* neighbors, int32_t x, int32_t y, int8_t d) {
   }
 }
 
-void apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* x_bound, bound_t* y_bound) {
+static void 
+apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* restrict x_bound, bound_t* restrict y_bound) {
   int8_t* new_neighbors = &neighbors[GRIDSIZE_SQ];
 
   // then, change grid values based on earlier count (inclusive)

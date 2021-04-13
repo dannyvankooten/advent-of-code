@@ -26,9 +26,10 @@ struct vec {
 };
 typedef struct vec vec_t;
 
-void print_binary(int64_t n);
+static void print_binary(int64_t n);
 
-int64_t apply_bitmask(char mask[36], int64_t n) {
+static int64_t 
+apply_bitmask(const char mask[36], int64_t n) {
   char k;
   int64_t r = 0;
 
@@ -45,7 +46,8 @@ int64_t apply_bitmask(char mask[36], int64_t n) {
   return r;
 }
 
-int64_t bin2dec(const char mask[36]) {
+static int64_t 
+bin2dec(const char mask[36]) {
   int64_t r = 0;
 
   for (int8_t i = 0; i < 36; i++) {
@@ -55,8 +57,8 @@ int64_t bin2dec(const char mask[36]) {
   }
   return r;
 }
-
-void apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
+static void 
+apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
   // generate all possible combinations
   char k;
   size_t m;
@@ -96,7 +98,8 @@ void apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
   }
 }
 
-void print_binary(int64_t n) {
+static void 
+print_binary(int64_t n) {
   int8_t c;
   int64_t k;
   for (c = 35; c >= 0; c--) {

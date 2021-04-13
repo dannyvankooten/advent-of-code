@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include "inputs/01.h"
 
-int 
+static int 
 intcmp(const void *p1, const void *p2) {
   int32_t a = *(int32_t *) p1;
   int32_t b = *(int32_t *) p2;

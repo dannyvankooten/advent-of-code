@@ -19,7 +19,7 @@ struct Instructions {
   size_t size;
 };
 
-const unsigned char *
+static const unsigned char *
  parse_instruction_line(const unsigned char* line, struct Instruction *ins) {
   char buf[32];
   int32_t i = 0;

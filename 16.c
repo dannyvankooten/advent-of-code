@@ -19,7 +19,8 @@ struct ticket {
 };
 typedef struct ticket ticket_t;
 
-int32_t parse_digit(int32_t* d, char* s) {
+static int32_t 
+parse_digit(int32_t* d, char* restrict s) {
   char* start = s;
   while (*s == ' ')
     s++;

@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <err.h>
-#include <inttypes.h>
+#include <stdint.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@ typedef enum {
 
 const int32_t HEIGHT = 323;
 const int32_t WIDTH = 31;
-uint64_t count_trees(square_t* grid, int32_t slope_y, int32_t slope_x);
+static uint64_t count_trees(square_t* grid, int32_t slope_y, int32_t slope_x);
 
 int day3() {
   const unsigned char *s = input;
@@ -54,12 +54,13 @@ int day3() {
                     count_trees(grid, 1, 5) * count_trees(grid, 1, 7) *
                     count_trees(grid, 2, 1);
 
-  printf("%" PRId64 "\n", product);
+  printf("%ld\n", product);
   assert(product == 4355551200);
   free(grid);
   return 0;
 }
 
+static 
 uint64_t count_trees(square_t* grid, int slope_y, int slope_x) {
   uint64_t tree_count = 0;
   for (int32_t y = 0, x = 0; y < 322; y += slope_y, x += slope_x) {

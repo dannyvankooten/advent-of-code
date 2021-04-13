@@ -19,7 +19,8 @@ struct hashmap {
   uint32_t *values;
 };
 
-hashmap_t* hm_new() {
+static hashmap_t* 
+hm_new() {
   hashmap_t* hm = (hashmap_t*)malloc(sizeof(hashmap_t));
   if (!hm) {
     err(EXIT_FAILURE, "could not allocate memory for hashmap");
@@ -34,8 +35,8 @@ hashmap_t* hm_new() {
   return hm;
 }
 
-uint32_t 
-hm_get(hashmap_t* restrict hm, uint32_t key, uint32_t new_value) {
+static uint32_t 
+hm_get(hashmap_t* restrict hm, const uint32_t key, const uint32_t new_value) {
   // uint32_t index = key % HM_CAP;
   uint32_t index = key & (HM_CAP - 1); 
   uint_fast8_t tries = 0;
@@ -59,7 +60,8 @@ hm_get(hashmap_t* restrict hm, uint32_t key, uint32_t new_value) {
   return old_value;
 }
 
-static uint32_t parse_input(uint32_t* restrict numbers, const char* s) {
+static uint32_t 
+parse_input(uint32_t* restrict numbers, const char* s) {
   uint32_t n = 0;
 
   while (*s != '\0') {

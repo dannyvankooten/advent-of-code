@@ -32,9 +32,10 @@ static const char* token_names[] = {
 };
 static char* s;
 
-int64_t _eval();
+static int64_t _eval();
 
-token_t gettoken() {
+static token_t 
+gettoken() {
   while (*s == ' ')
     s++;
 
@@ -83,14 +84,16 @@ token_t gettoken() {
   return tok;
 }
 
-token_t nexttoken() {
+static token_t 
+nexttoken() {
   char* tmp = s;
   token_t tok = gettoken();
   s = tmp;
   return tok;
 }
 
-int64_t _eval_infix_expression(int64_t left) {
+static int64_t 
+_eval_infix_expression(int64_t left) {
   // parse operator
   token_t op = gettoken();
   if (op.type != TOK_ASTERISK && op.type != TOK_PLUS) {
@@ -117,7 +120,8 @@ int64_t _eval_infix_expression(int64_t left) {
   return left;
 }
 
-int64_t _eval(precedence_t precedence) {
+static int64_t 
+_eval(precedence_t precedence) {
   int64_t left;
 
   token_t tok = gettoken();
@@ -153,7 +157,8 @@ int64_t _eval(precedence_t precedence) {
   return left;
 }
 
-int64_t eval(char* input) {
+static int64_t 
+eval(char* input) {
   s = input;
   return _eval(LOWEST);
 }

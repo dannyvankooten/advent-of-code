@@ -18,9 +18,10 @@ struct rule {
 };
 typedef struct rule rule_t;
 
-int32_t message_matches_rule(rule_t rule,
-                             rule_t* rules,
-                             char* m,
+static int32_t 
+message_matches_rule(rule_t rule,
+                             const rule_t* restrict rules,
+                             char* restrict m,
                              int32_t depth) {
   // for (int i=0; i < depth; i++) printf("    |");
   // print_rule(rule);

@@ -58,7 +58,8 @@ const struct monster {
         " #  #  #  #  #  #   ",
 };
 
-int32_t parse_tiles_from_input(tile_t* tiles) {
+static int32_t 
+parse_tiles_from_input(tile_t* tiles) {
   int32_t ntiles = 0;
   const unsigned char *s = input;
   while (*s != '\0') {
@@ -100,7 +101,8 @@ int32_t parse_tiles_from_input(tile_t* tiles) {
   return ntiles;
 }
 
-void print_tile(tile_t* tile) {
+static void 
+print_tile(const tile_t* tile) {
   printf("Tile %d:\n", tile->id);
   for (int32_t y = 0; y < H; y++) {
     for (int32_t x = 0; x < W; x++) {
@@ -110,14 +112,16 @@ void print_tile(tile_t* tile) {
   }
 }
 
-void print_tiles(tile_t* tiles, int32_t ntiles) {
+static void 
+print_tiles(const tile_t* tiles, int32_t ntiles) {
   for (int32_t i = 0; i < ntiles; i++) {
     print_tile(&tiles[i]);
   }
 }
 
 // https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Rotation
-void rotate(char* grid, int32_t size) {
+static void 
+rotate(char* restrict grid, int32_t size) {
   char new_grid[size * size];
   for (int32_t y = 0, x2 = size - 1; y < size; y++, x2--) {
     for (int32_t x = 0, y2 = 0; x < size; x++, y2++) {
@@ -128,7 +132,8 @@ void rotate(char* grid, int32_t size) {
   memcpy(grid, new_grid, size * size * sizeof(char));
 }
 
-void flip(char* grid, int32_t size, ax_t ax) {
+static void 
+flip(char* restrict grid, int32_t size, ax_t ax) {
   // 0 1 2 3 4 5 6 7 8 9
   // 9 8 7 6 5 4 3 2 1 0
   char new_grid[size * size];
@@ -151,8 +156,8 @@ void flip(char* grid, int32_t size, ax_t ax) {
 }
 
 
-void
-extract_edge(tile_t* t, edge_t e, char dest[W], bool inverse) {
+static void
+extract_edge(const tile_t* restrict t, edge_t e, char dest[W], bool inverse) {
 // extract_edge(tile_t* t, edge_t e, char dest[W]) {
 
   switch (e) {
@@ -195,8 +200,8 @@ extract_edge(tile_t* t, edge_t e, char dest[W], bool inverse) {
   }
 }
 
-match_t
-cmp_edges(char edge_1[W], char edge_2[W]) {
+static match_t
+cmp_edges(const char edge_1[W], const char edge_2[W]) {
   // edges match as-is
   if (memcmp(edge_1, edge_2, W * sizeof(char)) == 0) {
     return MATCH;
@@ -217,8 +222,8 @@ cmp_edges(char edge_1[W], char edge_2[W]) {
   return NO_MATCH;
 }
 
-bool 
-fit_other_on_edge(tile_t* t1, tile_t *t2, edge_t e1) {
+const bool 
+fit_other_on_edge(const tile_t* restrict t1, tile_t* restrict t2, const edge_t e1) {
   char edge_t1[W];
   char edge_t2[W];
   extract_edge(t1, e1, edge_t1, false);
@@ -244,7 +249,8 @@ fit_other_on_edge(tile_t* t1, tile_t *t2, edge_t e1) {
   return false;
 }
 
-void remove_image_borders(char* image, tile_t** tiles, int32_t image_size) {
+static void 
+remove_image_borders(char* restrict image, tile_t** const restrict tiles, int32_t image_size) {
   int32_t img_y = 0;
   int32_t img_x = 0;
   int32_t img_width = (W - 2) * image_size;
@@ -260,11 +266,12 @@ void remove_image_borders(char* image, tile_t** tiles, int32_t image_size) {
   }
 }
 
-void print_image(tile_t** image, int32_t image_size) {
+static void 
+print_image(const tile_t** restrict image, const int32_t image_size) {
   for (int32_t image_y = 0; image_y < image_size; image_y++) {
     for (int32_t y = 0; y < H; y++) {
       for (int32_t image_x = 0; image_x < image_size; image_x++) {
-        tile_t* t = image[image_y * image_size + image_x];
+        const tile_t* t = image[image_y * image_size + image_x];
         for (int32_t x = 0; x < W; x++) {
           printf("%c", t != NULL ? t->grid[y * W + x] : '?');
         }
@@ -275,21 +282,21 @@ void print_image(tile_t** image, int32_t image_size) {
   }
 }
 
-void print_image_ids(tile_t** image, int32_t size) {
+static void 
+print_image_ids(const tile_t** restrict image, const int32_t size) {
   for (int32_t y = 0; y < size; y++) {
     for (int32_t x = 0; x < size; x++) {
-      tile_t* t = image[y * size + x];
+      const tile_t* t = image[y * size + x];
       printf("%d\t", t != NULL ? t->id : 0);
     }
     printf("\n");
   }
 }
 
-void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
+static void 
+shift_image(tile_t** restrict image, const int32_t size, const int8_t shift_y, const int8_t shift_x) {
   tile_t* new_image[size * size];
   memset(new_image, 0, size * size * sizeof(tile_t*));
-  // for (int32_t i = 0; i < size * size; i++)
-  //   new_image[i] = NULL;
   tile_t* t;
 
   for (int32_t y = 0; y < size - shift_y; y++) {
@@ -309,8 +316,8 @@ void shift_image(tile_t** image, int32_t size, int8_t shift_y, int8_t shift_x) {
   memcpy(image, new_image, size * size * sizeof(tile_t*));
 }
 
-int32_t count_sea_monster_in_image(const char* image,
-                                   int32_t image_size) {
+static int32_t
+count_sea_monster_in_image(const char* image, const int32_t image_size) {
   int32_t count = 0;
   for (int32_t y = 0; y < image_size - sea_monster.height; y++) {
     for (int32_t x = 0; x < image_size - sea_monster.width; x++) {

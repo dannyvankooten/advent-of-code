@@ -7,7 +7,8 @@
 #include <string.h>
 #include "inputs/06.h"
 
-int8_t count_yes_answers(char* s) {
+static
+int8_t count_yes_answers(const char* s) {
   char group_answers[26];
   char user_answers[26] = {0};
   for (int8_t i = 0; i < 26; i++) {

@@ -5,8 +5,8 @@
 #include <string.h>
 #include "intmap.h"
 
-int64_t 
-modpow(int64_t x, int32_t exp, int32_t mod) 
+static int64_t 
+modpow(int64_t x, int32_t exp, const int32_t mod) 
 { 
     int64_t res = 1;      
     x = x % mod;  
@@ -26,8 +26,8 @@ modpow(int64_t x, int32_t exp, int32_t mod)
     return res; 
 }
 
-int32_t 
-discrete_log(int32_t subject, int32_t value, int32_t mod) {
+static int32_t 
+discrete_log(const int32_t subject, int32_t value, const int32_t mod) {
   int32_t e = 1;
   int32_t modw = (int32_t) sqrt((double) mod);
   intmap_t *hm = intmap_new(modw);
@@ -53,12 +53,10 @@ discrete_log(int32_t subject, int32_t value, int32_t mod) {
   exit(1);
 }
 
-// TODO: Look at https://en.wikipedia.org/wiki/Discrete_logarithm#Algorithms 
 int day25() {
-  int32_t card_pubkey = 1965712;
-  int32_t door_pubkey = 19072108;
-
-  int32_t loop_size = discrete_log(7, card_pubkey, 20201227);
+  const int32_t card_pubkey = 1965712;
+  const int32_t door_pubkey = 19072108;
+  const int32_t loop_size = discrete_log(7, card_pubkey, 20201227);
   assert(loop_size == 7779516);
 
   // find encryption key using other public key

@@ -11,7 +11,7 @@ const char* input = "327465189";
 static void print_raw(const int32_t* restrict cups);
 
 static int32_t 
-parse_input(int32_t* cups, const char* s) {
+parse_input(int32_t* restrict cups, const char* s) {
   int32_t i = 1;
   int32_t first = (*s++ - '0');
   int32_t prev = first;
@@ -48,7 +48,7 @@ print_raw(const int32_t* restrict cups) {
 }
 
 static void 
-print_cups(const int32_t* cups, const int32_t first, const size_t n, const char* before) {
+print_cups(const int32_t* restrict cups, const int32_t first, const size_t n, const char* restrict before) {
   printf("%s", before);
   int32_t c = first;
   for (size_t i = 0; i < n; i++, c = cups[c]) {
@@ -67,14 +67,9 @@ int day23() {
   int32_t next_cur;
 
   for (int32_t m = 0; m < 10000000; m++) {
-    // printf("-- move %ld --\n", m+1);
-    // print_raw(cups);
-    // print_cups(cups, current_cup, 9, "cups: ");
     a = cups[current_cup];
     b = cups[a];
     c = cups[b];
-
-    // printf("selection: %ld, %ld, %ld\n", a, b, c);
     cups[current_cup] = next_cur = cups[c];
 
     destination = current_cup;

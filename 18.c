@@ -27,16 +27,15 @@ typedef struct token {
   } type;
 } token_t;
 
-static const char* token_names[] = {
+const char* token_names[] = {
     "NUMBER", "PLUS", "ASTERISK", "LPAREN", "RPAREN", "EOF",
 };
-static char* s;
-
+const char* s;
 static int64_t _eval();
 
 static token_t 
 gettoken() {
-  while (*s == ' ')
+  while (isspace(*s))
     s++;
 
   token_t tok = {
@@ -86,7 +85,7 @@ gettoken() {
 
 static token_t 
 nexttoken() {
-  char* tmp = s;
+  const char* tmp = s;
   token_t tok = gettoken();
   s = tmp;
   return tok;
@@ -124,7 +123,7 @@ static int64_t
 _eval(precedence_t precedence) {
   int64_t left;
 
-  token_t tok = gettoken();
+ const  token_t tok = gettoken();
   switch (tok.type) {
     case TOK_NUMBER:
       left = tok.value;
@@ -158,7 +157,7 @@ _eval(precedence_t precedence) {
 }
 
 static int64_t 
-eval(char* input) {
+eval(const char* input) {
   s = input;
   return _eval(LOWEST);
 }
@@ -177,12 +176,12 @@ int day18() {
          3803184);
   assert(eval("2 * 6 * 2 + 2 * 8 * (3 + 2 * (9 * 8) + 6 + 9 + 2)") == 170880);
 
-  int64_t sum = 0;
   FILE* f = fopen("inputs/18.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
   }
   char linebuf[BUFSIZ] = {0};
+  int64_t sum = 0;
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
     sum += eval(linebuf);
   }

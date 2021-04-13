@@ -1,44 +1,47 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <inttypes.h>
 #include <err.h>
 #include "intmap.h"
 
+#define INTMAP_MAX_PROBING_TRIES 10
+
 intmap_t *
-intmap_new(size_t size) {
+intmap_new(const size_t size) {
     intmap_t *hm = (intmap_t *) malloc(sizeof(intmap_t));
     if (!hm) {
         err(EXIT_FAILURE, "could not allocate memory for hashmap");
     }
-    hm->cap = size * 3;
+
+    // make sure capacity is power of 2
+    hm->cap = 16384;
+    while (hm->cap < size) {
+        hm->cap *= 2;
+    }
     hm->entries = (intmap_entry_t *) calloc(hm->cap, sizeof(intmap_entry_t));
     if (!hm->entries) {
         err(EXIT_FAILURE, "could not allocate memory for hashmap entries");
     }
-    // hm->keys = (uint32_t *) calloc(hm->cap, sizeof(uint32_t));
-    // hm->values = (uint32_t *) malloc(hm->cap * sizeof(uint32_t));
+
     return hm;
 }
 
 static inline size_t
-hash_func (size_t key)
-{
-  key = ((key >> 16) ^ key) * 0x45d9f3b;
+hash_func (size_t key) {
   key = ((key >> 16) ^ key) * 0x45d9f3b;
   key = (key >> 16) ^ key;
   return key;
 }
 
 int64_t 
-intmap_get(intmap_t *hm, size_t key) {
-    size_t index = hash_func(key) % hm->cap;
-    u_int8_t tries = 0;
+intmap_get(intmap_t *hm, const size_t key) {
+    size_t index = hash_func(key) & (hm->cap - 1);
+    uint8_t tries = 0;
 
     while (hm->entries[index].key != key) {
-         // exhausted linear probing attempts
-        // assume item was not in hashmap yet
-        if (++tries > 5) {
+        // exhausted linear probing attempts
+        if (++tries > INTMAP_MAX_PROBING_TRIES) {
+            // assume item was not in hashmap yet
             return 0;
         }
 
@@ -52,9 +55,8 @@ intmap_get(intmap_t *hm, size_t key) {
 }
 
 int64_t  
-intmap_set(intmap_t *hm, size_t key, int64_t value) {
-    size_t index = hash_func(key) % hm->cap;
-
+intmap_set(intmap_t *hm, const size_t key, const int64_t value) {
+    size_t index = hash_func(key) & (hm->cap - 1);
     u_int8_t tries = 0;
     while (hm->entries[index].key != 0) {
         if (hm->entries[index].key == key) {
@@ -64,16 +66,12 @@ intmap_set(intmap_t *hm, size_t key, int64_t value) {
         }
 
         // did we exchaust # of tries?        
-        tries++;
-        if (tries > 30) {
+        if (++tries > INTMAP_MAX_PROBING_TRIES) {
             err(EXIT_FAILURE, "exhausted linear probing attempts");
         }
 
-        // try next index
-        index++;
-
         // wrap around if we reached end of entries
-        if (index >= hm->cap) {
+        if (++index >= hm->cap) {
             index = 0;
         }
     }
@@ -82,8 +80,6 @@ intmap_set(intmap_t *hm, size_t key, int64_t value) {
     hm->entries[index].key = key;
     hm->entries[index].value = value;
     return 0;
-    // hm->keys[index] = key;
-    // hm->values[index] = value;
 }
 
 void

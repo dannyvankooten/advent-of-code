@@ -77,36 +77,32 @@ int day5() {
   // find seat with highest seat ID
   struct Seat s;
   int32_t max_seat_id = 0;
+  int8_t seats[128][8] = {0};
   while ((fgets(buf, BUFSIZ, f) != NULL)) {
     s = decode(buf);
     if (s.seat > max_seat_id) {
       max_seat_id = s.seat;
     }
-  }
-  printf("%d\n", max_seat_id);
-  assert(max_seat_id == 933);
 
-  // find our seat (missing from list, not at (unknown) front or back)
-  int8_t seats[128][8] = {0};
-  fseek(f, 0, SEEK_SET);
-  while ((fgets(buf, BUFSIZ, f) != NULL)) {
-    s = decode(buf);
+    // mark seat as occupied for pt 2
     seats[s.row][s.column] = 1;
   }
   fclose(f);
+  printf("%d\n", max_seat_id);
+  assert(max_seat_id == 933);
 
+  // find our seat (missing from list, not at (unknown) front or back) 
   int32_t result = 0;
-  for (int8_t r = 1; r < 127; r++) {
+  for (int8_t r = 10; r < 127; r++) {
     for (int8_t c = 0; c < 8; c++) {
       if (seats[r][c] == 0) {
         result = r * 8 + c;
-        goto RESULT_FOUND;
+        printf("%d\n", result);
+        assert(result == 711);
+        return 0;
       }
     }
   }
 
-RESULT_FOUND:;
-  printf("%d\n", result);
-  assert(result == 711);
-  return 0;
+  return 1;
 }

@@ -37,7 +37,6 @@ hm_new() {
 
 static uint32_t 
 hm_get(hashmap_t* restrict hm, const uint32_t key, const uint32_t new_value) {
-  // uint32_t index = key % HM_CAP;
   uint32_t index = key & (HM_CAP - 1); 
   uint_fast8_t tries = 0;
 

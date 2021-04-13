@@ -126,7 +126,6 @@ apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* r
             grid->tiles[y * GRIDSIZE + x] = BLACK;
             grid->black_tile_count++;
             apply_to_neighbors(new_neighbors, x, y, +1);
-            
 
             if (y < y_bound->min) {
               y_bound->min = y;

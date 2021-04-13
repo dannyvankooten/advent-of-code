@@ -35,7 +35,7 @@ typedef struct grid grid_t;
 
 static void 
 collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
-  static const int8_t directions[8][2] = {
+  static const int8_t directions[][2] = {
       {0, 1},    // right
       {0, -1},   // left
       {1, 0},    // down
@@ -45,16 +45,15 @@ collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
       {1, -1},   // down-left
       {-1, -1},  // up-left
   };
-  int32_t pos_x = seat->index % grid->width;
-  int32_t pos_y = (seat->index - pos_x) / grid->width;
+  const int32_t pos_x = seat->index % grid->width;
+  const int32_t pos_y = (seat->index - pos_x) / grid->width;
 
   for (int_fast8_t d = 0; d < 8; d++) {
     int_fast8_t dy = directions[d][0];
     int_fast8_t dx = directions[d][1];
     for (int32_t y = pos_y + dy, x = pos_x + dx;
          y >= 0 && x >= 0 && x < grid->width && y < grid->height; x += dx, y += dy) {
-      enum position value = get_grid_value_by_coords(grid, x, y);
-      if (value != POS_FLOOR) {
+      if (get_grid_value_by_coords(grid, x, y) != POS_FLOOR) {
         seat->neighbors[seat->nneighbors++] = y * grid->width + x;
         break;
       }
@@ -106,7 +105,7 @@ transmute_grid(grid_t* restrict grid) {
 
   for (int32_t i=grid->nseats-1; i >= 0; i--) {
     seat_t* seat = &grid->seats[i];
-    int32_t occupied_count = count_occupied_neighbors(grid, seat->neighbors, seat->nneighbors); 
+    const int32_t occupied_count = count_occupied_neighbors(grid, seat->neighbors, seat->nneighbors); 
     enum position state = grid->values[seat->index];
     if (state == POS_OCCUPIED_SEAT) {
         if (occupied_count >= 5) {
@@ -160,7 +159,7 @@ parse_input(grid_t* restrict grid) {
   int32_t y = 0;
   while (*s != '\0') {
     for (int32_t x = 0; *s != '\n' && *s != '\0'; s++, x++) {
-      enum position v = (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
+      const enum position v = (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
       grid->values[y * grid->width + x] = v;
       grid->new_values[y * grid->width + x] = v;
 

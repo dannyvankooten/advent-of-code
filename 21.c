@@ -65,8 +65,7 @@ parse_input(food_t* restrict dest) {
       }
 
       // patse ingredient name
-      char* ingredient = f->ingredients[f->ningredients++];
-      char* i = ingredient;
+      char* i = f->ingredients[f->ningredients++];
       while (*s != ' ') {
         *i++ = *s++;
       }
@@ -85,8 +84,7 @@ parse_input(food_t* restrict dest) {
       }
       
       // parse allergen name
-      char* allergen = f->allergens[f->nallergens++];
-      char* a = allergen;
+      char* a = f->allergens[f->nallergens++];
       while (*s != ',' && *s != ')') {
         *a++ = *s++;
       }
@@ -152,10 +150,9 @@ ingredient_can_contain_allergen(const allergen_t * list,
                                      const size_t size,
                                      const char* ingredient) {
   for (size_t i = 0; i < size; i++) {
-    allergen_t a = list[i];
-
-    for (size_t j = 0; j < a.noptions; j++) {
-      if (strcmp(a.options[j], ingredient) == 0) {
+    const allergen_t* a = &list[i];
+    for (size_t j = 0; j < a->noptions; j++) {
+      if (strcmp(a->options[j], ingredient) == 0) {
         return true;
       }
     }
@@ -166,8 +163,8 @@ ingredient_can_contain_allergen(const allergen_t * list,
 
 static int 
 cmp_allergen(void const* p1, void const* p2) {
-  allergen_t* a = (allergen_t*)p1;
-  allergen_t* b = (allergen_t*)p2;
+  const allergen_t* a = (allergen_t*)p1;
+  const allergen_t* b = (allergen_t*)p2;
   return strcmp(a->name, b->name);
 }
 
@@ -224,7 +221,7 @@ int day21() {
   for (size_t i = 0; i < nfoods; i++) {
     food_t* f = &foods[i];
     for (size_t j = 0; j < f->ningredients; j++) {
-      char* ingredient = f->ingredients[j];
+      const char* ingredient = f->ingredients[j];
       if (ingredient_can_contain_allergen(allergen_list, nallergens,
                                           ingredient)) {
         continue;
@@ -242,7 +239,7 @@ int day21() {
     if (a->noptions != 1) {
       continue;
     }
-    char* ingredient = a->options[0];
+    const char* ingredient = a->options[0];
     bool stable = true;
 
     for (size_t j = 0; j < nallergens; j++) {
@@ -259,6 +256,7 @@ int day21() {
       }
     }
 
+    // repeat until stable
     if (stable == false) {
       i = 0;
       continue;

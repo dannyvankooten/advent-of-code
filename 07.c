@@ -23,7 +23,6 @@ bag_t* mbags;
 
 static 
 void parse_rules_from_input() {
-  int32_t i;
   int32_t qty;
   int32_t cap = 1024;
   int32_t size = 0;
@@ -39,7 +38,7 @@ void parse_rules_from_input() {
   char linebuf[BUFSIZ] = {0};
   bags = ht_create();
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
-    char* s = linebuf;
+    const char* s = linebuf;
     bag_t* bag = &mbags[size++];
     if (size == cap) {
       cap *= 2;
@@ -53,19 +52,23 @@ void parse_rules_from_input() {
     bag->color[0] = '\0';
 
     // parse up to " contain "
-    char* pos = strstr(s, " bags contain ");
-    for (i = 0; s < pos;) {
-      bag->color[i++] = *s++;
-    }
-    bag->color[i] = '\0';
+    const char* pos = strstr(s, " bags contain ");
+    uint8_t len = pos - s;
+    memcpy(bag->color, s, len);
+    bag->color[len] = '\0';
+    s = pos;
+
 
     // skip " bags contain "
     s += strlen(" bags contain ");
 
     // parse all children
     while (1) {
-      while (*s == ' ')
+
+      // skip whitespace
+      while (*s == ' ') {
         s++;
+      }
 
       // parse child quantity
       qty = 0;
@@ -77,16 +80,17 @@ void parse_rules_from_input() {
       bag->children[bag->nchildren].qty = qty;
 
       // skip whitespace
-      while (*s == ' ')
+      while (*s == ' ') {
         s++;
+      }
 
       // parse child color
       pos = strstr(s, " bag");
-      for (i = 0; s < pos;) {
-        bag->children[bag->nchildren].color[i++] = *s++;
-      }
-      bag->children[bag->nchildren].color[i] = '\0';
+      len = pos - s;
+      memcpy(bag->children[bag->nchildren].color, s, len);
+      bag->children[bag->nchildren].color[len] = '\0';
       bag->nchildren++;
+      s = pos;
 
       // skip forward to after next comma or dot
       while (*s != ',' && *s != '.') {
@@ -116,25 +120,25 @@ bag_t* find_bag(const char color[32]) {
   return b;
 }
 
-static
-int32_t may_bag_contain_color(bag_t* b, const char color[32]) {
+static bool 
+may_bag_contain_color(bag_t* b, const char color[32]) {
   if (b == NULL) {
-    return 0;
+    return false;
   }
 
   // search children for the given color
   for (int32_t j = 0; j < b->nchildren; j++) {
     if (strcmp(b->children[j].color, color) == 0) {
-      return 1;
+      return true;
     }
 
     // search children of this bag
-    if (1 == may_bag_contain_color(find_bag(b->children[j].color), color)) {
-      return 1;
+    if (may_bag_contain_color(find_bag(b->children[j].color), color)) {
+      return true;
     }
   }
 
-  return 0;
+  return false;
 }
 
 static
@@ -142,7 +146,7 @@ int32_t search_bags_for_color(const char color[32]) {
   int32_t count = 0;
   hti it = ht_iterator(bags);
   while (ht_next(&it)) {
-    count += may_bag_contain_color(it.value, color);
+    count += may_bag_contain_color((bag_t*) it.value, color);
   }
   return count;
 }
@@ -167,8 +171,12 @@ int day7() {
   bag_t* shiny_gold = find_bag("shiny gold");
   assert(shiny_gold != NULL);
 
-  printf("%d\n", search_bags_for_color("shiny gold"));
-  printf("%d\n", count_children(shiny_gold));
+  int32_t part_1 = search_bags_for_color("shiny gold");
+  assert(part_1 == 211);
+  printf("%d\n", part_1);
+  int32_t part_2 = count_children(shiny_gold);
+  printf("%d\n", part_2);
+  assert(part_2 == 12414);
 
   free(mbags);
   ht_destroy(bags);

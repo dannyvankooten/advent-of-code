@@ -59,7 +59,7 @@ const struct monster {
 };
 
 static int32_t 
-parse_tiles_from_input(tile_t* tiles) {
+parse_tiles_from_input(tile_t* restrict tiles) {
   int32_t ntiles = 0;
   const unsigned char *s = input;
   while (*s != '\0') {
@@ -102,7 +102,7 @@ parse_tiles_from_input(tile_t* tiles) {
 }
 
 static void 
-print_tile(const tile_t* tile) {
+print_tile(const tile_t* restrict tile) {
   printf("Tile %d:\n", tile->id);
   for (int32_t y = 0; y < H; y++) {
     for (int32_t x = 0; x < W; x++) {
@@ -113,7 +113,7 @@ print_tile(const tile_t* tile) {
 }
 
 static void 
-print_tiles(const tile_t* tiles, int32_t ntiles) {
+print_tiles(const tile_t* restrict tiles, const int32_t ntiles) {
   for (int32_t i = 0; i < ntiles; i++) {
     print_tile(&tiles[i]);
   }
@@ -121,7 +121,7 @@ print_tiles(const tile_t* tiles, int32_t ntiles) {
 
 // https://en.wikipedia.org/wiki/Cartesian_coordinate_system#Rotation
 static void 
-rotate(char* restrict grid, int32_t size) {
+rotate(char* restrict grid, const int32_t size) {
   char new_grid[size * size];
   for (int32_t y = 0, x2 = size - 1; y < size; y++, x2--) {
     for (int32_t x = 0, y2 = 0; x < size; x++, y2++) {
@@ -133,7 +133,7 @@ rotate(char* restrict grid, int32_t size) {
 }
 
 static void 
-flip(char* restrict grid, int32_t size, ax_t ax) {
+flip(char* restrict grid, const int32_t size, const ax_t ax) {
   // 0 1 2 3 4 5 6 7 8 9
   // 9 8 7 6 5 4 3 2 1 0
   char new_grid[size * size];
@@ -157,7 +157,7 @@ flip(char* restrict grid, int32_t size, ax_t ax) {
 
 
 static void
-extract_edge(const tile_t* restrict t, edge_t e, char dest[W], bool inverse) {
+extract_edge(const tile_t* restrict t, edge_t e, char dest[W], const bool inverse) {
 // extract_edge(tile_t* t, edge_t e, char dest[W]) {
 
   switch (e) {
@@ -250,7 +250,7 @@ fit_other_on_edge(const tile_t* restrict t1, tile_t* restrict t2, const edge_t e
 }
 
 static void 
-remove_image_borders(char* restrict image, tile_t** const restrict tiles, int32_t image_size) {
+remove_image_borders(char* restrict image, tile_t** const restrict tiles, const int32_t image_size) {
   int32_t img_y = 0;
   int32_t img_x = 0;
   int32_t img_width = (W - 2) * image_size;
@@ -381,8 +381,8 @@ STARTOVER:;
     }
 
     for (int32_t j = 0; j < ntiles; j++) {
-      // skip tiles already in image
-      tile_t* t2 = &tiles[j]; // (incl. self)
+      // skip tiles already in image (incl. self)
+      tile_t* t2 = &tiles[j];
       if (t2->x >= 0) {
         continue;
       }

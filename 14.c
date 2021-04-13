@@ -132,36 +132,40 @@ int32_t day14() {
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
     instruction_t* ins = &instructions[size++];
     char* s = linebuf;
-    char* tmp = nbuf;
 
     if (strncmp(s, "mask = ", 7) == 0) {
       ins->type = SET_MASK;
       char* mask = ins->mask;
       s += 7;  // skip "mask"
-      while (*s != 0 && *(s - 2) != '=')
+      while (*s != 0 && *(s - 2) != '=') {
         s++;
+      }
       while (*s != '\0' && *s != '\n') {
         *mask++ = *s++;
       }
     } else {
       ins->type = SET_VALUE;
       s += 3;  // skip "mem"
-      while (*(s - 1) != '[')
+      while (*(s - 1) != '[') {
         s++;
-      while (*s != ']')
-        *tmp++ = *s++;
-      *tmp = '\0';
-      ins->address = strtol(nbuf, NULL, 10);
+      }
 
-      tmp = nbuf;
-      while (*s != '=' && *s != 0)
+      ins->address = 0;
+      while (*s >= '0' && *s <= '9') { 
+        ins->address = (ins->address * 10) + (*s++ - '0');
+      }
+
+      while (*s != '=' && *s != '\0') {
         s++;
-      while (*s < '0' || *s > '9')
+      }
+      while (*s < '0' || *s > '9') {
         s++;
-      while (*s >= '0' && *s <= '9')
-        *tmp++ = *s++;
-      *tmp = '\0';
-      ins->value = strtol(nbuf, NULL, 10);
+      }
+
+      ins->value = 0;  
+      while (*s >= '0' && *s <= '9') {
+        ins->value = (ins->value * 10) + (*s++ - '0');
+      }
     }
 
     // add instruction to list
@@ -176,7 +180,7 @@ int32_t day14() {
   fclose(f);
 
   // initialize hashmap for storing memory
-  intmap_t* hm = intmap_new(73000);
+  intmap_t* hm = intmap_new(262144);
   // struct hashmap hm = hashmap_new();
   vec_t addresses = {
       .size = 0,
@@ -198,9 +202,7 @@ int32_t day14() {
 
     switch (instructions[i].type) {
       case SET_MASK:
-        for (j = 0; j < 36; j++) {
-          mask[j] = instructions[i].mask[j];
-        }
+        memcpy(mask, instructions[i].mask, 36);
         break;
 
       case SET_VALUE: {
@@ -214,14 +216,11 @@ int32_t day14() {
         for (j = 0; j < addresses.size; j++) {
           sum += instructions[i].value;
           sum -= intmap_set(hm, addresses.values[j], instructions[i].value);
-          // sum = hashmap_set(&hm, );
         }
       } break;
     }
   }
 
-  // int64_t sum = 0;
-  // sum = hashmap_sum(&hm);
   printf("%ld\n", sum);
   assert(sum == 4173715962894);
 

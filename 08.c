@@ -90,25 +90,29 @@ int day8() {
   if (!seen) {
     err(EXIT_FAILURE, "error allocating memory for seen array");
   }
-  struct Instruction i;
+  struct Instruction* i;
 
   for (size_t c = 0; c < ins.size; c++) {
+    // skip ACC instructions
+    if (ins.values[c].type == ACC) {
+      continue;
+    }
+
     int32_t acc = 0;
     size_t ip;
     memset(seen, 0, ins.size * sizeof(0));
 
-    for (ip = 0; ip < ins.size;) {
-      i = ins.values[ip];
-
+    for (ip = 0; ip < ins.size; ip++) {
       // break if we've seen this instruction already
       if (seen[ip] == 1) {
         break;
       }
       seen[ip] = 1;
 
-      enum instruction_types type = i.type;
+      i = &ins.values[ip];
+      enum instruction_types type = i->type;
       if (c == ip) {
-        if (type == NOOP && i.value != 0) {
+        if (type == NOOP && i->value != 0) {
           type = JUMP;
         } else if (type == JUMP) {
           type = NOOP;
@@ -121,16 +125,13 @@ int day8() {
           break;
 
         case ACC:
-          acc += i.value;
+          acc += i->value;
           break;
 
         case JUMP:
-          ip += i.value;
-          continue;  // continue without increment instruction pointer
+          ip += i->value - 1;
           break;
       }
-
-      ip++;
     }
 
     // Print result if we made it to end of program

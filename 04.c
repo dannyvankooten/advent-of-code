@@ -1,27 +1,21 @@
+#include "inputs/04.h"
 #include <assert.h>
+#include <ctype.h>
 #include <err.h>
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "inputs/04.h"
 // https://adventofcode.com/2020/day/4#part2
 
-static
-bool is_passport_valid(const char passport[]) {
+static bool is_passport_valid(const char passport[]) {
+  // here we only have to compare the 7 first elements, because CID is ignored
   static const char valid_1[] = {1, 1, 1, 1, 1, 1, 1, 1};
-  if (memcmp(passport, valid_1, 8 * sizeof(char)) == 0) {
-    return true;
-  }
-
-  static const char valid_2[] = {1, 1, 1, 1, 1, 1, 1, 0};
-  return memcmp(passport, valid_2, 8 * sizeof(char)) == 0;
+  return (memcmp(passport, valid_1, 7 * sizeof(char)) == 0);
 }
 
-static
-bool is_valid_hgt(const char* v) {
+static bool is_valid_hgt(const char *v) {
   int32_t n = 0;
   int8_t i = 0;
 
@@ -45,8 +39,7 @@ bool is_valid_hgt(const char* v) {
   return false;
 }
 
-static
-bool is_valid_hcl(const char* v) {
+static bool is_valid_hcl(const char *v) {
   if (v[0] != '#') {
     return false;
   }
@@ -68,9 +61,8 @@ bool is_valid_hcl(const char* v) {
   return true;
 }
 
-static
-bool is_valid_ecl(const char* v) {
-  static const char* valid_values[] = {"amb", "blu", "brn", "gry",
+static bool is_valid_ecl(const char *v) {
+  static const char *valid_values[] = {"amb", "blu", "brn", "gry",
                                        "grn", "hzl", "oth"};
 
   for (int8_t i = 0; i < 7; i++) {
@@ -82,8 +74,7 @@ bool is_valid_ecl(const char* v) {
   return false;
 }
 
-static
-bool is_valid_pid(const char* v) {
+static bool is_valid_pid(const char *v) {
   for (int8_t i = 0; i < 9; i++) {
     if (v[i] < '0' || v[i] > '9' || v[i] == '\0') {
       return false;
@@ -104,8 +95,9 @@ int day4() {
   char key[32];
   char value[32];
   size_t i;
-  int64_t valid_pp_count = 0;
-  int64_t v;
+  int32_t valid_pp_count = 0;
+  int32_t num;
+  char *v;
   const unsigned char *s = input;
 
   while (*s != '\0') {
@@ -120,6 +112,9 @@ int day4() {
     }
 
     while (*s != '\n' && *s != '\0') {
+      num = 0;
+      v = value;
+
       // parse key
       for (i = 0; *s != ':'; i++) {
         key[i] = *s++;
@@ -140,36 +135,42 @@ int day4() {
         s++;
       }
 
-      // add to fields and then check validity
       if (strcmp(key, "byr") == 0) {
-        v = strtol(value, 0, 10);
-        if (v >= 1920 && v <= 2002) {
+        while (isdigit(*v)) {
+          num = (num * 10) + (*v++ - '0');
+        }
+
+        if (num >= 1920 && num <= 2002) {
           fields[BYR] = 1;
         }
       } else if (strcmp(key, "iyr") == 0) {
-        v = strtol(value, 0, 10);
-        if (v >= 2010 && v <= 2020) {
+        while (isdigit(*v)) {
+          num = (num * 10) + (*v++ - '0');
+        }
+        if (num >= 2010 && num <= 2020) {
           fields[IYR] = 1;
         }
       } else if (strcmp(key, "eyr") == 0) {
-        v = strtol(value, 0, 10);
-        if (v >= 2020 && v <= 2030) {
+        while (isdigit(*v)) {
+          num = (num * 10) + (*v++ - '0');
+        }
+        if (num >= 2020 && num <= 2030) {
           fields[EYR] = 1;
         }
+      } else if (strcmp(key, "ecl") == 0) {
+        fields[ECL] = is_valid_ecl(value);
       } else if (strcmp(key, "hgt") == 0) {
         fields[HGT] = is_valid_hgt(value);
       } else if (strcmp(key, "hcl") == 0) {
         fields[HCL] = is_valid_hcl(value);
-      } else if (strcmp(key, "ecl") == 0) {
-        fields[ECL] = is_valid_ecl(value);
-      } else if (strcmp(key, "pid") == 0) {
-        fields[PID] = is_valid_pid(value);
-      } else if (strcmp(key, "cid") == 0) {
-        fields[CID] = 1;
       }
-    }
+      if (strcmp(key, "pid") == 0) {
+        fields[PID] = is_valid_pid(value);
+      }
 
-    if(*s == '\n') s++;
+      if (*s == '\n')
+        s++;
+    }
   }
 
   // last line
@@ -177,7 +178,7 @@ int day4() {
     valid_pp_count++;
   }
 
-  printf("%" PRId64 "\n", valid_pp_count);
+  printf("%d\n", valid_pp_count);
   assert(valid_pp_count == 150);
   return 0;
 }

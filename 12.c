@@ -41,10 +41,10 @@ move_waypoint(struct ship* ship, const char dir, const int32_t value) {
 
 
 static void 
-rotate_waypoint(struct ship* ship, const int value) {
-  double v = (double)value * M_PI / 180.0;
-  int32_t x1 = round(ship->waypoint.x * cos(v) - ship->waypoint.y * sin(v));
-  int32_t y1 = round(ship->waypoint.x * sin(v) + ship->waypoint.y * cos(v));
+rotate_waypoint(struct ship* ship, const int32_t value) {
+  const double v = (double)value * M_PI / 180.0;
+  const int32_t x1 = round(ship->waypoint.x * cos(v) - ship->waypoint.y * sin(v));
+  const int32_t y1 = round(ship->waypoint.x * sin(v) + ship->waypoint.y * cos(v));
   ship->waypoint.x = x1;
   ship->waypoint.y = y1;
 }

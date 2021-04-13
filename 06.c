@@ -11,10 +11,8 @@ static
 int8_t count_yes_answers(const char* s) {
   char group_answers[26];
   char user_answers[26] = {0};
-  for (int8_t i = 0; i < 26; i++) {
-    group_answers[i] = -1;
-  }
-
+  memset(group_answers, 1, 26 * sizeof(char));
+ 
   while (*s >= 'a' && *s <= 'z') {
     user_answers[*s - 'a'] = 1;
     s++;
@@ -22,10 +20,7 @@ int8_t count_yes_answers(const char* s) {
     if (*s == '\n' || *s == '\0') {
       // go over 'a' to 'z' and mark them as answered if in user_answers
       for (int8_t i = 0; i < 26; i++) {
-        group_answers[i] = user_answers[i] == 1 && (group_answers[i] == 1 ||
-                                                    group_answers[i] == -1)
-                               ? 1
-                               : 0;
+        group_answers[i] = user_answers[i] == 1 && group_answers[i] == 1 ? 1 : 0;
       };
 
       // if we reached end of string, break
@@ -33,18 +28,14 @@ int8_t count_yes_answers(const char* s) {
         break;
       }
 
-      for (int8_t i = 0; i < 26; i++) {
-        user_answers[i] = 0;
-      }
+      memset(user_answers, 0, 26 * sizeof(char));
       s++;
     }
   }
 
   int8_t y_count = 0;
   for (int8_t i = 0; i < 26; i++) {
-    if (group_answers[i] == 1) {
-      y_count++;
-    }
+    y_count += group_answers[i];
   }
 
   return y_count;
@@ -83,6 +74,6 @@ int day6() {
 
   // last group
   printf("%d\n", sum);
-  // assert(sum == 6387);
+  assert(sum == 6387);
   return 0;
 }

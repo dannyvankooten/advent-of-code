@@ -19,17 +19,12 @@ struct rule {
 typedef struct rule rule_t;
 
 static int32_t 
-message_matches_rule(rule_t rule,
+message_matches_rule(const rule_t* restrict rule,
                              const rule_t* restrict rules,
                              char* restrict m,
-                             int32_t depth) {
-  // for (int i=0; i < depth; i++) printf("    |");
-  // print_rule(rule);
-  // printf("   (msg = %s)", m);
-  // printf("\n");
-
-  if (rule.is_char) {
-    return *m == rule.ch ? 1 : 0;
+                             const int32_t depth) {
+  if (rule->is_char) {
+    return *m == rule->ch ? 1 : 0;
   }
 
   // first, try main branch
@@ -39,9 +34,9 @@ message_matches_rule(rule_t rule,
   char* tmp = m;
   int32_t rid;
 
-  for (r = 0; r < rule.nmain; r++) {
-    rid = rule.main[r];
-    rule_t main = rules[rid];
+  for (r = 0; r < rule->nmain; r++) {
+    rid = rule->main[r];
+    const rule_t* main = &rules[rid];
     inc = message_matches_rule(main, rules, m, depth + 1);
     if (inc == 0) {
       break;
@@ -50,25 +45,25 @@ message_matches_rule(rule_t rule,
       characters_matched += inc;
 
       // detect recursion for rules 31 and 42...
-      if (r > 0 && (main.index == 31 || main.index == 42) && *m == '\n') {
-        r = rule.nmain;
+      if (r > 0 && (main->index == 31 || main->index == 42) && *m == '\n') {
+        r = rule->nmain;
         break;
       }
     }
   }
 
   // if main failed, check against alt branch
-  if (r < rule.nmain) {
+  if (r < rule->nmain) {
     m = tmp;
     characters_matched = 0;
-    for (r = 0; r < rule.nalt; r++) {
-      rid = rule.alt[r];
-      rule_t alt = rules[rid];
+    for (r = 0; r < rule->nalt; r++) {
+      rid = rule->alt[r];
+      const rule_t* alt = &rules[rid];
       inc = message_matches_rule(alt, rules, m, depth + 1);
       if (inc == 0) {
         // detect recursion for rules 31 and 42...
-        if (r > 0 && (alt.index == 31 || alt.index == 42)) {
-          r = rule.nalt;
+        if (r > 0 && (alt->index == 31 || alt->index == 42)) {
+          r = rule->nalt;
           break;
         }
         return 0;
@@ -78,12 +73,12 @@ message_matches_rule(rule_t rule,
       }
     }
 
-    if (r < rule.nalt) {
+    if (r < rule->nalt) {
       return 0;
     }
   }
 
-  if (rule.index == 0 && *m != '\n' && *m != '\0') {
+  if (rule->index == 0 && *m != '\n' && *m != '\0') {
     return 0;
   }
 
@@ -172,7 +167,7 @@ int day19() {
   }
 
   // parse messages
-  rule_t zero = rules[0];
+  rule_t* zero = &rules[0];
   // assert(message_matches_rule(zero, rules, "bbabbbbaabaabba", 0) > 0);
   // assert(message_matches_rule(zero, rules, "ababaaaaaabaaab", 0) > 0);
   // assert(message_matches_rule(zero, rules, "ababaaaaabbbaba", 0) > 0);

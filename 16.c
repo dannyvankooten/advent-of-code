@@ -9,7 +9,7 @@
 struct rule {
   char type[40];
   int32_t ranges[4];
-  size_t position;
+  int32_t position;
 };
 typedef struct rule rule_t;
 
@@ -21,22 +21,21 @@ typedef struct ticket ticket_t;
 
 static int32_t 
 parse_digit(int32_t* d, char* restrict s) {
-  char* start = s;
-  while (*s == ' ')
+  const char* start = s;
+  while (*s == ' ') {
     s++;
-
-  char buf[8];
-  char* b = buf;
-  while (*s >= '0' && *s <= '9') {
-    *b++ = *s++;
   }
-  *b = '\0';
-  *d = strtol(buf, NULL, 10);
+
+  *d = 0;
+  while (*s >= '0' && *s <= '9') {
+    *d = (*d * 10) + (*s - '0');
+    s++;
+  }
   return s - start;
 }
 
 int32_t day16() {
-  size_t nrules = 0;
+  int32_t nrules = 0;
   struct rule* rules = malloc(sizeof(rule_t) * 100);
   if (!rules) {
     err(EXIT_FAILURE, "error allocating memory for rules");
@@ -51,6 +50,7 @@ int32_t day16() {
   while (fgets(linebuf, BUFSIZ, f) != NULL && *linebuf != '\n') {
     char* a = linebuf;
     rule_t* r = &rules[nrules++];
+    r->position = -1;
 
     // parse type
     char* b = r->type;
@@ -77,7 +77,7 @@ int32_t day16() {
   // parse "my ticket:"
   int32_t d;
   while (fgets(linebuf, BUFSIZ, f) != NULL &&
-         strstr(linebuf, "your ticket:") != linebuf)
+         memcmp(linebuf, "your ticket:", strlen("your ticket:")) != 0)
     ;
   ticket_t my_ticket;
   my_ticket.nvalues = 0;
@@ -92,33 +92,20 @@ int32_t day16() {
       a++;
     }
   }
-  // for (int32_t v=0; v < my_ticket.nvalues; v++) {
-  //     printf("my_ticket.values[%d] = %d\n", v, my_ticket.values[v]);
-  // }
 
   // skip foward to line saying "nearby tickets:"
-  while (fgets(linebuf, BUFSIZ, f) != NULL &&
-         strstr(linebuf, "nearby tickets:") != linebuf)
-    ;
+  while (fgets(linebuf, BUFSIZ, f) != NULL && memcmp(linebuf, "nearby tickets:", strlen("nearby tickets:")) != 0);
 
-  // // print32_t rules
-  // for (size_t i=0; i < nrules; i++) {
-  //     printf("%s: %d - %d or %d - %d\n", rules[i].type, rules[i].ranges[0],
-  //     rules[i].ranges[1], rules[i].ranges[2], rules[i].ranges[3]);
-  // }
   bool valid_any;
   ticket_t* nearby_tickets = malloc(260 * sizeof(ticket_t));
   if (!nearby_tickets) {
     err(EXIT_FAILURE, "error allocating memory for nearby tickets");
   }
-  for (size_t i = 0; i < 260; i++) {
-    nearby_tickets[i].nvalues = 0;
-  };
-  size_t ntickets = 0;
+  int32_t ntickets = 0;
 
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
     a = linebuf;
-    size_t nvalues = 0;
+    int32_t nvalues = 0;
 
     // parse all digits on line
     while (*a != '\n' && *a != '\0') {
@@ -128,10 +115,12 @@ int32_t day16() {
       // loop over rules
       // if digit is not in any range, add to sum of invalid values
       valid_any = false;
-      for (size_t i = 0; i < nrules; i++) {
+      for (int32_t i = 0; i < nrules; i++) {
         if ((d >= rules[i].ranges[0] && d <= rules[i].ranges[1]) ||
             (d >= rules[i].ranges[2] && d <= rules[i].ranges[3])) {
           valid_any = true;
+
+          // no need to process any further if a single rule matches
           break;
         }
       }
@@ -154,25 +143,22 @@ int32_t day16() {
   fclose(f);
 
   // find option for rule positions on ticket
-  struct rule r;
-  ticket_t t;
+  struct rule* r;
   int32_t tval;
-
-  size_t nvalues = nearby_tickets[0].nvalues;
+  int32_t nvalues = nearby_tickets[0].nvalues;
   int32_t* options = (int32_t*)calloc(nrules * nvalues, sizeof(int));
   if (!options) {
     err(EXIT_FAILURE, "could not allocate memory for options array");
   }
 
-  for (size_t i = 0; i < nrules; i++) {
-    r = rules[i];
+  for (int32_t i = 0; i < nrules; i++) {
+    r = &rules[i];
 
-    for (size_t j = 0; j < nearby_tickets[0].nvalues; j++) {
-      for (size_t k = 0; k < ntickets; k++) {
-        t = nearby_tickets[k];
-        tval = t.values[j];
-        if ((tval < r.ranges[0] || tval > r.ranges[1]) &&
-            (tval < r.ranges[2] || tval > r.ranges[3])) {
+    for (int32_t j = 0; j < nearby_tickets[0].nvalues; j++) {
+      for (int32_t k = 0; k < ntickets; k++) {
+        tval = nearby_tickets[k].values[j];
+        if ((tval < r->ranges[0] || tval > r->ranges[1]) &&
+            (tval < r->ranges[2] || tval > r->ranges[3])) {
           goto NEXTPOS;
         }
       }
@@ -182,54 +168,55 @@ int32_t day16() {
     }
   }
 
-  for (size_t i = 0; i < nrules; i++) {
-    r = rules[i];
+  REDUCE_RULES: ;
+  bool loopback = false;
+  for (int32_t i = 0; i < nrules; i++) {
+    // skip rule if we already know position of its field
+    if (rules[i].position >= 0) {
+      continue;
+    }
+
     int32_t position;
     int32_t count = 0;
 
-    for (size_t v = 0; v < nvalues; v++) {
+    for (int32_t v = 0; v < nvalues; v++) {
       if (options[i * nvalues + v] == 1) {
         count++;
         position = v;
 
-        // stop looking at this rule if we have 2 option availabilities
+        // skip this rule if we have more than one option
         if (count > 1) {
-          break;
+          goto NEXTRULE;
         }
       }
     }
+
+    // rule has exactly one option: use it
+    // then discard this option from all other rules
+    rules[i].position = position;
+    loopback = true;
 
     // if we have exactly one option, use it
     // and discard it from all other rules
-    if (count == 1) {
-      bool loopback = 0;
-      for (size_t k = 0; k < nrules; k++) {
-        if (k == i) {
-          rules[i].position = position;
-          continue;
-        }
-
-        size_t idx = k * nvalues + position;
-        if (options[idx] == 1) {
-          options[idx] = 0;
-          loopback = 1;
-        }
-      }
-      if (loopback) {
-        i = -1;
-      }
+    for (int32_t k = 0; k < nrules; k++) {
+      options[k * nvalues + position] = 0;
     }
+    
+    NEXTRULE: ;
   }
+  if (loopback) {
+    goto REDUCE_RULES;
+  }
+      
 
   // finally, calculate product
   int64_t product = 1;
-  for (size_t i = 0; i < nrules; i++) {
-    r = rules[i];
-    if (strstr(r.type, "departure") != r.type) {
+  for (int32_t i = 0; i < nrules; i++) {
+    if (memcmp(rules[i].type, "departure", 9) != 0) {
       continue;
     }
 
-    product *= my_ticket.values[r.position];
+    product *= my_ticket.values[rules[i].position];
   }
 
   printf("%ld\n", product);

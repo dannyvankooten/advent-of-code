@@ -3,8 +3,8 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "hugemem.h"
 
-#define NDEBUG 1
 // const char *test_input = "389125467";
 const char* input = "327465189";
 
@@ -58,8 +58,7 @@ print_cups(const int32_t* restrict cups, const int32_t first, const size_t n, co
 }
 
 int day23() {
-  int32_t *cups =  malloc(1000001 * sizeof(int32_t));
-  // int32_t cups[1000001];
+  int32_t *cups = (int32_t *) hugemem(1000000 * sizeof(int32_t));
   int32_t current_cup = parse_input(cups, input);
   int32_t a, b, c;
   int32_t destination;
@@ -80,17 +79,15 @@ int day23() {
       }
     } while (destination == a || destination == b || destination == c);
 
-    // printf("destination %ld\n", destination);
     cups[c] = cups[destination];
     cups[destination] = a;
     current_cup = next_cur;
   }
 
   int32_t c1 = cups[1];
-  int32_t c2 = cups[c1];
-  uint64_t r = (uint64_t)c1 * (uint64_t)c2;
+  int64_t r = (int64_t)c1 * (int64_t)cups[c1];
   printf("%ld\n", r);
   assert(r == 474600314018);
-  free(cups);
+  hugemem_free(cups, 1000001 * sizeof(int32_t));
   return 0;
 }

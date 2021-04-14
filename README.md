@@ -4,6 +4,8 @@ This was my first year of finishing all challenges. Definitely got a lot more co
 
 Inspired by [Tim Visee](https://timvisee.com/blog/solving-aoc-2020-in-under-a-second/)'s example, I spent some time optimizing the challenges to get them to run in under 1 second. This wasn't too hard given my language choice, but I certainly couldn't have done it without the [Chinese Remainder Theorem](https://en.wikipedia.org/wiki/Chinese_remainder_theorem) for day 13.
 
+Blog post: https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second/
+
 ### Running
 
 To run a solution, build the executable and then run it providing a day argument or no argument to run all the days consecutively.
@@ -42,10 +44,10 @@ Day 19:	     486 μs
 Day 20:	     984 μs
 Day 21:	     276 μs
 Day 22:	     109 μs
-Day 23:	  235030 μs
+Day 23:	  172981 μs
 Day 24:	    3102 μs
 Day 25:	      37 μs
-Total:	  610417 μs (0.61 s)
+Total:	  548368 μs (0.548 s)
 ```
 
 

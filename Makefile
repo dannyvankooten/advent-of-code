@@ -11,7 +11,7 @@ profile: CFLAGS+= -pg
 profile: BIN=aoc2020debug
 profile: $(BIN)
 
-release: CFLAGS+=-DNDEBUG -Ofast -march=native
+release: CFLAGS+=-Ofast -march=native
 release: $(BIN)
 
 $(BIN): *.c

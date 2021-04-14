@@ -1,3 +1,4 @@
+#define _GNU_SOURCE
 #include <assert.h>
 #include <err.h>
 #include <stdint.h>
@@ -6,6 +7,9 @@
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>     /* for CHAR_BIT */
+#include <alloca.h>
+#include <sys/mman.h>
+#include <linux/mman.h>
 
 #define N 30000000
 #define BITMASK(b) (1 << ((b) % CHAR_BIT))
@@ -15,12 +19,12 @@
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
-static uint32_t 
-parse_input(uint32_t* restrict numbers, const char* s) {
-  uint32_t n = 0;
+static int32_t 
+parse_input(int32_t* restrict numbers, const char* s) {
+  int32_t n = 0;
 
   while (*s != '\0') {
-    uint32_t num = 0;
+    int32_t num = 0;
     while (*s >= '0' && *s <= '9') {
       num = (num * 10) + (*s++ - '0');
     }
@@ -34,16 +38,39 @@ parse_input(uint32_t* restrict numbers, const char* s) {
   return n;
 }
 
+const size_t pagesize = 1 << 21; // 2MB
+
+void* hugemem(size_t _sz){
+	size_t sz = (_sz + pagesize - 1) & ~(pagesize - 1);
+	void *ptr = mmap(NULL, sz, PROT_READ|PROT_WRITE, MAP_PRIVATE|MAP_ANONYMOUS|MAP_POPULATE|MAP_HUGETLB|MAP_HUGE_2MB, 0, 0);
+	if (ptr == MAP_FAILED) {
+		ptr = NULL;
+	}
+
+  return ptr;
+}
+
+void hugemem_free(void* ptr, size_t _sz) {
+  size_t sz = (_sz + pagesize - 1) & ~(pagesize - 1);
+  assert(munmap(ptr, sz) == 0);
+}
+
+
 int day15() {
-  uint32_t numbers[6];
-  uint32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
-  uint32_t* restrict seen = calloc(N, sizeof(uint32_t));
+  int32_t numbers[6];
+  int32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
+
+  uint32_t* seen = (uint32_t*) hugemem(N * sizeof(uint32_t));
+  assert(seen != NULL);
+  // memset(seen, 0, (N * sizeof(uint32_t)));
+
   uint32_t i = 0;
   uint32_t prev = 0;
-  char bitarray[BITNSLOTS(N)] = {0};
+  // char bitarray[BITNSLOTS(N)] = {0};
+  char* bitarray = calloc(BITNSLOTS(N), sizeof(char));
 
   for (; i < nnumbers; i++) {
-    prev = numbers[i];
+    prev = (uint32_t) numbers[i];
     seen[prev] = i + 1;
     BITSET(bitarray, prev);
   }
@@ -67,11 +94,13 @@ int day15() {
       seen[prev] = i;
       prev = 0;
     }
+
   }
 
   printf("%d\n", prev);
   assert(prev == 37385);
 
-  free(seen);
+  hugemem_free((void *) seen, N * sizeof(uint32_t));
+
   return 0;
 }

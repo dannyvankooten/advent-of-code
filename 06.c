@@ -73,6 +73,8 @@ int day6() {
   }
 
   // last group
+  sum += count_yes_answers(group_buf);
+
   printf("%d\n", sum);
   assert(sum == 6387);
   return 0;

@@ -20,32 +20,32 @@ aoc2020 --bench     # run all days, best of 10
 On my Lenovo Yoga Slim 7 laptop (AMD Ryzen 7 4700U). 
 
 ```
-Day 1:	      13 μs
-Day 2:	      12 μs
-Day 3:	      11 μs
-Day 4:	     151 μs
-Day 5:	      91 μs
-Day 6:	      87 μs
-Day 7:	    4144 μs
-Day 8:	     263 μs
-Day 9:	      40 μs
+Day 1:	      49 μs
+Day 2:	      38 μs
+Day 3:	      27 μs
+Day 4:	      35 μs
+Day 5:	      25 μs
+Day 6:	      33 μs
+Day 7:	    4221 μs
+Day 8:	     104 μs
+Day 9:	      43 μs
 Day 10:	       3 μs
-Day 11:	    3186 μs
-Day 12:	      79 μs
+Day 11:	    2133 μs
+Day 12:	      20 μs
 Day 13:	       4 μs
-Day 14:	    1611 μs
-Day 15:	  461113 μs
-Day 16:	     361 μs
-Day 17:	    2136 μs
-Day 18:	     449 μs
-Day 19:	    1017 μs
-Day 20:	    1173 μs
-Day 21:	     309 μs
-Day 22:	     167 μs
-Day 23:	  223818 μs
-Day 24:	    4139 μs
-Day 25:	      78 μs
-Total:	  704455 μs (0.70 s)
+Day 14:	    1033 μs
+Day 15:	  413861 μs
+Day 16:	     174 μs
+Day 17:	    1838 μs
+Day 18:	     466 μs
+Day 19:	     486 μs
+Day 20:	     984 μs
+Day 21:	     276 μs
+Day 22:	     109 μs
+Day 23:	  235030 μs
+Day 24:	    3102 μs
+Day 25:	      37 μs
+Total:	  664131 μs (0.66 s)
 ```
 
 

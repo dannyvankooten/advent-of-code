@@ -1,0 +1,8 @@
+#!/usr/bin/bash
+
+mkdir $1
+touch $1/main.py
+touch $1/input.txt
+
+echo "input = open('input.txt').read().split('\n')" > $1/main.py
+touch $1/README.txt

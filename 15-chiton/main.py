@@ -1,7 +1,12 @@
+from queue import PriorityQueue
+import time 
+
+time_start = time.time()
 lines = open('input.txt').read().split('\n')
 width = len(lines[0])
 height = len(lines)
 map_tile = [[int(c) for c in l] for l in lines]
+q = PriorityQueue()
 
 # init map of zeros
 map = [[0 for x in range(width * 5)] for y in range(height * 5)]
@@ -12,11 +17,7 @@ for nx in range(0, 5):
         for y in range(height):
             for x in range(width):
                 val = map_tile[y][x]
-                val += nx 
-                if val > 9:
-                    val -= 9
-
-                val += ny
+                val += nx + ny
                 if val > 9:
                     val -= 9
 
@@ -31,7 +32,7 @@ class Point():
         self.x = x
         self.y = y
         self.visited = False
-        self.tent_distance = float('inf')
+        self.tent_distance = int(pow(2, 64))
         self.risk_factor = risk_factor
         self.neighbors = []
 
@@ -47,13 +48,10 @@ class Point():
     def __repr__(self):
         return "({}, {}): {}".format(self.x, self.y, self.tent_distance)
 
-# convert each map value to a point so we can store shit
-# keep track of unvisited points in set
-unvisited = []
+# convert each map value to a Point instance so we can store shit
 for y in range(height):
     for x in range(width):
         map[y][x] = p = Point(x, y, map[y][x])
-        unvisited.append(p)
 
 # list of dx, dy values for direct neighbors
 # store direct neighbors on each point in map
@@ -69,38 +67,30 @@ for y in range(height):
             # check against oob
             (nx, ny) = (x + dx, y + dy)
             if 0 <= nx < width and 0 <= ny < height:
-                neighbor = map[ny][nx]
-                map[y][x].neighbors.append(neighbor)
-
+                map[y][x].neighbors.append(map[ny][nx])
 
 
 # set tentative distance of 1st node to 0
-map[0][0].tent_distance = 0
 cur = map[0][0]
+cur.tent_distance = 0
 destination = map[height-1][width-1]
 
-print("STart pathfinding")
+print("{:.2f} Start pathfinding".format(time.time() - time_start))
 
-while destination.visited == False:
+while cur != destination:
     # select point with lowest tentative distance
-    if cur.visited:
-        cur = unvisited.pop(0)
-
-    if cur == destination:
-        print("Destination is smallest among unvisited!")
-        break
+    while cur.visited:
+        (prio, cur) = q.get()
 
     # set tentative distance of direct neighbors
-    updated = False
     for n in filter(lambda n: n.visited == False, cur.neighbors):
         # update tentative distance of neighbor if smaller
         distance_to_neighbor = cur.tent_distance + n.risk_factor
         if distance_to_neighbor < n.tent_distance:
             n.tent_distance = distance_to_neighbor
-            updated = True
-
+            q.put((n.tent_distance, n))
+    
+    # mark node as visited
     cur.visited = True
-    if updated:
-        unvisited.sort()
         
 print("Answer: {}".format(map[height-1][width-1].tent_distance))

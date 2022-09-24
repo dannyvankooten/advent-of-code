@@ -1,13 +1,17 @@
 
-class Point():
-    def __init__(self, x,  y, risk_factor):
-        self.x = x
-        self.y = y
-        self.visited = False
-        self.tent_distance = int(pow(2, 64))
-        self.risk_factor = risk_factor
-        self.neighbors = []
+from dataclasses import dataclass, field
+from typing import List
 
+INT_MAX = int(pow(2, 64))
+
+@dataclass
+class Point():
+    x: int
+    y: int
+    risk_factor: int 
+    tent_distance: int = INT_MAX
+    visited: bool = False 
+    
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
 

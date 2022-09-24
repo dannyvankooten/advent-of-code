@@ -3,6 +3,7 @@
 mkdir $1
 touch $1/main.py
 touch $1/input.txt
+touch $1/input_test.txt
 
-echo "input = open('input.txt').read().split('\n')" > $1/main.py
+cat template.py > $1/main.py
 touch $1/README.txt

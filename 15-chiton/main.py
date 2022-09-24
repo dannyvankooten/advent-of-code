@@ -1,5 +1,6 @@
 from queue import PriorityQueue
 import time 
+from point import Point
 
 time_start = time.time()
 lines = open('input.txt').read().split('\n')
@@ -27,26 +28,6 @@ for nx in range(0, 5):
 height *= 5
 width *= 5
 
-class Point():
-    def __init__(self, x,  y, risk_factor):
-        self.x = x
-        self.y = y
-        self.visited = False
-        self.tent_distance = int(pow(2, 64))
-        self.risk_factor = risk_factor
-        self.neighbors = []
-
-    def __eq__(self, other):
-        return self.x == other.x and self.y == other.y
-
-    def __hash__(self):
-        return hash((self.x, self.y))
-
-    def __lt__(self, other):
-        return self.tent_distance < other.tent_distance
-
-    def __repr__(self):
-        return "({}, {}): {}".format(self.x, self.y, self.tent_distance)
 
 # convert each map value to a Point instance so we can store shit
 for y in range(height):

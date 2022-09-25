@@ -6,3 +6,4 @@ aoc2020debug
 **/prof_output
 **/cachegrind.out*
 **/*.gcda
+.idea

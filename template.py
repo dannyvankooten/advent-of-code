@@ -1,6 +1,15 @@
 import sys 
 
-input_file = "input_test.txt" if len(sys.argv) > 1 and sys.argv[1] == "--test" else "input.txt"
-lines = open(input_file).read().split('\n')
+def parse(input):
+    return input.split('\n')
 
-print(lines)
+def solve(input):
+    # TODO: Write puzzle code here
+    return 0
+
+if __name__ == '__main__':
+    for path in sys.argv[1:]:
+        with open(path) as f:
+            input = f.read().strip()
+            data = parse(input)
+            print(solve(data))

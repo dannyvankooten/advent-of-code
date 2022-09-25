@@ -1,6 +1,6 @@
 from queue import PriorityQueue
 import time 
-from point import Point
+from point import INT_MAX, Point
 
 time_start = time.time()
 lines = open('input.txt').read().split('\n')
@@ -18,11 +18,11 @@ for nx in range(0, 5):
     for ny in range(0, 5):
         for y in range(height):
             for x in range(width):
-                val = map_tile[y][x] + nx + ny
-                if val > 9:
-                    val -= 9
+                risk_factor = map_tile[y][x] + nx + ny
+                if risk_factor > 9:
+                    risk_factor -= 9
 
-                p = Point(x + nx*height, y + ny*height, val)
+                p = Point(x + nx*height, y + ny*height, risk_factor, INT_MAX, False)
                 map[p.y][p.x] = p
 
 # set correct map height 

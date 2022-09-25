@@ -1,16 +1,16 @@
 
-from dataclasses import dataclass, field
-from typing import List
+from dataclasses import dataclass
 
 INT_MAX = int(pow(2, 64))
 
 @dataclass
 class Point():
+    __slots__ = ['x', 'y', 'risk_factor', 'tent_distance', 'visited']
     x: int
     y: int
     risk_factor: int 
-    tent_distance: int = INT_MAX
-    visited: bool = False 
+    tent_distance: int 
+    visited: bool  
     
     def __eq__(self, other):
         return self.x == other.x and self.y == other.y
@@ -20,6 +20,3 @@ class Point():
 
     def __lt__(self, other):
         return self.tent_distance < other.tent_distance
-
-    def __repr__(self):
-        return "({}, {}): {}".format(self.x, self.y, self.tent_distance)

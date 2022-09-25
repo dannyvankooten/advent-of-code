@@ -8,13 +8,20 @@ Blog post: https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second
 
 ### Running
 
+
 To run a solution, build the executable and then run it providing a day argument or no argument to run all the days consecutively.
 
 ```
 make release        
-aoc2020 15          # run a single day
+aoc2020 10          # run a single day
 aoc2020             # run all days
 aoc2020 --bench     # run all days, best of 10
+```
+
+PS. Day 15 will need huge pages enabled on your machine:
+
+```
+echo 550 > /proc/sys/vm/nr_hugepages
 ```
 
 ### Benchmarks

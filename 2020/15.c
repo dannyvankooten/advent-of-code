@@ -43,6 +43,10 @@ int day15() {
   int32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
 
   uint32_t* seen = (uint32_t*) hugemem(N * sizeof(uint32_t));
+  if (seen == NULL) {
+    perror("hugemem error");
+    return 1;
+  }
   assert(seen != NULL);
   // memset(seen, 0, (N * sizeof(uint32_t)));
 

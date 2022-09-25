@@ -68,3 +68,7 @@ Total:	  548368 μs (0.548 s)
 - GDB, https://www.gnu.org/software/gdb/
 - Cachegrind, https://valgrind.org/docs/manual/cg-manual.html
 - Clang-format, https://clang.llvm.org/docs/ClangFormat.html
+
+### Previous editions
+
+- [2019: Rust](https://github.com/dannyvankooten/advent-of-code/2019)

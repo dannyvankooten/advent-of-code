@@ -71,4 +71,4 @@ Total:	  548368 μs (0.548 s)
 
 ### Previous editions
 
-- [2019: Rust](https://github.com/dannyvankooten/advent-of-code/2019)
+- [2019: Rust](https://github.com/dannyvankooten/advent-of-code/tree/main/2019)

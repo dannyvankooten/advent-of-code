@@ -4,19 +4,11 @@ from main import *
 
 class PuzzleTestCase(unittest.TestCase):
     
-    def test_permute(self):
-        new_values = []
+    def test_matrix_rotations(self):
         values = [(1, 2, 3), (4, 5, 6)]
-        for (cx, cy, cz) in product([1, -1], repeat=3):
-            new_values.append([(x*cx, y*cy, z*cz) for (x, y, z) in values])
-            #new_values.append([(x*cx, y*cy, z*cz) for (x, z, y) in values])
-            new_values.append([(x*cx, y*cy, z*cz) for (y, z, x) in values])
-            #new_values.append([(x*cx, y*cy, z*cz) for (y, x, z) in values])
-            new_values.append([(x*cx, y*cy, z*cz) for (z, x, y) in values])
-            #new_values.append([(x*cx, y*cy, z*cz) for (z, y, x) in values])
-
-   
-        print(new_values)
+        new_values = matrix_rotations(values)
+        
+        print(f"{new_values} (length={len(new_values)})")
         self.assertEqual(len(new_values), 24)
         
 

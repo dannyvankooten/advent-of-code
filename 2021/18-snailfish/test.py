@@ -1,4 +1,5 @@
 import unittest
+
 from main import add, reduce, explode, split, parse_digit
 
 class PuzzleTestCase(unittest.TestCase):

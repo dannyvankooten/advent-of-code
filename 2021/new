@@ -5,7 +5,8 @@ touch $1/main.py
 touch $1/input.txt
 touch $1/input_test.txt
 
-cat template.py > $1/main.py
+cat template_main.py > $1/main.py
+cat template_test.py > $1/test.py
 touch $1/README.txt
 
-cd $1
+cd "$1"

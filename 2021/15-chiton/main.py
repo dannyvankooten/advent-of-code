@@ -1,4 +1,4 @@
-from queue import PriorityQueue
+from heapq import heappop, heappush
 import time 
 from point import INT_MAX, Point
 
@@ -7,7 +7,6 @@ lines = open('input.txt').read().split('\n')
 width = len(lines[0])
 height = len(lines)
 map_tile = [[int(c) for c in l] for l in lines]
-q = PriorityQueue()
 
 # init map of zeros
 map = [[0 for x in range(width * 5)] for y in range(height * 5)]
@@ -41,13 +40,13 @@ neighbors = [
 cur = map[0][0]
 cur.tent_distance = 0
 destination = map[height-1][width-1]
+unvisited = []
 
 print("{:.2f} Start pathfinding".format(time.time() - time_start))
-
 while cur != destination:
     # select point with lowest tentative distance
     while cur.visited:
-        (prio, cur) = q.get()
+        cur = heappop(unvisited)
 
     # set tentative distance of direct neighbors
     for (dy, dx) in neighbors:
@@ -59,7 +58,7 @@ while cur != destination:
                 distance_to_neighbor = cur.tent_distance + n.risk_factor
                 if distance_to_neighbor < n.tent_distance:
                     n.tent_distance = distance_to_neighbor
-                    q.put((n.tent_distance, n))
+                    heappush(unvisited, n)
     
     # mark node as visited
     cur.visited = True

@@ -1,6 +1,5 @@
 from copy import deepcopy
 from pathlib import Path
-import sys
 from typing import Counter 
 
 def parse(lines):
@@ -14,11 +13,9 @@ def parse(lines):
 def pad(image, n=3, pad_value='.'):
     size = len(image) + (n * 2)
     image = ([[pad_value] * size] * n) + ([[pad_value] * n + row + [pad_value] * n for row in image]) + ([[pad_value] * size] * n)
-    assert(len(image) == len(image[0]) == size)
     return image
 
 def encoding_to_binary(enc: list[str]):
-    assert(len(enc) == 9)
     number = 0
     for el in enc:
         bit = 1 if el == '#' else 0
@@ -44,10 +41,10 @@ def solve(input, steps):
     algorithm, image = parse(input)
     assert(len(algorithm) == 512)
     assert(len(image) == len(image[0]))
-    image = pad(image, 50, '.')
-    
+
     for i in range(steps):
         default_value = '.' if i % 2 == 0 else algorithm[0]
+        image = pad(image, 1, default_value)
         size = len(image)
         new_image = list(map(list, image))
 
@@ -58,9 +55,8 @@ def solve(input, steps):
                 replacement = algorithm[n]
                 new_image[row][col] = replacement
         
-        image = list(map(list, new_image))        
+        image = new_image      
 
-   
     return Counter([col for row in image for col in row])['#']
 
 if __name__ == '__main__':

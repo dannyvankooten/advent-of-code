@@ -1,5 +1,6 @@
-input = open("input.txt").read()
-fish = [int(n) for n in input.split(",")]
+from pathlib import Path
+
+fish = [int(n) for n in Path("input.txt").read_text().split(",")]
 
 # create list of pregnancies so we know how many fish are bown on each cycle day
 pregnancies = [0] * 7
@@ -23,4 +24,4 @@ for d in range(0, 256):
     babies[day_in_cycle] = 0
    
 
-print("Amount of fish: ", num_fish)
+print(num_fish, num_fish == 1595779846729)

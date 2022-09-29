@@ -1,8 +1,10 @@
 from dataclasses import dataclass
+from pathlib import Path
 import sys 
 import parse 
 from dataclasses import dataclass 
 import math 
+
 def parse_input(input):
     pattern = "target area: x={x1:d}..{x2:d}, y={y1:d}..{y2:d}"
     match = parse.search(pattern, input)
@@ -58,8 +60,6 @@ def solve(target):
     return distinct_velocity_values
 
 if __name__ == '__main__':
-    for path in sys.argv[1:]:
-        with open(path) as f:
-            input = f.read().strip()
-            data = parse_input(input)
-            print(solve(data))
+    input = Path("input.txt").read_text().strip()
+    data = parse_input(input)
+    print(solve(data))

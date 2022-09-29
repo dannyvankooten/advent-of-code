@@ -1,3 +1,6 @@
+from pathlib import Path
+
+
 class Number:
     value = None
     drawn = False
@@ -14,7 +17,6 @@ def find_winning_board(boards):
     for i, board in enumerate(boards):
         for row in range(0, 5):
             for col in range(0, 5):
-                print(f"Checking ({row}, {col}) in board {i}: {board[row][col].drawn}")
                 if board[row][col].drawn == False:
                     break
 
@@ -24,7 +26,6 @@ def find_winning_board(boards):
         
         for col in range(0, 5):
             for row in range(0, 5):
-                print(f"Checking ({row}, {col}) in board {i}: {board[row][col].drawn}")
 
                 if board[row][col].drawn == False:
                     break
@@ -36,33 +37,19 @@ def find_winning_board(boards):
     return None                        
 
 def part_one():
-    input = open("input.txt").read()
-    lines = input.split("\n")
+    lines = Path("input.txt").read_text().split("\n")
     numbers = lines.pop(0).split(",")
     numbers = [int(n) for n in numbers]
-    print("Numbers: ", numbers)
-
     boards = []
     num_boards = int(len(lines) / 6)
-    print("Number of boards: ", num_boards)
-
     for _ in range(0, num_boards):
         # skip empty row
         lines.pop(0)
 
-        board = [None, None, None, None, None]
-        for row in range(0, 5):
-            board[row] = [Number(int(n)) for n in lines.pop(0).rstrip().split()]
-
+        board = [[Number(int(n)) for n in lines.pop(0).rstrip().split()] for _ in range(0, 5)]
         boards.append(board)
-        print("")
 
-    print(boards)
-
-    for idx, n in enumerate(numbers):
-        print(f"Drawing number {n} ({idx} / {len(numbers)-1})")
-        print(f"{len(boards)} boards remaining.")
-
+    for n in numbers:
         # mark number
         for board in boards:
             for row in range(0, 5):
@@ -71,20 +58,18 @@ def part_one():
                         board[row][col].drawn = True
         
         # check for winners along horizontal axis
-
         winner = find_winning_board(boards)
         while winner is not None:
             if len(boards) == 1 or n == numbers[-1]:
-                print(f"Found last winner! Index {winner}.")
+                pass
             else:
                 # remove winner from list
-                print(f"Board #{winner} won. Removing from players.")
                 boards.pop(winner)
                 winner = find_winning_board(boards)
+               
                 continue
 
             winner = boards[winner]
-            print("Last winner: ", winner)
 
             sum = 0
             for row in range(0, 5):
@@ -93,9 +78,9 @@ def part_one():
                         sum += winner[row][col].value
 
             sum *= n
-            print("Score: ", sum)
-            return
+            return sum
 
 
 
-part_one()
+pt1 = part_one()
+print(pt1, pt1 == 2568)

@@ -64,6 +64,7 @@ def pt2():
 
     bassins.sort(key=len, reverse=True)
     a = 1
+
     for b in bassins[0:3]:
         a *= len(b)
     print(a)

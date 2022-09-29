@@ -80,7 +80,7 @@ def part_two():
         value = 0
         for i, op in enumerate(reversed(output_patterns)):
             value += int(find_in_map(m, op)) * pow(10, i)
-
+    
         sum += value 
     print(sum)
 

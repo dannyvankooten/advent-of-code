@@ -1,4 +1,5 @@
-from math import floor, ceil 
+from math import floor, ceil
+from pathlib import Path 
 import sys 
 import itertools
 from ast import literal_eval
@@ -21,12 +22,10 @@ def explode(snailfish):
             pair_end = i + 1
 
             left, right = map(int, snailfish[pair_start+1:pair_end].split(","))
-            #print(f"Found pair [{left}, {right}] in {snailfish}")
+
             # replace pair with 0
             snailfish = snailfish[:pair_start] + "0" + snailfish[pair_end+1:]
             pair_end = pair_start + 1
-            #print(f"After replacing pair with 0: {snailfish}") 
-            #print(f"Components: {snailfish[0:pair_start]} <pair> {snailfish[pair_end:]}")
           
             # add left value to first regular number to the left 
             for j in range(pair_start-1, 0, -1):
@@ -115,19 +114,16 @@ def magnitude(x):
 
 
 if __name__ == '__main__':
-    for path in sys.argv[1:]:
-        with open(path) as f:
-            lines = f.readlines()
-            n = lines.pop(0).strip()
-            for l in lines:
-                l = l.strip()
-                n = add(n, l)
-            
-            print(n)
-            print(magnitude(literal_eval(n)))
+    input = Path("input.txt").read_text()
+    lines = input.split("\n")
+    
+    n = lines.pop(0).strip()
+    for l in lines:
+        l = l.strip()
+        n = add(n, l)
+    
+    print("Part 1: ", magnitude(literal_eval(n)))
 
-            f.seek(0)
-            lines = f.readlines()
-
-            print(max(magnitude(literal_eval(add(a, b))) for a, b in itertools.permutations(lines, 2)),)
+    lines = input.split("\n")
+    print("Part 2: ", max(magnitude(literal_eval(add(a, b))) for a, b in itertools.permutations(lines, 2)),)
         

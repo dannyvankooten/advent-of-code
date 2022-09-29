@@ -1,4 +1,7 @@
-lines = open('input.txt').read().split('\n')
+from pathlib import Path
+
+
+lines = Path("input.txt").read_text().strip().split("]n")
 pairs = {
     '(': ')',
     '{': '}',

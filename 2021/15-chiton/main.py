@@ -1,9 +1,10 @@
 from heapq import heappop, heappush
+from pathlib import Path
 import time 
 from point import INT_MAX, Point
 
-time_start = time.time()
-lines = open('input.txt').read().split('\n')
+time_start = time.perf_counter()
+lines = Path('input.txt').read_text().split('\n')
 width = len(lines[0])
 height = len(lines)
 map_tile = [[int(c) for c in l] for l in lines]
@@ -11,7 +12,7 @@ map_tile = [[int(c) for c in l] for l in lines]
 # init map of zeros
 map = [[0 for x in range(width * 5)] for y in range(height * 5)]
 
-print("{:.2f} Filling map from tile template".format(time.time() - time_start))
+print("{:.2f} Filling map from tile template".format(time.perf_counter() - time_start))
 # create map from tile template
 for nx in range(0, 5):
     for ny in range(0, 5):
@@ -42,7 +43,7 @@ cur.tent_distance = 0
 destination = map[height-1][width-1]
 unvisited = []
 
-print("{:.2f} Start pathfinding".format(time.time() - time_start))
+print("{:.2f} Start pathfinding".format(time.perf_counter() - time_start))
 while cur != destination:
     # select point with lowest tentative distance
     while cur.visited:
@@ -63,4 +64,4 @@ while cur != destination:
     # mark node as visited
     cur.visited = True
         
-print("Answer: {}".format(map[height-1][width-1].tent_distance))
+print("{:.2f} Answer: {}".format(time.perf_counter() - time_start, map[height-1][width-1].tent_distance))

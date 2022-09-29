@@ -1,18 +1,16 @@
 from collections import defaultdict
-import sys 
+from pathlib import Path
 
-def parse(input_file):
+def parse(input):
     neighbors = defaultdict(list)
-
-    with open(input_file) as f:
-        for line in f.readlines():
-            a, b = line.strip().split('-')
-            neighbors[a] += [b]
-            neighbors[b] += [a]
+    for line in input.split("\n"):
+        a, b = line.strip().split('-')
+        neighbors[a] += [b]
+        neighbors[b] += [a]
 
     return neighbors
     
-def solve(neighbors, part, seen = [], cave='start'):
+def solve(neighbors, part, seen = None, cave='start'):
     if cave == 'end': 
         return 1 
 
@@ -25,12 +23,13 @@ def solve(neighbors, part, seen = [], cave='start'):
             else:
                 part = 1
 
-    return sum(solve(neighbors, part, seen + [cave], n) for n in neighbors[cave])
+    seen[cave] = True
+
+    return sum(solve(neighbors, part, seen.copy(), n) for n in neighbors[cave])
 
 
 if __name__ == '__main__':
-    for f in sys.argv[1:]:
-        neighbors = parse(f)
-        print(neighbors)
-
-        print(solve(neighbors, part=1), solve(neighbors, part=2))
+    input = Path("input.txt").read_text()
+    neighbors = parse(input)
+    print("Part 1: ", solve(neighbors, part=1, seen=dict()))
+    print("Part 2: ", solve(neighbors, part=2, seen=dict()))

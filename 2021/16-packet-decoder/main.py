@@ -1,7 +1,5 @@
+from pathlib import Path
 import sys 
-
-input_file = "input_test.txt" if len(sys.argv) > 1 and sys.argv[1] == "--test" else "input.txt"
-lines = open(input_file).read().split('\n')
 
 def decode(input):
     bits = []
@@ -94,7 +92,12 @@ def run(tx):
 
     return packet_value
 
-tx = Transmission(lines[0])
-result = run(tx)
-print("Version sum: ", version_sum)
-print("Result: ", result)
+if __name__ == '__main__':
+    input_file = "input_test.txt" if len(sys.argv) > 1 and sys.argv[1] == "--test" else "input.txt"
+    lines = Path(input_file).read_text().split("\n")
+    tx = Transmission(lines[0])
+    result = run(tx)
+    print("Part 1: ", version_sum)
+    print("Part 2: ", result)
+    assert(version_sum == 873)
+    assert(result == 402817863665)

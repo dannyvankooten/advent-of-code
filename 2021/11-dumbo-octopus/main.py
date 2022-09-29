@@ -61,9 +61,11 @@ for s in range(0, 1000):
     
     if s == 100:
         print("Part 1: ", flashes)
+        assert(flashes == 1706)
         
     if flashed_this_step == H*W:
         print("Part 2:", s+1)
+        assert(s+1 == 265)
         break
 
 

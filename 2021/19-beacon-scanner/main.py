@@ -1,5 +1,6 @@
 from collections import defaultdict, namedtuple
 from itertools import permutations, product
+from pathlib import Path
 from time import perf_counter, time 
 
 start = perf_counter()
@@ -74,7 +75,8 @@ class Scanner():
         self.pos = Point(x, y, z)
     
 
-def solve(lines):
+def solve(input):
+    lines = input.strip().split("\n")
     scanner = None
     scanners = []
     for l in map(lambda l: l.strip(), lines):
@@ -124,5 +126,5 @@ def solve(lines):
 
 
 if __name__ == '__main__':
-    with open(0) as f:
-        solve(f.readlines())
+    input = Path("input.txt").read_text()
+    solve(input)

@@ -7,3 +7,4 @@ aoc2020debug
 **/cachegrind.out*
 **/*.gcda
 .idea
+.vscode

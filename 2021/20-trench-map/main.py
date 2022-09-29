@@ -1,38 +1,33 @@
-from copy import deepcopy
 from pathlib import Path
-from typing import Counter 
+
 
 def parse(lines):
-    algorithm = lines.pop(0).strip()
+    algorithm = [1 if c == '#' else 0 for c in lines.pop(0).strip()]
     lines.pop(0)
     image = [ 
-        [c for c in l.strip()] for l in lines
+        [1 if c == '#' else 0 for c in l.strip()] for l in lines
     ]
     return algorithm, image
 
-def pad(image, n=3, pad_value='.'):
+
+def pad(image, n=3, pad_value=0):
     size = len(image) + (n * 2)
     image = ([[pad_value] * size] * n) + ([[pad_value] * n + row + [pad_value] * n for row in image]) + ([[pad_value] * size] * n)
     return image
 
-def encoding_to_binary(enc: list[str]):
+
+def read_3x3(image, row: int, col: int, default=0):
     number = 0
-    for el in enc:
-        bit = 1 if el == '#' else 0
-        number = (number << 1) | bit
-   
+    size = len(image)
+    for r in range(row-1, row+2):
+        for c in range(col-1, col+2):
+            if r < 0 or r >= size - 1 or c < 0 or c >= size - 1:
+                bit = default
+            else:
+                bit = image[r][c]
+            number = (number << 1) | bit
+
     return number
-
-def value_at(image, row, col, default='.'):
-    try:
-        value = image[row][col]
-    except IndexError:
-        value = default
-    return value
-
-def read_3x3(image, row, col, default='.'):
-    encoding = [value_at(image, yt, xt, default) for yt in range(row-1, row+2) for xt in range(col-1, col+2)]
-    return encoding
 
 # The issue is that values outside the grid flip between '#' and '.'
 # Yet we should still grow the grid every step
@@ -43,24 +38,21 @@ def solve(input, steps):
     assert(len(image) == len(image[0]))
 
     for i in range(steps):
-        default_value = '.' if i % 2 == 0 else algorithm[0]
+        default_value = 0 if i % 2 == 0 else algorithm[0]
         image = pad(image, 1, default_value)
         size = len(image)
         new_image = list(map(list, image))
 
         for row in range(size):
             for col in range(size):
-                encoding = read_3x3(image, row, col, default_value)
-                n = encoding_to_binary(encoding)
-                replacement = algorithm[n]
-                new_image[row][col] = replacement
+                replacement_index = read_3x3(image, row, col, default_value)
+                new_image[row][col] = algorithm[replacement_index]
         
         image = new_image      
 
-    return Counter([col for row in image for col in row])['#']
+    return sum([col for row in image for col in row])
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text().strip().split("\n")
-    
     print("part 1: ", solve(list(input), 2))
     print("part 2: ", solve(input, 50))

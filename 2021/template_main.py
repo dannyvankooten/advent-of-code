@@ -4,5 +4,7 @@ def solve(input):
     # TODO: Write puzzle code here
     return 0
 
-with open(0):
-    print(solve(0))
+if __name__ == '__main__':
+    with open(0) as f:
+        lines = f.readlines()
+        print(solve(lines))

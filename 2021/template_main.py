@@ -1,10 +1,9 @@
-import sys 
+from pathlib import Path
 
-def solve(input):
+def solve(input) -> int:
     # TODO: Write puzzle code here
     return 0
 
 if __name__ == '__main__':
-    with open(0) as f:
-        lines = f.readlines()
-        print(solve(lines))
+    input = Path("input.txt").read_text()
+    pt1 = solve(input)

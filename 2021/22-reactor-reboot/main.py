@@ -1,48 +1,27 @@
 from dataclasses import dataclass
-from itertools import combinations, permutations
 from pathlib import Path
-from parse import parse
-
-
-def parse_input(input):
-    lines = input.split("\n")
-    cubes = []
-    for line in lines:
-        vars = parse("{status} x={x_start:d}..{x_end:d},y={y_start:d}..{y_end:d},z={z_start:d}..{z_end:d}", line).named
-        cubes.append(Cube(vars['x_start'], vars['x_end'], vars['y_start'], vars['y_end'], vars['z_start'], vars['z_end'], 1 if vars['status'] == 'on' else 0))
-    return cubes
-
-
-def part1(cubes):
-    grid = [[[0 for _ in range(101)] for _ in range(101)] for _ in range(101)]
-    for c in cubes:
-        x1 = max(c.x1, -50)
-        x2 = min(c.x2, 50)
-        y1 = max(c.y1, -50)
-        y2 = min(c.y2, 50)
-        z1 = max(c.z1, -50)
-        z2 = min(c.z2, 50)
-        for z in range(z1, z2+1):
-            for y in range(y1, y2+1):
-                for x in range(x1, x2+1):
-                    grid[z+50][y+50][x+50] = c.status
-
-    return sum([xs for zs in grid for ys in zs for xs in ys])
+import re 
 
 @dataclass 
 class Cube():
+    status: int 
     x1: int
     x2: int 
     y1: int 
     y2: int 
     z1: int
     z2: int
-    status: int 
 
     def volume(self):
         vol = (self.x2 - self.x1 + 1) * (self.y2 - self.y1 + 1) * (self.z2 - self.z1 + 1)
         return vol if self.status else -vol
 
+
+def parse_input(input):
+    lines = input.split("\n")
+    lines = [[int(n) for n in re.sub("y=|x=|z=", "", line).replace('..', ',').replace(' ', ',').replace('on', '1').replace('off', '0').split(',')] for line in lines]
+    cubes = [Cube(*l) for l in lines]
+    return cubes
 
 
 def intersect(a: Cube, b: Cube):
@@ -61,14 +40,17 @@ def intersect(a: Cube, b: Cube):
         elif a.status == 0 and b.status == 0:
             status = 1
         
-        return Cube(x1, x2, y1, y2, z1, z2, status)
+        return Cube(status, x1, x2, y1, y2, z1, z2)
 
     return None
 
-def part2(cubes):
+
+def solve(cubes):
     final = []
     for cube in cubes:
         add = []
+
+        # go through previous cubes and add either positive or negative volume cubes based on intersections
         for prev in final:
             shared = intersect(prev, cube)
             if shared is not None:
@@ -77,15 +59,16 @@ def part2(cubes):
         if cube.status:
             add.append(cube)
 
-        final = final + add
+        final += add
     
     return sum([c.volume() for c in final])
+
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()
     cubes = parse_input(input)
-    pt1 = part1(cubes)
+    pt1 = solve([c for c in cubes if abs(c.x1) <= 50])
     print(pt1, pt1 == 567496)
 
-    pt2 = part2(cubes)
+    pt2 = solve(cubes)
     print(pt2, pt2 == 1355961721298916)

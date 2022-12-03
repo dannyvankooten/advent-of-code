@@ -26,6 +26,7 @@ fn main() {
 fn intcode(mut data: Vec<i64>, user_input: i64) -> Vec<i64> {
     let mut i: usize = 0;
     let mut output: Vec<i64> = vec![];
+    let mut params = Vec::new();
 
     while i < data.len() {
         let opcode = data[i];
@@ -41,7 +42,7 @@ fn intcode(mut data: Vec<i64>, user_input: i64) -> Vec<i64> {
         chars.next(); // ignore 2nd opcode char, we already checked for opcode 99 above
 
         // parse param modes
-        let mut param_modes: Vec<i64> = vec![MODE_POSITION, MODE_POSITION];
+        let mut param_modes = [MODE_POSITION, MODE_POSITION];
         let mut j: usize = 0;
         while let Some(c) = chars.next() {
             param_modes[j] = c.to_digit(10).unwrap() as i64;
@@ -49,7 +50,7 @@ fn intcode(mut data: Vec<i64>, user_input: i64) -> Vec<i64> {
         }
 
         // parse params
-        let mut params: Vec<i64> = vec![];
+        params.clear();
         match opcode {
             OP_ADD | OP_MULTIPLY | OP_LESS_THAN | OP_EQUALS => {
                 params.push(get_parameter_value(&data, i + 1, param_modes[0]));

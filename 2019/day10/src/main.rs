@@ -1,8 +1,6 @@
-#![feature(clamp)]
 
 use std::collections::HashSet;
 use std::hash::Hash;
-use std::fs;
 
 fn main() {
     let input = include_str!("../input.txt");

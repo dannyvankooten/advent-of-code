@@ -39,7 +39,6 @@ fn main() {
 
 struct Computer {
     memory: HashMap<usize, i64>,
-    address: usize,
     relative_base: usize,
     program_length: usize,
 }
@@ -56,7 +55,6 @@ impl Computer {
 
         Computer {
             memory: memory,
-            address: 0,
             relative_base: 0,
             program_length: program.len(),
         }
@@ -98,18 +96,22 @@ impl Computer {
         let mut input_n: usize = 0;
         let mut output = Vec::new();
         let mut params = Vec::new();
+        let mut address = 0;
         
         // TODO: Memory is not reset between runs
 
-        while self.address < self.program_length {
-            let opcode = *self.memory.get(&self.address).unwrap();
+        while address < self.program_length {
+            let opcode = *self.memory.get(&address).unwrap();
             if opcode == 99 {
                 break;
             }
 
             // TODO: Iterate over digits without going through string
+            
             let instruction = opcode.to_string();
+            // dbg!(&instruction);
             let mut chars = instruction.chars().rev();
+            // dbg!(&chars);
 
             // parse opcode
             let opcode = Computer::parse_opcode(chars.next().unwrap());
@@ -122,21 +124,21 @@ impl Computer {
             params.clear();
             match opcode {
                 Op::Add | Op::Multiply | Op::LessThan | Op::Equals => {
-                    params.push(self.get_param_value(self.address + 1, param_modes[0]));
-                    params.push(self.get_param_value(self.address + 2, param_modes[1]));
+                    params.push(self.get_param_value(address + 1, param_modes[0]));
+                    params.push(self.get_param_value(address + 2, param_modes[1]));
                     // result parameter is NEVER IN IMMEDIATE MODE
-                    params.push(self.get_param_position(self.address + 3, param_modes[2]) as i64);
+                    params.push(self.get_param_position(address+ 3, param_modes[2]) as i64);
                 },
                 Op::Input => {
                     // result parameter is NEVER IN IMMEDIATE MODE
-                    params.push(self.get_param_position(self.address + 1, param_modes[0]) as i64);
+                    params.push(self.get_param_position(address+ 1, param_modes[0]) as i64);
                 },
                 Op::Output | Op::OffsetRelativeBase => {
-                    params.push(self.get_param_value(self.address + 1, param_modes[0]));
+                    params.push(self.get_param_value(address+ 1, param_modes[0]));
                  },
                 Op::JumpIfFalse | Op::JumpIfTrue => {
-                    params.push(self.get_param_value(self.address + 1, param_modes[0]));
-                    params.push(self.get_param_value(self.address + 2, param_modes[1]));
+                    params.push(self.get_param_value(address+ 1, param_modes[0]));
+                    params.push(self.get_param_value(address+ 2, param_modes[1]));
                 }
             }
 
@@ -164,13 +166,13 @@ impl Computer {
                 }
                 Op::JumpIfTrue => {
                     if params[0] != 0 {
-                        self.address = params[1] as usize;
+                        address= params[1] as usize;
                         continue;
                     }
                 }
                 Op::JumpIfFalse => {
                     if params[0] == 0 {
-                        self.address = params[1] as usize;
+                        address= params[1] as usize;
                         continue;
                     }
                 }
@@ -192,7 +194,7 @@ impl Computer {
             }
 
             // increment pointer by number of values in operation
-            self.address = self.address + params.len() + 1;
+            address= address + params.len() + 1;
         }
 
 

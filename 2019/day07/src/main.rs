@@ -1,4 +1,3 @@
-use std::fs;
 use std::sync::mpsc::{channel, Receiver, Sender};
 use std::thread;
 
@@ -14,8 +13,7 @@ const OP_LESS_THAN: i64 = 7;
 const OP_EQUALS: i64 = 8;
 
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Error reading input file");
-    let program: Vec<i64> = input
+    let program: Vec<i64> = include_str!("../input.txt")
         .trim()
         .split_terminator(",")
         .map(|v| v.parse().unwrap())
@@ -34,7 +32,7 @@ fn main() {
                             continue;
                         }
 
-                        let signal = run_amplifiers(program.clone(), phase_sequence);
+                        let signal = run_amplifiers(&program, phase_sequence);
                         if signal > max {
                             max = signal;
 
@@ -55,7 +53,7 @@ fn has_duplicate_elements(slice: &[i64; 5]) -> bool {
     slice.windows(2).any(|win| win[0] == win[1])
 }
 
-fn run_amplifiers(program: Vec<i64>, phase_sequence: [i64; 5]) -> i64 {
+fn run_amplifiers(program: &Vec<i64>, phase_sequence: [i64; 5]) -> i64 {
     let (output_main, input_a) = channel();
     let (output_a, input_b) = channel();
     let (output_b, input_c) = channel();
@@ -105,6 +103,7 @@ fn run_amplifiers(program: Vec<i64>, phase_sequence: [i64; 5]) -> i64 {
 
 fn intcode(mut data: Vec<i64>, input: Receiver<i64>, output: Sender<i64>) {
     let mut i: usize = 0;
+    let mut params = Vec::new();
 
     while i < data.len() {
         let opcode = data[i];
@@ -128,7 +127,7 @@ fn intcode(mut data: Vec<i64>, input: Receiver<i64>, output: Sender<i64>) {
         }
 
         // parse params
-        let mut params: Vec<i64> = vec![];
+        params.clear();
         match opcode {
             OP_ADD | OP_MULTIPLY | OP_LESS_THAN | OP_EQUALS => {
                 params.push(get_parameter_value(&data, i + 1, param_modes[0]));
@@ -200,14 +199,14 @@ mod test {
     fn test_intcode() {
         assert_eq!(
             run_amplifiers(
-                vec![3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0],
+                &vec![3, 15, 3, 16, 1002, 16, 10, 16, 1, 16, 15, 15, 4, 15, 99, 0, 0],
                 [4, 3, 2, 1, 0]
             ),
             43210
         );
         assert_eq!(
             run_amplifiers(
-                vec![
+                &vec![
                     3, 23, 3, 24, 1002, 24, 10, 24, 1002, 23, -1, 23, 101, 5, 23, 23, 1, 24, 23,
                     23, 4, 23, 99, 0, 0
                 ],
@@ -217,7 +216,7 @@ mod test {
         );
         assert_eq!(
             run_amplifiers(
-                vec![
+                &vec![
                     3, 31, 3, 32, 1002, 32, 10, 32, 1001, 31, -2, 31, 1007, 31, 0, 33, 1002, 33, 7,
                     33, 1, 33, 31, 31, 1, 32, 31, 31, 4, 31, 99, 0, 0, 0
                 ],
@@ -228,7 +227,7 @@ mod test {
 
         assert_eq!(
             run_amplifiers(
-                vec![
+                &vec![
                     3, 26, 1001, 26, -4, 26, 3, 27, 1002, 27, 2, 27, 1, 27, 26, 27, 4, 27, 1001,
                     28, -1, 28, 1005, 28, 6, 99, 0, 0, 5
                 ],

@@ -5,7 +5,7 @@ use std::hash::Hash;
 use std::fs;
 
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Error reading input file");
+    let input = include_str!("../input.txt");
     let map = parse_map(input);
 
     let (best, count ) = find_best_location(&map);
@@ -84,7 +84,7 @@ impl Map {
     }
 }
 
-fn parse_map(map: String) -> Map {
+fn parse_map(map: &str) -> Map {
     let mut set: HashSet<Asteroid> = HashSet::new();
 
     for (y, line) in map.lines().enumerate() {
@@ -115,7 +115,7 @@ mod test {
             #####
             ....#
             ...##"
-                .to_string(),
+                
         );
 
         assert_eq!(map.set.len(), 10);
@@ -135,7 +135,7 @@ mod test {
             #####
             ....#
             ...##"
-                .to_string(),
+               
         );
 
         let a1 = map.get(1, 0).unwrap();
@@ -156,7 +156,6 @@ mod test {
             #####
             ....#
             ...##"
-                .to_string(),
         );
 
         let (best, count) = find_best_location(&map);

@@ -1,8 +1,7 @@
-use std::fs;
 
 // The image you received is 25 pixels wide and 6 pixels tall
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Error reading input file");
+    let input = include_str!("../input.txt");
     let image = generate_image(input);
 
     // Part 1: find the layer that contains the fewest 0 digits. On that layer, what is the number of 1 digits multiplied by the number of 2 digits?
@@ -50,7 +49,7 @@ fn main() {
 
 }
 
-fn generate_image(data : String) -> Vec<[[usize; 25]; 6]> {
+fn generate_image(data : &str) -> Vec<[[usize; 25]; 6]> {
     const IMAGE_WIDTH : usize = 25 - 1;
     const IMAGE_HEIGHT : usize = 6 - 1;
 
@@ -87,7 +86,7 @@ mod test {
 
     #[test]
     fn test_generate_image() {
-        let image = generate_image("123456789012".to_string());
+        let image = generate_image("123456789012");
 
         println!("{:?}", image);
        // [[[1, 2, 3], [4, 5, 6]], [[7, 8, 9], [0, 1, 2]]]

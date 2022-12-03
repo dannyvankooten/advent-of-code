@@ -1,5 +1,5 @@
 use std::hash::{Hash, Hasher};
-use std::fs;
+use std::collections::HashSet;
 
 #[derive(Debug)]
 struct Point(i64, i64, i64);
@@ -24,16 +24,13 @@ impl PartialEq for Point {
 impl Eq for Point {}
 
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Error reading input file");
-    let lines : Vec<&str> = input.lines().collect();
+    let lines : Vec<&str> = include_str!("../input.txt").lines().collect();
     let closest_intersection_distance = calculate_intersection_distances(lines);
     println!("Answer: {}", closest_intersection_distance);
 }
 
 fn calculate_intersection_distances(lines : Vec<&str>) -> i64 {
     let mut wires : [HashSet<Point>; 2] = [HashSet::new(), HashSet::new()];
-    use std::collections::HashSet;
-
 
     // Calculate wire paths
     for i in 0..2 {

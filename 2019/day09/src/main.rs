@@ -1,5 +1,4 @@
 use std::collections::HashMap;
-use std::fs;
 use std::cmp::max;
 
 #[derive(Debug)]
@@ -23,17 +22,17 @@ enum ParameterMode {
 }
 
 fn main() {
-    let input = fs::read_to_string("input.txt").expect("Error reading input file");
-    let program: Vec<i64> = input
+    let program: Vec<i64> = include_str!("../input.txt")
         .trim()
         .split_terminator(",")
         .map(|v| v.parse().unwrap())
         .collect();
 
-    let mut computer = Computer::new(program);
-    // let output = computer.run(vec![1]);
-    // println!("Part 1: {:?}", output);
+    let mut computer = Computer::new(&program);
+    let output = computer.run(vec![1]);
+    println!("Part 1: {:?}", output);
 
+    let mut computer = Computer::new(&program);
     let output = computer.run(vec![2]);
     println!("Part 2: {:?}", output);
 }
@@ -46,10 +45,10 @@ struct Computer {
 }
 
 impl Computer {
-    fn new(program: Vec<i64>) -> Computer {
-        println!("Program: {:?}", program);
+    fn new(program: &Vec<i64>) -> Computer {
+        // dbg!(&program);
 
-        // copy program into memory
+        // copy program into memoryrust 
         let mut memory: HashMap<usize, i64> = HashMap::with_capacity(program.len());
         for (i, d) in program.iter().enumerate() {
             memory.insert(i, *d);
@@ -98,6 +97,7 @@ impl Computer {
     fn run(&mut self, input: Vec<i64>) -> Vec<i64> {
         let mut input_n: usize = 0;
         let mut output = Vec::new();
+        let mut params = Vec::new();
         
         // TODO: Memory is not reset between runs
 
@@ -107,6 +107,7 @@ impl Computer {
                 break;
             }
 
+            // TODO: Iterate over digits without going through string
             let instruction = opcode.to_string();
             let mut chars = instruction.chars().rev();
 
@@ -118,7 +119,7 @@ impl Computer {
             let param_modes = Computer::parse_parameter_modes(chars);            
 
             // parse params
-            let mut params: Vec<i64> = vec![];
+            params.clear();
             match opcode {
                 Op::Add | Op::Multiply | Op::LessThan | Op::Equals => {
                     params.push(self.get_param_value(self.address + 1, param_modes[0]));
@@ -226,28 +227,28 @@ mod test {
     fn test_intcode() {
         // 104,1125899906842624,99 should output the large number in the middle.
         assert_eq!(
-            Computer::new(vec![104, 1125899906842624, 99]).run(vec![]),
+            Computer::new(&vec![104, 1125899906842624, 99]).run(vec![]),
             vec![1125899906842624]
         );
 
         // 1102,34915192,34915192,7,4,7,99,0 should output a 16-digit number.
-        let output = Computer::new(vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0]).run(vec![]);
+        let output = Computer::new(&vec![1102, 34915192, 34915192, 7, 4, 7, 99, 0]).run(vec![]);
         assert_eq!(output.len(), 1);
         assert_eq!(
             output[0].to_string().chars().collect::<Vec<char>>().len(),
             16
         );
 
-        assert_eq!(Computer::new(vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![0]), vec![0]);
-        assert_eq!(Computer::new(vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![1]), vec![1]);
-        assert_eq!(Computer::new(vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![0]), vec![0]);
-        assert_eq!(Computer::new(vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![1]), vec![1]);
+        assert_eq!(Computer::new(&vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![0]), vec![0]);
+        assert_eq!(Computer::new(&vec![3,12,6,12,15,1,13,14,13,4,13,99,-1,0,1,9]).run(vec![1]), vec![1]);
+        assert_eq!(Computer::new(&vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![0]), vec![0]);
+        assert_eq!(Computer::new(&vec![3,3,1105,-1,9,1101,0,0,12,4,12,99,1]).run(vec![1]), vec![1]);
         assert_eq!(
-            Computer::new(vec![204, 1125899906842624, 99]).run(vec![]),
+            Computer::new(&vec![204, 1125899906842624, 99]).run(vec![]),
             vec![0]
         );
         assert_eq!(
-            Computer::new(vec![109, 1, 204, 0, 99]).run(vec![]),
+            Computer::new(&vec![109, 1, 204, 0, 99]).run(vec![]),
             vec![1]
         );
 
@@ -261,45 +262,45 @@ mod test {
         //     vec![109, 1, 204, -1, 1001, 100, 1, 100, 1008, 100, 16, 101, 1006, 101, 0, 99]
         // );
 
-        assert_eq!(Computer::new(vec![109, -1, 4, 1, 99]).run(vec![]), vec![-1]);
+        assert_eq!(Computer::new(&vec![109, -1, 4, 1, 99]).run(vec![]), vec![-1]);
 
         assert_eq!(
-            Computer::new(vec![109, -1, 104, 1, 99]).run(vec![]),
+            Computer::new(&vec![109, -1, 104, 1, 99]).run(vec![]),
             vec![1]
         );
 
         assert_eq!(
-            Computer::new(vec![109, -1, 204, 1, 99]).run(vec![]),
+            Computer::new(&vec![109, -1, 204, 1, 99]).run(vec![]),
             vec![109]
         );
 
         assert_eq!(
-            Computer::new(vec![109, -1, 204, 1, 99]).run(vec![]),
+            Computer::new(&vec![109, -1, 204, 1, 99]).run(vec![]),
             vec![109]
         );
 
         assert_eq!(
-            Computer::new(vec![109, 1, 9, 2, 204, -6, 99]).run(vec![]),
+            Computer::new(&vec![109, 1, 9, 2, 204, -6, 99]).run(vec![]),
             vec![204]
         );
 
         assert_eq!(
-            Computer::new(vec![109, 1, 109, 9, 204, -6, 99]).run(vec![]),
+            Computer::new(&vec![109, 1, 109, 9, 204, -6, 99]).run(vec![]),
             vec![204]
         );
 
         assert_eq!(
-            Computer::new(vec![109, 1, 209, -1, 204, -106, 99]).run(vec![]),
+            Computer::new(&vec![109, 1, 209, -1, 204, -106, 99]).run(vec![]),
             vec![204]
         );
 
         assert_eq!(
-            Computer::new(vec![109, 1, 3, 3, 204, 2, 99]).run(vec![100]),
+            Computer::new(&vec![109, 1, 3, 3, 204, 2, 99]).run(vec![100]),
             vec![100]
         );
 
         assert_eq!(
-            Computer::new(vec![109, 1, 203, 2, 204, 2, 99]).run(vec![200]),
+            Computer::new(&vec![109, 1, 203, 2, 204, 2, 99]).run(vec![200]),
             vec![200]
         );
     }

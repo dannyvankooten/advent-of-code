@@ -6,4 +6,5 @@ def solve(input) -> int:
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()
-    pt1 = solve(input)
+    print("pt1: ", solve(input))
+

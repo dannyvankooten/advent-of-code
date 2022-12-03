@@ -28,16 +28,15 @@ fn main() {
 //     123444 no longer meets the criteria (the repeated 44 is part of a larger group of 444).
 //     111122 meets the criteria (even though 1 is repeated more than twice, it still contains a double 22).
 
-fn matches_1(i : i64) -> bool {
-    if i < 165432 || i > 707912 {
+fn matches_1(n : i64) -> bool {
+    if n < 165432 || n > 707912 {
         return false;
     }
     let mut consecutive = false;
-    let i_string = i.to_string();
-    let bytes : &[u8] = i_string.as_bytes();
-    //println!("{:?}", bytes);
-    let mut i = 0;
-    while i < (bytes.len() - 1) {
+    let n = n.to_string();
+    let bytes : &[u8] = n.as_bytes();
+
+    for i in 0..bytes.len()-1 {
         if bytes[i] == bytes[i+1] && !(i < (bytes.len() - 2) && bytes[i] == bytes[i+2]) && !(i > 0 && bytes[i-1] == bytes[i]){
             consecutive = true;
         }
@@ -45,14 +44,10 @@ fn matches_1(i : i64) -> bool {
         if (bytes[i] as char).to_digit(10).unwrap() > (bytes[i+1] as char).to_digit(10).unwrap() {
             return false;
         }
-
-        i = i + 1;
     }
-
 
     return consecutive;
 }
-
 
 
 #[cfg(test)]

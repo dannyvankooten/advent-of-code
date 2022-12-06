@@ -6,8 +6,8 @@ def solve(input, retain_order=False) -> int:
     stacks = defaultdict(lambda: [])
     for line in reversed(stacks_config.split('\n')[:-1]):
         # change line into format like: X]A]O]]C
-        line = line.replace('    ', '  ]').replace('[', '')
-        for stack_idx, crate in enumerate(line.split(']')):
+        #line = line.replace('    ', '  ]').replace('[', '')
+        for stack_idx, crate in enumerate(line[1::4]):
             crate = crate.strip()
             if crate:
                 stacks[stack_idx + 1].append(crate)

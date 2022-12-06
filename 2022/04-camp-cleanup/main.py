@@ -25,7 +25,7 @@ def overlap(a, b):
 
     return False
 
-def solve(input) -> int:
+def solve(input) -> tuple[int, int]:
     count_contained = 0
     count_overlapped = 0
 

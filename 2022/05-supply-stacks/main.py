@@ -1,8 +1,8 @@
 from pathlib import Path
 from collections import defaultdict
 
-def solve(input, retain_order=False) -> int:
-    [stacks_config, instructions] = input.split('\n\n')
+def solve(input, retain_order=False) -> str:
+    stacks_config, instructions = input.split('\n\n')
     stacks = defaultdict(lambda: [])
     for line in reversed(stacks_config.split('\n')[:-1]):
         # change line into format like: X]A]O]]C
@@ -21,7 +21,7 @@ def solve(input, retain_order=False) -> int:
             crates = reversed(crates)
         del stacks[src][-n:]
         stacks[dest].extend(crates)
-       
+
     # get top crate from each stack
     return "".join([stacks[s][-1] for s in stacks])
 

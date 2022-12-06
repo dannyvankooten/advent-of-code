@@ -14,4 +14,3 @@ if __name__ == '__main__':
 
     print("pt1: ", solve(input, 4))
     print("pt2: ", solve(input, 14))
-

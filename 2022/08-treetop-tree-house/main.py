@@ -41,12 +41,8 @@ def solve(input) -> tuple:
     for y in range(0, height):
         for x in range(0, width):
             score, visible = count_visible(grid, x, y)
-            if score > max_score:
-                max_score = score 
-
-            if visible:
-                visible_from_outside += 1
-
+            visible_from_outside += visible 
+            max_score = max(score, max_score)
     return (visible_from_outside, max_score)
 
 if __name__ == '__main__':

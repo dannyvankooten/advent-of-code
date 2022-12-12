@@ -1,4 +1,5 @@
 from pathlib import Path
+from heapq import heappop, heappush
 from functools import total_ordering
 
 @total_ordering
@@ -26,7 +27,6 @@ class Node:
     def __lt__(self, other):
         return self.distance < other.distance
 
-
 def reset(grid: list[list[Node]]):
     for row in grid:
         for node in row:
@@ -53,40 +53,44 @@ def parse(input: str) -> list[list[Node]]:
     return grid
 
 
-def solve(grid: list[list[Node]], fixed_start=True) -> int:
-    # find start node(s)
-    start_nodes = []
+def find_node(grid, start) -> Node:
     for row in grid:
         for node in row:
-            if fixed_start and node.is_start:
-                start_nodes.append(node)
-            if not fixed_start and node.elevation == 'a':
-                start_nodes.append(node)
+            if start and node.is_start:
+                return node
+            if not start and node.is_end:
+                return node
+
+
+def solve(grid: list[list[Node]], fixed_start=True) -> int:
+    # find start node(s)
+    start = find_node(grid, fixed_start)
 
     # dijkstra
-    distances_to_end = []
-    for start in start_nodes:
-        reset(grid)
-        start.distance = 0
-        unvisited = [start]
+    reset(grid)
+    start.distance = 0
+    unvisited = [start]
+    cur = Node('xaa') 
 
-        while True:
-            # some paths lead into a dead end
-            if len(unvisited) == 0:
-               break
+    while True: 
+        # some paths lead into a dead end
+        #if len(unvisited) == 0:
+        #    break
+          cur = heappop(unvisited)
+        distance = cur.distance + 1
+        for v in cur.neighbors:
+            if distance < v.distance:
+                v.distance = distance 
+                heappush(unvisited, v)
+            
+        if fixed_start and cur.is_end:
+            return cur.distance 
 
-            cur = unvisited.pop(0)
-            if cur.is_end:
-                distances_to_end.append(cur.distance)
-                break 
+        if not fixed_start and cur.elevation == 'a':
+            return cur.distance
 
-            distance = cur.distance + 1
-            for v in cur.neighbors:
-                if distance < v.distance:
-                    v.distance = distance 
-                    unvisited.append(v)
 
-    return min(distances_to_end)
+    return -1
 
 
 if __name__ == '__main__':

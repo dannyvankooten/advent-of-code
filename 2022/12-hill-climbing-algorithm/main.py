@@ -1,14 +1,13 @@
 from pathlib import Path
-from functools import total_ordering
+from collections import deque 
 
-@total_ordering
 class Node:
-    def __init__(self, elevation: str):
-        self.neighbors = []
-        self.is_start = False 
-        self.is_end = False 
-        self.distance = 99999
+    neighbors: list = []
+    is_start: bool = False 
+    is_end: bool = False
+    distance: int = 999999
 
+    def __init__(self, elevation: str):
         match elevation:
             case 'S':
                 self.is_start = True 
@@ -19,80 +18,69 @@ class Node:
             case _: 
                 self.elevation = elevation
 
-    def add_neighbor(self, other: 'Node'):
-        if ord(self.elevation) - ord(other.elevation) >= -1:
-            self.neighbors.append(other)
 
-    def __lt__(self, other):
-        return self.distance < other.distance
-
-
-def reset(grid: list[list[Node]]):
-    for row in grid:
-        for node in row:
-            node.distance = 99999
-
-
-def parse(input: str) -> list[list[Node]]:
+def parse(input: str, pt: int) -> Node:
     grid = [[Node(c) for c in line] for line in input.strip().split('\n')]
     height, width = len(grid), len(grid[0])
+    start = None
 
-    # add neighbors for each node
+    if pt == 1:
+        cmp = lambda b: ord(node.elevation) - ord(b.elevation) >= -1
+    else:
+        cmp = lambda b: ord(b.elevation) - ord(node.elevation) >= -1
+
     for row, _ in enumerate(grid):
         for col, node in enumerate(grid[row]):
+            # add neighbors
+            neighbors = []
             if row > 0:
-                node.add_neighbor(grid[row-1][col])
+                neighbors.append(grid[row-1][col])
             if col > 0:
-                node.add_neighbor(grid[row][col-1])
+                neighbors.append(grid[row][col-1])
             if row < height - 1:
-                node.add_neighbor(grid[row+1][col])
+                neighbors.append(grid[row+1][col])
             if col < width - 1:
-                node.add_neighbor(grid[row][col+1])
+                neighbors.append(grid[row][col+1])
+            node.neighbors = list(filter(cmp, neighbors))
+
+            if node.is_start and pt == 1:
+                start = node 
+
+            if node.is_end and pt == 2:
+                start = node
+    
+    return start
 
 
-    return grid
+def solve(input: str, pt: int) -> int:
+    start = parse(input, pt)
+    start.distance = 0
+    unvisited = deque([start])
 
+    while True:
+        cur = unvisited.popleft()
 
-def solve(grid: list[list[Node]], fixed_start=True) -> int:
-    # find start node(s)
-    start_nodes = []
-    for row in grid:
-        for node in row:
-            if fixed_start and node.is_start:
-                start_nodes.append(node)
-            if not fixed_start and node.elevation == 'a':
-                start_nodes.append(node)
+        # part 1: first time we encounter end is always shortest path
+        if pt == 1 and cur.is_end:
+            return cur.distance
 
-    # dijkstra
-    distances_to_end = []
-    for start in start_nodes:
-        reset(grid)
-        start.distance = 0
-        unvisited = [start]
+        # part 1: first 'a' elevation we encounter is shortest 
+        # because we start from end node this time
+        if pt == 2 and cur.elevation == 'a':
+            return cur.distance
 
-        while True:
-            # some paths lead into a dead end
-            if len(unvisited) == 0:
-               break
+        distance = cur.distance + 1
+        for v in cur.neighbors:
+            if distance < v.distance:
+                v.distance = distance 
+                unvisited.append(v)
 
-            cur = unvisited.pop(0)
-            if cur.is_end:
-                distances_to_end.append(cur.distance)
-                break 
-
-            distance = cur.distance + 1
-            for v in cur.neighbors:
-                if distance < v.distance:
-                    v.distance = distance 
-                    unvisited.append(v)
-
-    return min(distances_to_end)
+    raise Exception("path not found")
 
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()
-    grid = parse(input)
-    print("pt1: ", solve(grid, True))
-    print("pt2: ", solve(grid, False))
+    print("pt1: ", solve(input, 1))
+    print("pt2: ", solve(input, 2))
 
 

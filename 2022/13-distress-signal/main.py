@@ -3,25 +3,21 @@ from functools import cmp_to_key
 
 def check(a: list, b: list) -> int:
     for i in range(len(a)):
-        left = a[i]
-
         # if right side ran out of items, return False
         if i >= len(b):
             return 1 
 
+        left = a[i]
         right = b[i]
         if type(left) == int and type(right) == int:
             if left > right:
                 return 1
             elif left < right:
                 return -1
-            else:
-                continue
         elif type(left) == list and type(right) == list:
             result = check(left, right)
             if result != -2:
                 return result 
-
         elif type(left) == int:
             return check([left], right)
         elif type(right) == int:
@@ -37,28 +33,20 @@ def check(a: list, b: list) -> int:
 
 
 def pt1(input: str) -> int:
-    index = 1
     answer = 0
-    for pairs in input.strip().split('\n\n'):
+    for i, pairs in enumerate(input.strip().split('\n\n')):
         left, right = map(eval, pairs.split('\n'))
         if check(left, right) == -1:
-            answer += index
-        index += 1
+            answer += (i + 1)
     return answer
 
 
 def pt2(input: str) -> int:
-    packets = list(map(eval, filter(None, input.strip().split('\n'))))
-    packets += [[[2]], [[6]]]
-    packets = sorted(packets, key=cmp_to_key(check))
-
-    answer = 1
-    for i, p in enumerate(packets):
-        if p == [[2]]:
-            answer *= (i+1)
-        elif p == [[6]]:
-            answer *= (i+1)
-    return answer
+    d1 = [[2]] 
+    d2 = [[6]]
+    packets = list(map(eval, filter(None, input.strip().split('\n')))) + [d1, d2]
+    packets.sort(key=cmp_to_key(check))
+    return packets.index(d1) * packets.index(d2)
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()

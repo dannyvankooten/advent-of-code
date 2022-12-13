@@ -1,13 +1,22 @@
 from pathlib import Path
 from collections import deque 
+from dataclasses import dataclass 
 
+@dataclass 
 class Node:
-    neighbors: list = []
-    is_start: bool = False 
-    is_end: bool = False
-    distance: int = 999999
+    __slots__ = ("neighbors", "is_start", "is_end", "distance", "elevation")
+    neighbors: list
+    is_start: bool
+    is_end: bool
+    distance: int
+    elevation: str
 
     def __init__(self, elevation: str):
+        self.neighbors = []
+        self.is_start = False 
+        self.is_end = False
+        self.distance = 99999
+        
         match elevation:
             case 'S':
                 self.is_start = True 

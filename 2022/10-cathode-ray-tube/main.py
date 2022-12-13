@@ -10,8 +10,7 @@ def draw(cycle: int, x: int):
         print('#', end='')
     else:
         print('.', end='')
-
-    #print(f"cycle: {cycle}\tsprite: {x}\tprinting at position {n}")
+    
 
 def signal_strength(cycle: int, x: int) -> int:
     """Returns signal strength of current cycle + register combo"""
@@ -39,6 +38,5 @@ def solve(input: list[str]) -> int:
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text().strip().split('\n')
-
     print("\npt1: ", solve(input))
 

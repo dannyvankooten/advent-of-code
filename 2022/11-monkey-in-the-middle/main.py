@@ -5,6 +5,7 @@ from copy import deepcopy
 
 @dataclass
 class Monkey:
+    __slots__ = ("items", "operation", "test", "targets")
     items: list[int]
     operation: Callable[[int], int]
     test: int
@@ -43,7 +44,6 @@ def solve(monkeys: list, pt1: bool) -> int:
             m.items.clear()
 
     activities.sort()
-
     return activities[-1] * activities[-2]
 
 

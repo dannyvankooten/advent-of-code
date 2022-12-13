@@ -4,7 +4,7 @@ from dataclasses import dataclass
 @dataclass 
 class Dir:
     name: str 
-    parent: ... 
+    parent: ...
     children: list
     size: int
 

@@ -1,20 +1,17 @@
 from pathlib import Path
 
-ROCK = 0
-PAPER = 1
-SCISSORS = 2
-
 def normalize(b):
     match b:
-        case 'X' | 'A': return ROCK
-        case 'Y' | 'B': return PAPER 
-        case 'Z' | 'C': return SCISSORS
+        case 'X' | 'A': return 0
+        case 'Y' | 'B': return 1
+        case 'Z' | 'C': return 2
 
 def outcome(opponent, you):
     if you == opponent:
         return 3 
-    if ((you - opponent) % 3 == 1):
-        return 6 
+    diff = you - opponent 
+    if diff == 1 or diff == -2:
+        return 6
     return 0
 
 def score(opponent, you):
@@ -24,19 +21,25 @@ def score(opponent, you):
 def part1(input) -> int:
     total_score = 0
     for round in input:
-        [p1, p2] = map(normalize, round.split(' '))
+        p1, p2 = map(normalize, round.split(' '))
         total_score += score(p1, p2)
     return total_score
 
 def part2(input) -> int:
     total_score = 0
     for round in input:
-        [p1, expected_outcome] = round.split(' ')
-        p1 = normalize(p1)
+        p1, expected_outcome = map(normalize, round.split(' '))
         match expected_outcome:
-            case 'Y': p2 = p1
-            case 'X': p2 = (p1 - 1) % 3
-            case 'Z': p2 = (p1 + 1) % 3
+            case 0: p2 = p1 - 1
+            case 1: p2 = p1
+            case 2: p2 = p1 + 1 
+
+        # slightly faster than p2 % 3
+        if p2 < 0:
+            p2 = 2
+        elif p2 > 2:
+            p2 = 0
+
         total_score += score(p1, p2)   
     return total_score
 

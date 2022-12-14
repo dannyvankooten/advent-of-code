@@ -1,3 +1,6 @@
 .idea
 venv
 __pycache__
+
+# ignore rust binaries
+*/main 

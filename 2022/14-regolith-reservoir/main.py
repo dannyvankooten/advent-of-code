@@ -35,12 +35,14 @@ def solve(input):
     resting_sands = 0
     pt1 = 0
     sand_source = (translate_x(500), 0)
+    path = [sand_source]
     while True:
-        x, y = sand_source
+        x, y = path.pop()
         while True:
             if pt1 == 0 and y > abyss_y:
                 pt1 = resting_sands
 
+            path.append((x, y))
             if grid[y+1][x] == '.':
                 y += 1 
             elif grid[y+1][x-1] == '.':
@@ -52,9 +54,11 @@ def solve(input):
             else:
                 break 
 
+
         # place sand 
         grid[y][x] = 'o'
         resting_sands += 1
+        path.pop()
         
         # stop if we blocked source of sand
         if (x, y) == sand_source:

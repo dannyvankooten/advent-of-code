@@ -11,11 +11,11 @@ for DIR in */; do
         rustc -O main.rs 
         hyperfine './main' --warmup 5 --runs 5 --export-json $BENCHMARK_FILE --style none 2> /dev/null
     elif [[ -x "main.py" ]]; then 
-        hyperfine './main.py' --warmup 5 --runs 5 --export-json $BENCHMARK_FILE --style none 
+        hyperfine './main.py' --warmup 5 --runs 5 --export-json $BENCHMARK_FILE --style none 2> /dev/null
     else 
-        hyperfine 'python main.py' --warmup 5 --runs 5 --export-json $BENCHMARK_FILE --style none 
+        hyperfine 'python main.py' --warmup 5 --runs 5 --export-json $BENCHMARK_FILE --style none 2> /dev/null
     fi
-    ELAPSED_TIME=$(cat $BENCHMARK_FILE | jq '.results[0].mean')
+    ELAPSED_TIME=$(cat $BENCHMARK_FILE | jq '.results[0].min')
     TOTAL=$(echo "$TOTAL + $ELAPSED_TIME" | bc)
     printf "%-30s %.4fs\n" ${DIR::-1} $ELAPSED_TIME
 	cd .. 

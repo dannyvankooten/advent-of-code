@@ -78,9 +78,7 @@ def mh(x1: int, x2: int, y1: int, y2: int):
 
 
 def count_excluded_positions_on_y(sensors: list[Sensor], beacons: list[Point], search_y: int) -> int:
-    count = 0
     ranges = []
-
     for s in sensors:
         end = s.covers(s.x, search_y)
         if end == 0:
@@ -89,8 +87,10 @@ def count_excluded_positions_on_y(sensors: list[Sensor], beacons: list[Point], s
         start = s.x - (end - s.x)
         ranges.append((start, end))
   
-    # sum non-overlapping ranges
     ranges.sort()
+
+    # sum non-overlapping ranges
+    count = 0
     prev = ranges[0][0] - 1
     for start, end in ranges:
         if start <= prev:
@@ -131,14 +131,15 @@ def find_position(sensors: list[Sensor], lim: int) -> int:
                 py += 1
               
 
-            break
+            #break
+    print(px, py)
     return px * 4000000 + py
 
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()
     sensors, beacons = parse(input) 
-
+    print(len(sensors))
     # pt1
     pt1 = count_excluded_positions_on_y(sensors, beacons, 2000000) 
     print("pt1: ", pt1)

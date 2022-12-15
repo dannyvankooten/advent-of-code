@@ -17,15 +17,14 @@ class Node:
         self.is_end = False
         self.distance = 99999
         
-        match elevation:
-            case 'S':
-                self.is_start = True 
-                self.elevation = 'a' 
-            case 'E':
-                self.is_end = True 
-                self.elevation = 'z'
-            case _: 
-                self.elevation = elevation
+        if elevation == 'S':
+            self.is_start = True 
+            self.elevation = 'a'
+        elif elevation == 'E':
+            self.is_end = True
+            self.elevation = 'z'
+        else:
+            self.elevation = elevation
 
 
 def parse(input: str, pt: int) -> Node:

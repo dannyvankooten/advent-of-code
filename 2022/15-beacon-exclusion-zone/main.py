@@ -1,3 +1,5 @@
+#!/usr/bin/env pypy3 
+
 from pathlib import Path
 
 class Point:

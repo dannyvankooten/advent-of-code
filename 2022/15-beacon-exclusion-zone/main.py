@@ -64,63 +64,69 @@ def count_excluded_positions_on_y(sensors, search_y):
     count -= len(exclusions)
     return count
 
+def mh(x1, x2, y1, y2):
+    return abs(x1 - x2) + abs(y1 - y2)
+
 class Sensor:
-    __slots__ = ("coords", "size")
+    __slots__ = ("x", "y", "size")
 
     def __init__(self, coords: Point, beacon: Point):
-        self.coords = coords 
+        self.x = x = coords.x 
+        self.y = y = coords.y 
 
-        # calculate size of sensor area
-        top = Point(coords.x, coords.y + 1) 
-        treshold = manhattan_distance(coords, beacon) 
-        while manhattan_distance(coords, top) < treshold:
-            top.y += 1 
+        # estimate size of sensor area (taking steps of 1000)
+        tx, ty = x, y + 1
+        treshold = mh(x, beacon.x, y, beacon.y) 
+        while mh(x, tx, y, ty) < treshold:
+            ty += 100
+        
+        # backtrack to correct height 
+        while mh(x, tx, y, ty) > treshold:
+            ty -= 1 
 
-        self.size = top.y - coords.y
+        self.size = ty - y
 
     def __repr__(self):
-        return f"Sensor (x={self.coords.x}, y={self.coords.y})"
+        return f"Sensor (x={self.x}, y={self.y})"
     
-    def covers(self, p: Point):
-        y_diff = abs(p.y - self.coords.y) 
+    def covers(self, px, py):
+        y_diff = abs(py - self.y) 
         x_size = self.size - y_diff 
         if x_size <= 0:
             return False 
 
-        x_start = self.coords.x - x_size 
-        if x_start > p.x:
+        x_start = self.x - x_size 
+        if x_start > px:
             return False 
 
-        x_end = self.coords.x + x_size 
-        if x_end < p.x:
+        x_end = self.x + x_size 
+        if x_end < px:
             return False 
 
         return x_end 
 
 
 def find_position(sensors, lim):
-    pos = Point(0, 0)
+    px, py = 0, 0
     sensors = [Sensor(s, b) for s, b in sensors]
+
     free_spot = False 
     while free_spot == False: 
         free_spot = True
 
         for s in sensors:
-            next_x = s.covers(pos) 
+            next_x = s.covers(px, py) 
             if next_x != False:
                 free_spot = False 
-                pos.x = next_x + 1
-                if pos.x >= lim:
-                    pos.x = 0 
-                    pos.y += 1
-
-                    if pos.y >= lim:
-                        raise Exception("no spot found")
+                px = next_x + 1
+                if px >= lim:
+                    px = 0 
+                    py += 1
 
                 # go to next x, y position    
                 break
                 
-    return pos.x * 4000000 + pos.y
+    return px * 4000000 + py
 
 
 if __name__ == '__main__':

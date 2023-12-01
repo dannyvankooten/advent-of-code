@@ -37,9 +37,6 @@ func pt1() {
 }
 
 func pt2() {
-	fh, _ := os.Open("input.txt")
-	defer fh.Close()
-
 	digitWords := [][]byte{
 		[]byte("one"),
 		[]byte("two"),
@@ -56,14 +53,17 @@ func pt2() {
 	var value int32
 	digits := make([]int32, 0, 16)
 
+	fh, _ := os.Open("input.txt")
+	defer fh.Close()
+
 	scanner := bufio.NewScanner(fh)
 	for scanner.Scan() {
+
 		b := scanner.Bytes()
 
 		// TODO: We could just store first and last digit vs. all digits on that line
 		// clear digits array from previous line
 		digits = digits[:0]
-
 
 		for len(b) > 0 {
 			// check for 0 - 9 characters. 48 is unicode point for 0.
@@ -74,8 +74,13 @@ func pt2() {
 				for i, w := range digitWords {
 					if bytes.HasPrefix(b, w) {
 						digits = append(digits, int32(i)+1)
-						// TODO: We may be able to skip ahead here
-						// But not by entire length of words, as sometimes digits share characters with their previous one
+
+						// skip ahead in line, but not by entire word
+						// some textual digits re-use the last character
+						// of a previous textual digit in the line
+						// like `sevenine`
+						b = b[len(w)-3:]
+						break
 					}
 				}
 

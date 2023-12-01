@@ -110,6 +110,7 @@ def count_excluded_positions_on_y(sensors: list[Sensor], beacons: list[Point], s
 
     return count
 
+
 def find_position(sensors: list[Sensor], lim: int) -> int:
     px, py = 0, 0
     free_spot = False 
@@ -129,24 +130,20 @@ def find_position(sensors: list[Sensor], lim: int) -> int:
             if px >= lim:
                 px = 0 
                 py += 1
-              
-
-            #break
-    print(px, py)
+            break
     return px * 4000000 + py
 
 
 if __name__ == '__main__':
     input = Path("input.txt").read_text()
-    sensors, beacons = parse(input) 
+    sensors, beacons = parse(input)
     print(len(sensors))
     # pt1
-    pt1 = count_excluded_positions_on_y(sensors, beacons, 2000000) 
+    pt1 = count_excluded_positions_on_y(sensors, beacons, 2000000)
     print("pt1: ", pt1)
-    assert(pt1 == 5240818)
+    assert pt1 == 5240818
 
     # pt2
-    pt2 = find_position(sensors, 4000000) 
+    pt2 = find_position(sensors, 4000000)
     print("pt2: ", pt2)
-    assert(pt2 == 13213086906101)
-
+    assert pt2 == 13213086906101

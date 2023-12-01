@@ -5,12 +5,15 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"time"
 	"unicode"
 )
 
 func main() {
+	timeStart := time.Now()
 	pt1()
 	pt2()
+	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000.0)
 }
 
 func pt1() {

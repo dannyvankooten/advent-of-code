@@ -50,9 +50,14 @@ int main() {
 
                 if (values[j] % values[i] == 0) {
                     checksum2 += values[j] / values[i];
+
+                    // break out of outer loop
+                    goto NEXTLINE;
                 }
             }
         }
+
+        NEXTLINE:
 
         // skip \n
         s++;

@@ -20,8 +20,8 @@ int main() {
     input[nread] = '\0';
 
     char *s = input;
-    int pos[2] = {0, 0};
-    int dirs[4][2] = {
+    int pos[] = {0, 0};
+    int dirs[][2] = {
         {0, 1},     // N
         {1, 0},     // E
         {0, -1},    // S

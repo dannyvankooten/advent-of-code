@@ -7,26 +7,18 @@
 
 #define BUFSIZE 32*1024
 
-void pt1(char *input, size_t input_len);
-void pt2(char *input, size_t input_len);
+void solve(const char *input, size_t input_len);
 
 int main() {
-
-
-    FILE *fp = fopen("input.txt", "r");
-    if (fp == NULL) {
-        abort();
-    }
     char input[BUFSIZE];
-
+    FILE *fp = fopen("input.txt", "r");
     size_t input_len = fread(input, 1, BUFSIZE, fp);
     fclose(fp);
 
     clock_t start_t, end_t;
     start_t = clock();
 
-    pt1(input, input_len);
-    pt2(input, input_len);
+    solve(input, input_len);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
@@ -34,39 +26,24 @@ int main() {
     return 0;
 }
 
-void pt1(char *input, size_t input_len) {
-    int sum = 0;
-    int ndigits = 0;
-    int digits[32] = {0};
-    int value = 0;
-    for (size_t i = 0; i < input_len; i++) {
-        char c = input[i];
-
-        if (c == '\n') {
-            value = digits[0] * 10 + digits[ndigits-1];
-            sum += value;
-            ndigits = 0;
-            continue;
-        }
-
-        if (c >= '0' && c <= '9') {
-            digits[ndigits++] = c - '0';
-        }
-    }
-
-    fprintf(stdout, "part 1: %d\n", sum);
-}
-
 typedef struct str {
     uint16_t size;
     char* value;
 } str_t;
 
-bool starts_with(char *haystack, str_t needle) {
+static inline
+bool str_starts_with(const char *haystack, str_t needle) {
     return memcmp(haystack, needle.value, needle.size) == 0;
 }
 
-void pt2(char *input, size_t input_len) {
+void solve(const char *input, size_t input_len) {
+    uint16_t sum = 0;
+    uint16_t sum2 = 0;
+    uint8_t digits[32] = {0};
+    uint8_t digits2[32] = {0};
+    uint8_t ndigits = 0;
+    uint8_t ndigits2 = 0;
+
     str_t words[] = {
         {3, "one"},
         {3, "two"},
@@ -78,36 +55,38 @@ void pt2(char *input, size_t input_len) {
         {5, "eight"},
         {4, "nine"},
     };
-    size_t nwords = 9;
-    int sum = 0;
-    uint8_t ndigits = 0;
-    uint8_t digits[16] = {0};
-    int value = 0;
-    uint16_t j = 0;
+    uint8_t nwords = 9;
 
     for (size_t i = 0; i < input_len; i++) {
         char c = input[i];
 
+        if (c == '\n') {
+            // sum pt1
+            sum += digits[0] * 10 + digits[ndigits-1];
+            ndigits = 0;
+
+            // sum pt2
+            sum2 += digits2[0] * 10 + digits2[ndigits2-1];;
+            ndigits2 = 0;
+            continue;
+        }
+
         if (c >= '0' && c <= '9') {
             digits[ndigits++] = c - '0';
+            digits2[ndigits2++] = c - '0';
             continue;
         }
 
-        if (c == '\n') {
-            value = digits[0] * 10 + digits[ndigits-1];
-            sum += value;
-            ndigits = 0;
-            continue;
-        }
-
-        for (j = 0; j < nwords; j++) {
-            if (starts_with(input + i, words[j])) {
-                digits[ndigits++] = j+1;
+         for (uint8_t j = 0; j < nwords; j++) {
+            if (str_starts_with(input + i, words[j])) {
+                digits2[ndigits2++] = j+1;
                 i += words[j].size - 2;
                 break;
             }
         }
     }
 
-    fprintf(stdout, "part 2: %d\n", sum);
+    fprintf(stdout, "part 1: %d\n", sum);
+    fprintf(stdout, "part 2: %d\n", sum2);
 }
+

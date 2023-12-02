@@ -27,7 +27,8 @@ int compare_ints(const void* a, const void* b)
 int main() {
     FILE *fp = fopen("input.txt", "r");
     char input[64*1024];
-    fread(input, 1, 64*1024, fp);
+    size_t nread = fread(input, 1, 64*1024, fp);
+    input[nread] = '\0';
 
     char *s = input;
     int area = 0;

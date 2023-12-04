@@ -5,6 +5,8 @@
 #include <assert.h>
 #include <time.h>
 
+#define HASH(v) ((v[0] - 'a' + 1) * 27 + (v[1] == '\0' ? 0 : v[1] - 'a' + 1))
+
 static inline
 char *parse_int(uint16_t *dst, char *s) {
     uint16_t n = 0;
@@ -72,27 +74,14 @@ char *parse_op(enum op *dst, char *s) {
 }
 
 static inline
-int find(const char *wires, uint16_t nwires, const char *target) {
-    // find index
-    for (int i = 0; i < nwires; i++) {
-        if (strncmp(wires + i * 3, target, 3) == 0) {
-            return i;
-        }
-    }
-
-
-    return -1;
+int find(int wires[], const char *target) {
+    return wires[HASH(target)];
 }
 
 static inline
-uint16_t *getsignal(const char *wires, uint16_t *signals, uint16_t nwires, const char *target) {
-    for (int i = 0; i < nwires; i++) {
-        if (strncmp(wires + i * 3, target, 3) == 0) {
-            return &signals[i];
-        }
-    }
-
-    return NULL;
+uint16_t *getsignal(int wires[], uint16_t *signals,  const char *target) {
+    int pos = find(wires,  target);
+    return pos > -1 ? &signals[pos] : NULL;
 }
 
 typedef struct instruction {
@@ -124,28 +113,29 @@ void print_instruction(instruction_t i) {
 }
 
 int run(instruction_t *instructions, int ninstructions) {
-    char *wires = (char *) malloc(340 * 3);
-    uint16_t signals[340] = {0};
+    int wires[27*27];
+    memset(wires, -1, 27*27*4);
+    uint16_t signals[340];
     uint16_t nwires = 0;
 
-    while(1) {
+    while (1) {
         for (int i = 0; i < ninstructions; i++) {
             instruction_t *ins = &instructions[i];
             uint16_t *signal;
 
             // don't send to gates that already have a signal
-            int pos = find(wires, nwires, ins->target);
+            int pos = find(wires, ins->target);
             if (pos != -1) continue;
 
             // resolve signals
             if (strlen(ins->lhs_ident) > 0) {
-                signal = getsignal(wires, signals, nwires, ins->lhs_ident);
+                signal = getsignal(wires, signals, ins->lhs_ident);
                 if (signal == NULL) continue;
                 ins->lhs_value = *signal;
             }
 
             if (strlen(ins->rhs_ident) > 0) {
-                signal = getsignal(wires, signals, nwires, ins->rhs_ident);
+                signal = getsignal(wires, signals, ins->rhs_ident);
                 if (signal == NULL) continue;
                 ins->rhs_value = *signal;
             }
@@ -155,27 +145,27 @@ int run(instruction_t *instructions, int ninstructions) {
                 case DIRECT: {
                     v = ins->lhs_value;
                 }
-                    break;
+                break;
 
                 case AND: {
                     v = ins->lhs_value & ins->rhs_value;
                 }
-                    break;
+                break;
 
                 case OR: {
                     v = ins->lhs_value | ins->rhs_value;
                 }
-                    break;
+                break;
 
                 case NOT: {
                     v = ~ ins->rhs_value;
                 }
-                    break;
+                break;
 
                 case LSHIFT: {
                     v = ins->lhs_value << ins->rhs_value;
                 }
-                    break;
+                break;
 
                 case RSHIFT: {
                     v = ins->lhs_value >> ins->rhs_value;
@@ -183,19 +173,19 @@ int run(instruction_t *instructions, int ninstructions) {
                 break;
             }
 
-            memcpy(wires + (nwires * 3), ins->target, 3);
             signals[nwires] = v;
+            wires[HASH(ins->target)] = nwires;
             nwires++;
 
             if (nwires == ninstructions) {
-                free(wires);
-                return v;
+                return signals[wires[HASH("a")]];
             }
         }
     }
 
     abort();
 }
+
 
 int main() {
     FILE *fp = fopen("input.txt", "r");

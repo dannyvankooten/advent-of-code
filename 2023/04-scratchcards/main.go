@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -17,6 +18,9 @@ func main() {
 
 	ncards := 203
 	pt1 := 0
+	pt2 := ncards
+
+	// start with single copy of each card
 	copies := make([]int, ncards)
 	for i := 0; i < ncards; i++ {
 		copies[i] = 1
@@ -26,51 +30,54 @@ func main() {
 		if c == "" { continue }
 		c = c[strings.Index(c, ":")+1:]
 		c = strings.TrimSpace(c)
-		c = strings.ReplaceAll(c, "  ", " ")
-
 		parts := strings.Split(c, " | ")
 		if len(parts) != 2 {
 			fmt.Printf("invalid line: %s\n", c)
 			continue
 		}
 
+		winning := make([]int, 0, 10)
+		for _, n := range strings.Split(parts[0], " ") {
+			n = strings.TrimSpace(n)
+			if n == "" { continue }
+			d, _ := strconv.Atoi(n)
+			winning = append(winning, d)
+		}
+		hand := make([]int, 0, 25)
+		for _, n := range strings.Split(parts[1], " ") {
+			n = strings.TrimSpace(n)
+			if n == "" { continue }
+			d, _ := strconv.Atoi(n)
+			hand = append(hand, d)
+		}
 
-		winning := " " + parts[0] + " "
-		hand := strings.Split(parts[1], " ")
+		reward := 1
+		nmatches := 0
+		for _, n := range hand {
+			for _, v := range winning {
+				if n == v {
+					nmatches++
 
-		for c := 0; c < copies[i]; c++ {
-			reward := 1
-			nmatches := 0
-
-			for _, n := range hand {
-				if strings.Index(winning, " "+n+" ") > -1 {
-					if nmatches > 1 {
+					if nmatches > 2 {
 						reward *= 2
 					}
 
-					nmatches++
-
-					if c == 0 {
-						pt1 += reward
-					}
+					pt1 += reward
+					break
 				}
 			}
+		}
 
+		// create copies
+		for c := 0; c < copies[i]; c++ {
 			for m := 0; m < nmatches; m++ {
 				copies[i+m+1]++
+				pt2++
 			}
 		}
 	}
 
 	fmt.Printf("part 1: %d\n", pt1)
-
-	pt2 := 0
-	for i := 0; i < ncards; i++ {
-		pt2 += copies[i]
-	}
 	fmt.Printf("part 2: %d\n", pt2)
-
-
-
 	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000)
 }

@@ -7,7 +7,7 @@ debug: CFLAGS+=-DDEBUG -g
 debug: BIN=aoc2020debug
 debug: $(BIN)
 
-profile: CFLAGS+= -pg 
+profile: CFLAGS+= -pg
 profile: BIN=aoc2020debug
 profile: $(BIN)
 
@@ -18,6 +18,6 @@ $(BIN): *.c
 	$(CC) $(CFLAGS) $^ -lm -o $(BIN)
 
 .PHONY: clean
-clean: 
+clean:
 	rm -f aoc2020debug
 	rm -f aoc2020

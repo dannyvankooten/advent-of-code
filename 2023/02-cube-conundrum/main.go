@@ -27,6 +27,7 @@ func main() {
 			continue
 		}
 
+		// trim "Game 99:" prefix
 		l = l[8:]
 		max := [3]int{0, 0, 0}
 		possible := true
@@ -38,23 +39,22 @@ func main() {
 				amount ,_ := strconv.Atoi(parts[0])
 				color := parts[1]
 
-				if color == "red" {
+				switch color {
+				case "red":
 					if amount > 12 {
 						possible = false
 					}
 					if amount > max[0] {
 						max[0] = amount
 					}
-				}
-				if color == "green" {
+				case "green":
 					if amount > 13 {
 						possible = false
 					}
 					if amount > max[1] {
 						max[1] = amount
 					}
-				}
-				if color == "blue" {
+				case "blue":
 					if amount > 14 {
 						possible = false
 					}

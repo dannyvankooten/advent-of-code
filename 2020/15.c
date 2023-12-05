@@ -19,7 +19,7 @@
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
-static int32_t 
+static int32_t
 parse_input(int32_t* restrict numbers, const char* s) {
   int32_t n = 0;
 
@@ -50,13 +50,13 @@ int day15() {
   assert(seen != NULL);
   // memset(seen, 0, (N * sizeof(uint32_t)));
 
-  uint32_t i = 0;
-  uint32_t prev = 0;
+  int32_t i = 0;
+  int32_t prev = 0;
   // char bitarray[BITNSLOTS(N)] = {0};
   char* bitarray = calloc(BITNSLOTS(N), sizeof(char));
 
   for (; i < nnumbers; i++) {
-    prev = (uint32_t) numbers[i];
+    prev = numbers[i];
     seen[prev] = i + 1;
     BITSET(bitarray, prev);
   }
@@ -66,7 +66,7 @@ int day15() {
     if (prev < (i >> 6)) {
       last_seen_at = seen[prev];
       seen[prev] = i;
-      if (last_seen_at) { 
+      if (last_seen_at) {
         prev = i - last_seen_at;
       } else {
         prev = 0;

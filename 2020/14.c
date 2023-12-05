@@ -28,7 +28,7 @@ typedef struct vec vec_t;
 
 static void print_binary(int64_t n);
 
-static int64_t 
+static int64_t
 apply_bitmask(const char mask[36], int64_t n) {
   char k;
   int64_t r = 0;
@@ -46,7 +46,7 @@ apply_bitmask(const char mask[36], int64_t n) {
   return r;
 }
 
-static int64_t 
+static int64_t
 bin2dec(const char mask[36]) {
   int64_t r = 0;
 
@@ -57,7 +57,7 @@ bin2dec(const char mask[36]) {
   }
   return r;
 }
-static void 
+static void
 apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
   // generate all possible combinations
   char k;
@@ -98,7 +98,7 @@ apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
   }
 }
 
-static void 
+static void
 print_binary(int64_t n) {
   int8_t c;
   int64_t k;
@@ -120,7 +120,6 @@ int32_t day14() {
     err(EXIT_FAILURE, "error reading input file");
   }
   char linebuf[BUFSIZ] = {0};
-  char nbuf[32] = {0};
 
   // parse program
   size_t cap = 592;
@@ -151,7 +150,7 @@ int32_t day14() {
       }
 
       ins->address = 0;
-      while (*s >= '0' && *s <= '9') { 
+      while (*s >= '0' && *s <= '9') {
         ins->address = (ins->address * 10) + (*s++ - '0');
       }
 
@@ -162,7 +161,7 @@ int32_t day14() {
         s++;
       }
 
-      ins->value = 0;  
+      ins->value = 0;
       while (*s >= '0' && *s <= '9') {
         ins->value = (ins->value * 10) + (*s++ - '0');
       }

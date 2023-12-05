@@ -10,7 +10,7 @@ const char* input = "327465189";
 
 static void print_raw(const int32_t* restrict cups);
 
-static int32_t 
+static int32_t
 parse_input(int32_t* restrict cups, const char* s) {
   int32_t i = 1;
   int32_t first = (*s++ - '0');
@@ -34,7 +34,7 @@ parse_input(int32_t* restrict cups, const char* s) {
   return first;
 }
 
-static void 
+static void
 print_raw(const int32_t* restrict cups) {
   printf("| ");
   for (int32_t i = 1; i <= 9; i++) {
@@ -47,7 +47,7 @@ print_raw(const int32_t* restrict cups) {
   printf("\n\n");
 }
 
-static void 
+static void
 print_cups(const int32_t* restrict cups, const int32_t first, const size_t n, const char* restrict before) {
   printf("%s", before);
   int32_t c = first;
@@ -88,6 +88,6 @@ int day23() {
   int64_t r = (int64_t)c1 * (int64_t)cups[c1];
   printf("%ld\n", r);
   assert(r == 474600314018);
-  hugemem_free(cups, 1000001 * sizeof(int32_t));
+  hugemem_free(cups, 1000000 * sizeof(int32_t));
   return 0;
 }

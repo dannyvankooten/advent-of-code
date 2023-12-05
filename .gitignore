@@ -8,3 +8,4 @@ aoc2020debug
 **/*.gcda
 .idea
 .vscode
+input.txt

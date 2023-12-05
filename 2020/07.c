@@ -21,7 +21,7 @@ typedef struct bag bag_t;
 ht* bags;
 bag_t* mbags;
 
-static 
+static
 void parse_rules_from_input() {
   int32_t qty;
   int32_t cap = 1024;
@@ -114,14 +114,14 @@ void parse_rules_from_input() {
 }
 
 static
-bag_t* find_bag(const char color[32]) {
+bag_t* find_bag(const char *color) {
   bag_t* b;
   b = (bag_t*)ht_get(bags, color);
   return b;
 }
 
-static bool 
-may_bag_contain_color(bag_t* b, const char color[32]) {
+static bool
+may_bag_contain_color(bag_t* b, const char *color) {
   if (b == NULL) {
     return false;
   }
@@ -142,7 +142,7 @@ may_bag_contain_color(bag_t* b, const char color[32]) {
 }
 
 static
-int32_t search_bags_for_color(const char color[32]) {
+int32_t search_bags_for_color(const char *color) {
   int32_t count = 0;
   hti it = ht_iterator(bags);
   while (ht_next(&it)) {

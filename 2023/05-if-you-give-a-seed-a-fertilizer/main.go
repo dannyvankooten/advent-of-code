@@ -9,10 +9,10 @@ import (
 )
 
 func parseNumbers(s string) []int {
-	numbers := make([]int, 0)
-	for _, s := range strings.Split(s, " ") {
-		n, _ := strconv.Atoi(s)
-		numbers = append(numbers, n)
+	svalues := strings.Split(s, " ")
+	numbers := make([]int, len(svalues))
+	for i, s := range svalues {
+		numbers[i], _ = strconv.Atoi(s)
 	}
 	return numbers
 }
@@ -27,8 +27,19 @@ func transform(source int, rules [][]int) int {
 	return source
 }
 
-func main() {
-	timeStart := time.Now()
+func reverse(dest int, rules [][]int) int {
+	var source int
+	for _, rule := range rules {
+		source = dest + rule[1] - rule[0]
+		if source >= rule[1] && source < rule[1]+rule[2] {
+			return source
+		}
+	}
+
+	return dest
+}
+
+func parseInput() ([]int, [][][]int) {
 	bytes, err := os.ReadFile("input.txt")
 	if err != nil {
 		panic(err)
@@ -37,20 +48,25 @@ func main() {
 	lines := strings.Split(string(bytes), "\n")
 	seeds := parseNumbers(lines[0][strings.Index(lines[0], ": ")+2:])
 	s := 0
-	translators := make([][][]int, 0, 0)
-	translators = append(translators, make([][]int, 0, 0))
+
+	translators := make([][][]int, 0, 8)
+	translators = append(translators, make([][]int, 0, 8))
 	for i := 3; i < len(lines); i++ {
 		// on every empty line, start a new map
 		if lines[i] == "" {
 			i += 1
 			s += 1
-			translators = append(translators, make([][]int, 0, 0))
+			translators = append(translators, make([][]int, 0, 8))
 			continue
 		}
 
 		translators[s] = append(translators[s], parseNumbers(lines[i]))
 	}
 
+	return seeds, translators
+}
+
+func pt1(seeds []int, translators [][][]int) int {
 	// pt 1
 	pt1 := 1 << 31
 	for _, s := range seeds {
@@ -61,24 +77,38 @@ func main() {
 			pt1 = s
 		}
 	}
-	fmt.Printf("part 1: %d\n", pt1)
 
-	// pt 2
-	pt2 := 1 << 31
-	fmt.Printf("%d seed pairs\n", len(seeds))
-	for i := 0; i < len(seeds); i += 2 {
-		for j := 0; j < seeds[i+1]; j++ {
-			s := seeds[i] + j
-			for _, t := range translators {
-				s = transform(s, t)
-			}
-			if s < pt2 {
-				pt2 = s
+	return pt1
+}
+
+func pt2(seeds []int, translators [][][]int) int {
+	var s int
+	var l int
+	for {
+		s = l
+		for i := len(translators) - 1; i >= 0; i-- {
+			s = reverse(s, translators[i])
+		}
+
+		// check if s is valid seed number
+		for i := 0; i < len(seeds); i += 2 {
+			if s > seeds[i] && s < seeds[i]+seeds[i+1] {
+				return l
 			}
 		}
 
+		l++
 	}
-	fmt.Printf("part 2: %d\n", pt2)
+}
+
+func main() {
+	timeStart := time.Now()
+	seeds, translators := parseInput()
+
+	fmt.Printf("part 1: %d\n", pt1(seeds, translators))
+
+	// part 2: reverse search for valid seed number
+	fmt.Printf("part 2: %d\n", pt2(seeds, translators))
 
 	// time
 	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)

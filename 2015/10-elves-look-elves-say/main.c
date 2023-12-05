@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-void apply(char *dst, char *in) {
+int apply(char *dst, char *in) {
     char *s = in;
     char *o = dst;
     int d;
@@ -19,34 +19,47 @@ void apply(char *dst, char *in) {
     }
 
     *o = '\0';
+    return o - dst;
 }
 
 int main() {
     clock_t start_t, end_t;
     start_t = clock();
 
-    char *input = malloc(1024*1024*8);
-    char *buf = malloc(1024*1024*8);
+    // single malloc call for 16MB of memory
+    char *input = (char *) malloc(1024*1024*16);
+    if (input == NULL) {
+        printf("error allocating enough memory for string buffers");
+        exit(EXIT_FAILURE);
+    }
+    char *buf = input + (1024*1024*8 * sizeof(char));
+    char *tmp;
 
     strcpy(input, "1321131112");
+    int pt1;
     for (int i = 0; i < 40; i++) {
-        apply(buf, input);
-        strcpy(input, buf);
+        pt1 = apply(buf, input);
+        tmp = input;
+        input = buf;
+        buf = tmp;
     }
-    int pt1 = strlen(input);
     printf("part 1: %d\n", pt1);
     assert(pt1 == 492982);
 
+    int pt2;
     for (int i = 0; i < 10; i++) {
-        apply(buf, input);
-        strcpy(input, buf);
+        pt2 = apply(buf, input);
+        tmp = input;
+        input = buf;
+        buf = tmp;
     }
-    int pt2 = strlen(input);
     printf("part 2: %d\n", pt2);
     assert(pt2 == 6989950);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
     printf("%.2fms\n", total_t);
+
+    free(input);
     return 0;
 }

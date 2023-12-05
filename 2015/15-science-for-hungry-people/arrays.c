@@ -7,9 +7,9 @@
 #include <stdint.h>
 
 static inline
-char *parse_int(int *dst, char *s) {
-    int mod = 1;
-    int n = 0;
+char *parse_int(int_fast8_t *dst, char *s) {
+    int_fast16_t mod = 1;
+    int_fast8_t n = 0;
 
     if (*s == '-') {
         mod = -1;
@@ -44,7 +44,7 @@ typedef struct ingredient {
 
 
 
-void parse(ingredient_t *ingredients, int *ningredients) {
+void parse(int_fast8_t capacities[], int_fast8_t durabilities[], int_fast8_t flavors[], int_fast8_t textures[], int_fast8_t calories[], int *ningredients) {
     FILE *fp = fopen("input.txt", "r");
     char input[64 * 1024];
     size_t nread = fread(input, 1, 1024*32, fp);
@@ -54,17 +54,16 @@ void parse(ingredient_t *ingredients, int *ningredients) {
     int n = 0;
     char *s = input;
     while (*s != '\0') {
-        s = parse_ident(ingredients[n].name, s);
         while ((*s < '0' || *s > '9') && *s != '-') s++;
-        s = parse_int(&ingredients[n].capacity, s);
+        s = parse_int(&capacities[n], s);
         while ((*s < '0' || *s > '9') && *s != '-') s++;
-        s = parse_int(&ingredients[n].durability, s);
+        s = parse_int(&durabilities[n], s);
         while ((*s < '0' || *s > '9') && *s != '-') s++;
-        s = parse_int(&ingredients[n].flavor, s);
+        s = parse_int(&flavors[n], s);
         while ((*s < '0' || *s > '9') && *s != '-') s++;
-        s = parse_int(&ingredients[n].texture, s);
+        s = parse_int(&textures[n], s);
         while ((*s < '0' || *s > '9') && *s != '-') s++;
-        s = parse_int(&ingredients[n].calories, s);
+        s = parse_int(&calories[n], s);
 
         while (*s != '\n' && *s != '\0') s++;
         if (*s == '\n') s++;
@@ -79,34 +78,38 @@ int main() {
     clock_t start_t, end_t;
     start_t = clock();
 
-    ingredient_t ingredients[4];
     int ningredients = 0;
-    parse(ingredients, &ningredients);
+    int_fast8_t *capacities = (int_fast8_t *) malloc(20 * sizeof(int_fast8_t));
+    int_fast8_t *durabilities = &capacities[4];
+    int_fast8_t *flavors = &capacities[8];
+    int_fast8_t *textures = &capacities[12];
+    int_fast8_t *calories = &capacities[16];
+    parse(capacities, durabilities, flavors, textures, calories, &ningredients);
 
     int capacity;
     int durability;
     int flavor;
     int texture;
     int score;
-    int calories;
+    int total_calories;
     int max_score = -1;
     int max_score_500c = -1;
     for (int i = 0; i < 100; i++) {
-        for (int k=0; k < 100 - i; k++) {
-            for (int l=0; l < 100 - k; l++) {
-                for (int m=0; m < 100 - l; m++) {
+        for (int k=0; k < 100; k++) {
+            for (int l=0; l < 100; l++) {
+                for (int m=0; m < 100; m++) {
                     if (i + k + l + m != 100) continue;
 
-                    capacity = ingredients[0].capacity * i + ingredients[1].capacity * k + ingredients[2].capacity * l + ingredients[3].capacity * m;
+                    capacity = capacities[0] * i + capacities[1] * k + capacities[2] * l + capacities[3] * m;
                     if (capacity <= 0) continue;
 
-                    durability = ingredients[0].durability * i + ingredients[1].durability * k + ingredients[2].durability * l + ingredients[3].durability * m;
+                    durability = durabilities[0] * i + durabilities[1] * k + durabilities[2] * l + durabilities[3] * m;
                     if (durability <= 0) continue;
 
-                    flavor = ingredients[0].flavor * i + ingredients[1].flavor * k + ingredients[2].flavor * l + ingredients[3].flavor * m;
+                    flavor = flavors[0] * i + flavors[1] * k + flavors[2] * l + flavors[3] * m;
                     if (flavor <= 0) continue;
 
-                    texture = ingredients[0].texture * i + ingredients[1].texture * k + ingredients[2].texture * l + ingredients[3].texture * m;
+                    texture = textures[0] * i + textures[1] * k + textures[2] * l + textures[3] * m;
                     if (texture <= 0) continue;
 
                     score = capacity * durability * flavor * texture;
@@ -114,8 +117,8 @@ int main() {
                         max_score = score;
                     }
 
-                    calories = ingredients[0].calories * i + ingredients[1].calories * k + ingredients[2].calories * l + ingredients[3].calories * m;
-                    if (calories == 500 && score > max_score_500c) {
+                    total_calories = calories[0] * i + calories[1] * k + calories[2] * l + calories[3] * m;
+                    if (total_calories == 500 && score > max_score_500c) {
                         max_score_500c = score;
                     }
                 }
@@ -124,7 +127,9 @@ int main() {
     }
 
     printf("part 1: %d\n", max_score);
+    assert(max_score == 18965440);
     printf("part 2: %d\n", max_score_500c);
+    assert(max_score_500c == 15862900);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;

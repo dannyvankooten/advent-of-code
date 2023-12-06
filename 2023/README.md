@@ -8,6 +8,7 @@ To run all solutions for all days using bash:
 
 ```bash
 for d in */; do cd $d && go run main.go && echo "" && cd ..; done
+(for d in */; do cd $d && go run main.go && cd ..; done) | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'
 ```
 
 ```txt
@@ -40,6 +41,8 @@ Time: 2321.58ms
 Part 1: 293046
 Part 2: 35150181
 Time: 0.03ms
+
+Total time: 2492.36ms
 ```
 
 ## License

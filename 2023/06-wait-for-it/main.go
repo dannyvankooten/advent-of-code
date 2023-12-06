@@ -14,10 +14,10 @@ func solve(times []int, distances []int) int {
 	for i := 0; i < len(times); i++ {
 		t := float64(times[i])
 		d := float64(distances[i])
-		dis := math.Sqrt(math.Pow(t, 2) - 4*-1*-d)
-		x1 := (-t - dis) / -2
-		x2 := (-t + dis) / -2
-		prod *= int(x1) - int(x2)
+		dis := math.Sqrt(t*t - 4*d)
+		x1 := (t - dis) / 2
+		x2 := (t + dis) / 2
+		prod *= int(x2) - int(x1)
 	}
 
 	return prod

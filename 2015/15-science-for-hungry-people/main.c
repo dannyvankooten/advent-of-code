@@ -123,11 +123,12 @@ int main() {
         }
     }
 
-    printf("part 1: %d\n", max_score);
-    printf("part 2: %d\n", max_score_500c);
+    printf("--- Day 15: Science for Hungry People ---\n");
+    printf("Part 1: %d\n", max_score);
+    printf("Part 2: %d\n", max_score_500c);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

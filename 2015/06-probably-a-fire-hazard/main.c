@@ -3,6 +3,7 @@
 #include <string.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 
 static inline
 char *parse_int(uint16_t *dst, char *s) {
@@ -17,6 +18,9 @@ char *parse_int(uint16_t *dst, char *s) {
 }
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     FILE *fp = fopen("input.txt", "r");
     char input[20*1024];
     size_t nread = fread(input, 1, 20*1024, fp);
@@ -88,6 +92,8 @@ int main() {
         }
     }
 
+    printf("--- Day 6: Probably a Fire Hazard ---\n");
+
     // we loop separately here because it's faster (because of cpu cache hits)
     int pt1 = 0;
     for (int i = 0; i < 1000 * 1000; i++) {
@@ -95,14 +101,16 @@ int main() {
             pt1++;
         }
     }
-    printf("%d\n", pt1);
+    printf("Part 1: %d\n", pt1);
 
     long pt2 = 0;
     for (int i = 0; i < 1000 * 1000; i++) {
         pt2 += grid_pt2[i];
     }
-    printf("%ld\n", pt2);
+    printf("Part 2: %ld\n", pt2);
 
-
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

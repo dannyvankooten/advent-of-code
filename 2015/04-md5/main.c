@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 
 /**
  * C++ version 0.4 char* style "itoa":
@@ -37,12 +38,16 @@ char* itoa(int value, char* result, int base) {
 }
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     const char *key = "yzbqklnj";
     int keylen = strlen(key);
     char input[8+32];
     memcpy(input, key, keylen);
     input[keylen] = '\0';
-    printf("input: '%s'\n", input);
+
+    printf("--- Day 4: The Ideal Stocking Stuffer ---\n");
 
     EVP_MD_CTX *mdctx;
     mdctx = EVP_MD_CTX_new();
@@ -57,27 +62,31 @@ int main() {
         itoa(i, dst, 10);
         EVP_DigestInit_ex2(mdctx, NULL, NULL);
         EVP_DigestUpdate(mdctx, input, keylen + strlen(dst));
-        EVP_DigestFinal_ex(mdctx, &digest, NULL);
+        EVP_DigestFinal_ex(mdctx, digest, NULL);
 
         if (memcmp(digest, zeroes, 2) == 0 && digest[2] <= 8) {
             break;
         }
     }
-    printf("part 1: %d\n", i);
+    printf("Part 1: %d\n", i);
 
     // continue for part 2
     for (;; i++) {
         itoa(i, dst, 10);
         EVP_DigestInit_ex2(mdctx, NULL, NULL);
         EVP_DigestUpdate(mdctx, input, keylen + strlen(dst));
-        EVP_DigestFinal_ex(mdctx, &digest, NULL);
+        EVP_DigestFinal_ex(mdctx, digest, NULL);
 
         if (memcmp(digest, zeroes, 3) == 0) {
             break;
         }
     }
 
-    printf("part 2: %d\n", i);
+    printf("Part 2: %d\n", i);
     EVP_MD_CTX_free(mdctx);
+
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

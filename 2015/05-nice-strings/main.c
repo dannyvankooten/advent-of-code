@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <time.h>
 
 int str_is_nice(char *s) {
     int charcount[26] = {0};
@@ -61,6 +62,9 @@ int str_is_nice_v2(char *s) {
 }
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     FILE *fp = fopen("input.txt", "r");
     char input[20*1024];
     size_t nread = fread(input, 1, 20*1024, fp);
@@ -83,7 +87,12 @@ int main() {
         if (*s == '\n') s++;
     }
 
-    printf("%d\n", nice_v1);
-    printf("%d\n", nice_v2);
+    printf("--- Day 5: Doesn't He Have Intern-Elves For This? ---\n");
+    printf("Part 1: %d\n", nice_v1);
+    printf("Part 2: %d\n", nice_v2);
+
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

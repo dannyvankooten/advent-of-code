@@ -66,16 +66,17 @@ int main() {
     char buf[9];
     strcpy(buf, "cqjxjnds");
 
+    printf("--- Day 11: Corporate Policy ---\n");
     pw_increment(buf);
-    printf("part 1: %s\n", buf);
+    printf("Part 1: %s\n", buf);
     assert(strcmp(buf, "cqjxxyzz") == 0);
 
     pw_increment(buf);
-    printf("part 2: %s\n", buf);
+    printf("Part 2: %s\n", buf);
     assert(strcmp(buf, "cqkaabcc") == 0);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

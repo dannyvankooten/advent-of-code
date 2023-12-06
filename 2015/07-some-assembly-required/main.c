@@ -244,9 +244,13 @@ int main() {
          s++;
     }
 
+    printf("--- Day 7: Some Assembly Required ---\n");
+
     // run instructions
     uint16_t pt1 = run(instructions, ninstructions);
-    printf("pt1: %d\n", pt1);
+    printf("Part 1: %d\n", pt1);
+    assert(pt1 == 46065);
+
 
     // override instructions so b takes direct value from signal a in part 1
     for (int i=0; i < ninstructions; i++) {
@@ -257,15 +261,12 @@ int main() {
             break;
         }
     }
-
     uint16_t pt2 = run(instructions, ninstructions);
-    printf("pt2: %d\n", pt2);
-
-    assert(pt1 == 46065);
+    printf("Part 2: %d\n", pt2);
     assert(pt2 == 14134);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

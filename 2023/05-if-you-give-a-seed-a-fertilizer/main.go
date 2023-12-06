@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -84,10 +85,13 @@ func pt1(seeds []int, translators [][][]int) int {
 func pt2(seeds []int, translators [][][]int) int {
 	var s int
 	var l int
+
+	slices.Reverse(translators)
+
 	for {
 		s = l
-		for i := len(translators) - 1; i >= 0; i-- {
-			s = reverse(s, translators[i])
+		for _, t := range translators {
+			s = reverse(s, t)
 		}
 
 		// check if s is valid seed number
@@ -105,11 +109,8 @@ func main() {
 	timeStart := time.Now()
 	seeds, translators := parseInput()
 
-	fmt.Printf("part 1: %d\n", pt1(seeds, translators))
-
-	// part 2: reverse search for valid seed number
-	fmt.Printf("part 2: %d\n", pt2(seeds, translators))
-
-	// time
-	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
+	fmt.Printf("--- Day 5: If You Give A Seed A Fertilizer ---\n")
+	fmt.Printf("Part 1: %d\n", pt1(seeds, translators))
+	fmt.Printf("Part 2: %d\n", pt2(seeds, translators))
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
 }

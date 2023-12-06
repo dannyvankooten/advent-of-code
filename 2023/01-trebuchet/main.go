@@ -11,12 +11,13 @@ import (
 
 func main() {
 	timeStart := time.Now()
-	pt1()
-	pt2()
-	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000.0)
+    fmt.Print("--- Day 1: Trebuchet?! ---\n")
+	fmt.Printf("Part 1: %d\n", pt1())
+	fmt.Printf("Part 2: %d\n", pt2())
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000.0)
 }
 
-func pt1() {
+func pt1() int32 {
 	fh, _ := os.Open("input.txt")
 	defer fh.Close()
 	var sum int32
@@ -36,10 +37,10 @@ func pt1() {
 		sum += value
 	}
 
-	fmt.Printf("part 1: %d\n", sum)
+	return sum
 }
 
-func pt2() {
+func pt2() int32 {
 	digitWords := [][]byte{
 		[]byte("one"),
 		[]byte("two"),
@@ -96,5 +97,5 @@ func pt2() {
 		sum += value
 	}
 
-	fmt.Printf("part 2: %d\n", sum)
+	return sum
 }

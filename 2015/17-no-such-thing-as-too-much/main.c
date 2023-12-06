@@ -1,151 +1,92 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <assert.h>
 #include <string.h>
 #include <time.h>
-#include <stdbool.h>
-#include <stdint.h>
 
-static inline
-char *parse_int(int *dst, char *s) {
-    int mod = 1;
-    int n = 0;
+int min_containers = 1 << 30;
+int pt2 = 0;
 
-    if (*s == '-') {
-        mod = -1;
-        s++;
-    }
+int permute(int sizes[], char flags[], int i, int n) {
+    int sum = 0;
 
-    while (*s >= '0' && *s <= '9') {
-        n = (n * 10) + (*s - '0');
-        s++;
-    }
-    *dst = n * mod;
-    return s;
-}
+    if (i == n) {
+        int s = 0;
+        int c = 0;
+        for (int x = 0; x < n; x++) {
+            c += flags[x];
+            s += sizes[x] * flags[x];
 
-static inline
-char *parse_ident(char *dst, char *s) {
-    while (*s != ':') {
-        *dst++ = *s++;
-    }
-    *dst++ = '\0';
-    return s;
-}
-
-int pt1(char *input) {
-    int n = 0;
-    char ident[32];
-    int amount;
-
-    char *s = input;
-    while (*s != '\0') {
-        while (*s != ':') s++;
-        s++;
-
-        while (*s != '\n') {
-            s = parse_ident(ident, s);
-            s += 2; // ": "
-            s = parse_int(&amount, s);
-            if (*s == ',') s += 2;
-
-            if (strcmp(ident, "children") == 0 && amount != 3) {
-                goto skip;
-            } else if (strcmp(ident, "cats") == 0 && amount != 7) {
-                goto skip;
-            } else if (strcmp(ident, "samoyeds") == 0 && amount != 2) {
-                goto skip;
-            } else if (strcmp(ident, "pomeranians") == 0 && amount != 3) {
-                goto skip;
-            } else if (strcmp(ident, "akitas") == 0 && amount != 0) {
-                goto skip;
-            } else if (strcmp(ident, "vizslas") == 0 && amount != 0) {
-                goto skip;
-            } else if (strcmp(ident, "goldfish") == 0 && amount != 5) {
-                goto skip;
-            } else if (strcmp(ident, "trees") == 0 && amount != 3) {
-                goto skip;
-            } else if (strcmp(ident, "cars") == 0 && amount != 2) {
-                goto skip;
-            } else if (strcmp(ident, "perfumes") == 0 && amount != 1) {
-                goto skip;
-            }
+            if (s > 150) {break;}
         }
 
-        return n+1;
-
-        skip:
-        while (*s != '\n' && *s != '\0') s++;
-        if (*s == '\n') s++;
-        n++;
-    }
-
-    return -1;
-}
-
-
-int pt2(char *input) {
-    int n = 0;
-    char ident[32];
-    int amount;
-
-    char *s = input;
-    while (*s != '\0') {
-        while (*s != ':') s++;
-        s += 2; // ": "
-
-        while (*s != '\n') {
-            s = parse_ident(ident, s);
-            if (*s != ':') abort();
-            s += 2; // ": "
-            s = parse_int(&amount, s);
-            if (*s == ',') s += 2; // ", "
-
-            if (
-                (strcmp(ident, "children") == 0 && amount != 3)
-                || (strcmp(ident, "cats") == 0 && amount <= 7)
-                || (strcmp(ident, "samoyeds") == 0 && amount != 2)
-                || (strcmp(ident, "pomeranians") == 0 && amount >= 3)
-                || (strcmp(ident, "akitas") == 0 && amount != 0)
-                || (strcmp(ident, "vizslas") == 0 && amount != 0)
-                || (strcmp(ident, "goldfish") == 0 && amount >= 5)
-                || (strcmp(ident, "trees") == 0 && amount <= 3)
-                || (strcmp(ident, "cars") == 0 && amount != 2)
-                || (strcmp(ident, "perfumes") == 0 && amount != 1)
-            ){
-                goto skip;
+        if (s == 150) {
+            if (c < min_containers) {
+                min_containers = c;
+                pt2 = 1;
+            } else if (c == min_containers) {
+                pt2++;
             }
+
+            return 1;
         }
-
-        return n+1;
-        skip:
-
-        while (*s != '\n' && *s != '\0') s++;
-        if (*s == '\n') s++;
-        n++;
+        return 0;
     }
 
-    return -1;
+    // try to bail early
+    int s = 0;
+    for (int x = 0; x < i; x++) {
+        s += sizes[x] * flags[x];
+    }
+    if (s > 150) {
+        return sum;
+    }
+
+    flags[i] = 0;
+    sum += permute(sizes, flags, i+1, n);
+
+    flags[i] = 1;
+    sum += permute(sizes, flags, i+1, n);
+
+    return sum;
 }
 
 int main() {
     clock_t start_t, end_t;
     start_t = clock();
-    FILE *fp = fopen("input.txt", "r");
-    char input[64 * 1024];
-    size_t nread = fread(input, 1, 1024*32, fp);
-    fclose(fp);
-    input[nread] = '\0';
 
     printf("--- Day 17: No Such Thing as Too Much ---\n");
 
-    int a1 = pt1(input);
-    printf("Part 1: %d\n", a1);
-    assert(a1 == 213);
+    int sizes[] = {
+        47,
+            46,
+            44,
+            44,
+            43,
+            41,
+            38,
+            36,
+            34,
+            31,
+            27,
+            21,
+            17,
+            17,
+            10,
+            9,
+            6,
+            4,
+            4,
+            3
+    };
+    char flags[20];
+    memset(flags, 0, 20 * sizeof(char));
 
-    int a2 = pt2(input);
-    printf("Part 2: %d\n", a2);
-    assert(a2 == 323);
+//    int sizes[] = {20, 15, 10, 5, 5};
+//    int flags[] = {0, 0, 0, 0, 0};
+
+    int count = permute(sizes, flags,0, 20);
+
+    printf("Part 1: %d\n", count);
+    printf("Part 2: %d\n", pt2);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;

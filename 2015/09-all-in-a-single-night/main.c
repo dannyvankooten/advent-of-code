@@ -90,12 +90,12 @@ int dijkstra(node_t nodes[], int nnodes, int startnode) {
         assert(idx != -1);
 
         node_t *cur = &nodes[idx];
-        printf("#  %s (%d) (cum distance = %d)\n", cur->name, idx, distances[idx]);
+//        printf("#  %s (%d) (cum distance = %d)\n", cur->name, idx, distances[idx]);
         visited[idx] = 1;
         int distance = distances[idx];
 
         for (int i = 0; i < cur->nneighbors; i++) {
-            printf("%d to %s (cum distance = %d)\n", cur->distances[i], cur->neighbors[i]->name, distance + cur->distances[i]);
+//            printf("%d to %s (cum distance = %d)\n", cur->distances[i], cur->neighbors[i]->name, distance + cur->distances[i]);
             node_t *v = getnode(nodes, nnodes, cur->neighbors[i]->name);
             int vi = indexof(nodes, nnodes, v->name);
             int d = distance + cur->distances[i];
@@ -104,7 +104,7 @@ int dijkstra(node_t nodes[], int nnodes, int startnode) {
 //                printf("new shortest distance from %s to %s = %d\n", cur->name, v->name, d);
             }
         }
-        printf("\n");
+//        printf("\n");
     }
 
     return sum(distances, nnodes);
@@ -168,10 +168,11 @@ int main() {
         b->nneighbors++;
     }
 
-    printf("%d cities\n", nnodes);
-    for (int i = 0; i < nnodes; i++) {
-        printf("%d. %s (%d neighbors)\n", i, nodes[i].name, nodes[i].nneighbors);
-    }
+
+//    printf("%d cities\n", nnodes);
+//    for (int i = 0; i < nnodes; i++) {
+//        printf("%d. %s (%d neighbors)\n", i, nodes[i].name, nodes[i].nneighbors);
+//    }
 
     assert(indexof(nodes, nnodes, "AlphaCentauri") == 0);
     assert(indexof(nodes, nnodes, "Snowdin") == 1);
@@ -182,16 +183,17 @@ int main() {
     assert(indexof(nodes, nnodes, "Tristram") == 6);
     assert(indexof(nodes, nnodes, "Arbre") == 7);
 
+    printf("--- Day 9: All in a Single Night ---\n");
     pt1 = dijkstra(nodes, nnodes, 0);
 //    for (int i = 1; i < nnodes; i++) {
 //        int tmp = dijkstra(nodes, nnodes, i);
 //        pt1 = tmp < pt1 ? tmp : pt1;
 //    }
-    printf("pt1: %d\n", pt1);
+    printf("Part 1: %d\n", pt1);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
 
     free(edges);
     return 0;

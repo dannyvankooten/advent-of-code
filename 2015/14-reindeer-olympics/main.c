@@ -151,16 +151,18 @@ int main() {
     int nplayers = 0;
     parse(players, &nplayers);
 
+    printf("--- Day 14: Reindeer Olympics ---\n");
+
     int a1 = pt1(players, nplayers);
-    printf("part 1: %d\n", a1);
+    printf("Part 1: %d\n", a1);
     assert(a1 == 2660);
 
     int a2 = pt2(players, nplayers);
-    printf("part 2: %d\n", a2);
+    printf("Part 2: %d\n", a2);
     assert(a2 == 1256);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

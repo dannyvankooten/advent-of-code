@@ -137,7 +137,8 @@ int main() {
     fclose(fp);
     input[nread] = '\0';
 
-    printf("--- Day 16: Aunt Sue ---\n");
+    printf("--- Day 17: No Such Thing as Too Much ---\n");
+
     int a1 = pt1(input);
     printf("Part 1: %d\n", a1);
     assert(a1 == 213);

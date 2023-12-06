@@ -56,13 +56,15 @@ int main() {
         s++;
     }
 
-    printf("pt1: %d\n", pt1);
-    printf("pt2: %d\n", pt2);
+    printf("--- Day 8: Matchsticks ---\n");
+    printf("Part 1: %d\n", pt1);
     assert(pt1 == 1342);
+
+    printf("Part 2: %d\n", pt2);
     assert(pt2 == 2074);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

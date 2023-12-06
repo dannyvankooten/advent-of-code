@@ -35,6 +35,8 @@ int main() {
     char *buf = input + (1024*1024*8 * sizeof(char));
     char *tmp;
 
+    printf("--- Day 10: Elves Look, Elves Say ---\n");
+
     strcpy(input, "1321131112");
     int pt1;
     for (int i = 0; i < 40; i++) {
@@ -43,7 +45,7 @@ int main() {
         input = buf;
         buf = tmp;
     }
-    printf("part 1: %d\n", pt1);
+    printf("Part 1: %d\n", pt1);
     assert(pt1 == 492982);
 
     int pt2;
@@ -53,12 +55,12 @@ int main() {
         input = buf;
         buf = tmp;
     }
-    printf("part 2: %d\n", pt2);
+    printf("Part 2: %d\n", pt2);
     assert(pt2 == 6989950);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
 
     free(input);
     return 0;

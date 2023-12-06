@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdint.h>
+#include <time.h>
 
 typedef struct {
     int8_t x;
@@ -75,13 +76,21 @@ int solve(const char *s, uint8_t nworkers) {
 }
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     FILE *fp = fopen("input.txt", "r");
     char input[64*1024];
     size_t nread = fread(input, 1, 64*1024, fp);
     input[nread] = '\0';
     fclose(fp);
 
-    printf("%d\n", solve(input, 1));
-    printf("%d\n", solve(input, 2));
+    printf("--- Day 3: Perfectly Spherical Houses in a Vacuum ---\n");
+    printf("Part 1: %d\n", solve(input, 1));
+    printf("Part 2: %d\n", solve(input, 2));
+
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

@@ -6,76 +6,127 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-int pw_is_valid(char *pw) {
-    char *s = pw;
+static inline
+char *parse_int(int *dst, char *s) {
+    int n = 0;
+    int mod = 1;
 
-    uint_fast16_t pairs = 0;
-    uint_fast16_t straights = 0;
-    uint_fast16_t i = 0;
+    if (*s == '-') {
+        mod = -1;
+        s++;
+    }
+
+    while (*s >= '0' && *s <= '9') {
+        n = (n * 10) + (*s - '0');
+        s++;
+    }
+
+    n *= mod;
+    *dst = n;
+
+    return s;
+}
+
+int pt1(char *input) {
+    int sum = 0;
+    char *s = input;
+    int n;
     while (*s != '\0') {
-
-        switch (*s) {
-            case 'i':
-            case 'o':
-            case 'l':
-                return false;
-        }
-
-        // check for non-overlapping pair
-        if (*s == *(s+1) && (i == 0 || *(s-1) != *s)) {
-            pairs++;
-        } else if (*(s+1) == (*s)+1 && *(s+2) == (*s)+2) {
-            straights++;
-        }
-
-        if (*s == 'i' || *s == 'o' || *s == 'l') {
-            return false;
+        if (*s == '-' || (*s >= '0' && *s <= '9')) {
+            s = parse_int(&n, s);
+            sum += n;
         }
 
         s++;
-        i++;
     }
-
-    return pairs >= 2 && straights >= 1;
+    return sum;
 }
 
-void pw_increment(char *src) {
-    do {
-        int_fast8_t len = strlen(src);
-        for (int_fast8_t i = len-1; i >= 1; i--) {
-            if (src[i] == 'z') {
-                src[i] = 'a';
-            } else {
-                src[i]++;
-                break;
-            }
+int pt2(char *input) {
+    int sum = 0;
+    char *s = input;
+    int n;
+
+    int objsums[64];
+    memset(objsums, 0, 64 * sizeof(int));
+    objsums[0] = 0;
+    int objs = 0;
+    int red = 0;
+    while (*s != '\0') {
+
+        // only add to sum if not in "red" object
+        if (red == 0 && (*s == '-' || (*s >= '0' && *s <= '9'))) {
+            s = parse_int(&n, s);
+            sum += n;
+            objsums[objs] += n;
         }
-    } while (pw_is_valid(src) == 0);
+
+        switch (*s) {
+            case '{':
+                objs++;
+                objsums[objs] = 0;
+                break;
+
+            case '}':
+                // check if we broke out of red objecty
+                if (red == objs) {
+                    red = 0;
+                }
+                objs--;
+                break;
+
+            case ':':
+                // if property has value of "red"
+                // mark current object as red
+                // and substract everything added to sum within this object
+                // or any of its children
+                if (red == 0 && strncmp(s, ":\"red\"", 6) == 0) {
+                    red = objs;
+
+                    for (int i=63; i >= objs; i--) {
+                        sum -= objsums[i];
+                        objsums[i] = 0;
+                    }
+                }
+                break;
+        }
+
+
+        s++;
+    }
+    return sum;
 }
 
 int main() {
+    FILE *fp = fopen("input.txt", "r");
+    char *input = (char *) malloc(1024 * 32);
+    size_t nread = fread(input, 1, 1024*32, fp);
+    fclose(fp);
+    input[nread] = '\0';
+
     clock_t start_t, end_t;
     start_t = clock();
 
-    assert(pw_is_valid("hijklmmn") == 0);
-    assert(pw_is_valid("abbceffg") == 0);
-    assert(pw_is_valid("abbcegjk") == 0);
-    assert(pw_is_valid("abcdffaa") == 1);
-    assert(pw_is_valid("ghjaabcc") == 1);
+    printf("--- Day 12: JSAbacusFramework.io ---\n");
+    int a1 = pt1(input);
+    printf("Part 1: %d\n", a1);
+    assert(a1 == 119433);
 
-    char buf[9];
-    strcpy(buf, "cqjxjnds");
+    assert(pt2("[1,{\"a\": 10, \"c\":\"red\",\"b\":2},3]") == 4);
+    assert(pt2("[1,{\"c\":\"red\",\"b\":2},3]") == 4);
+    assert(pt2("{\"d\":\"red\",\"e\":[1,2,3,4],\"f\":5}") == 0);
+    assert(pt2("[{\"a\":5,\"color\":\"red\", \"b\": 4}]") == 0);
+    assert(pt2("[{\"a\":5,\"b\":\"red\",\"c\":{\"a\": 5}}]") == 0);
+    assert(pt2("[{\"a\":5},{\"a\":5,\"b\":\"red\",\"c\":{\"a\": 5}}]") == 5);
+    assert(pt2("{\"a\":{\"a\":[1,2,3]}, \"b\":\"red\"}]") == 0);
+    assert(pt2("[1,\"red\",5]") == 6);
+    assert(pt2("[1,2,3]") == 6);
 
-    pw_increment(buf);
-    printf("part 1: %s\n", buf);
-    assert(strcmp(buf, "cqjxxyzz") == 0);
-
-    pw_increment(buf);
-    printf("part 2: %s\n", buf);
-    assert(strcmp(buf, "cqkaabcc") == 0);
+    int a2 = pt2(input);
+    printf("Part 2: %d\n", a2);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("%.2fms\n", total_t);
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

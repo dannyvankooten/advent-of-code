@@ -64,7 +64,8 @@ func main() {
 		}
 	}
 
-	fmt.Printf("part 1: %d\n", pt1)
-	fmt.Printf("part 2: %d\n", pt2)
-	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000)
+    fmt.Print("--- Day 4: Scratchcards ---\n")
+	fmt.Printf("Part 1: %d\n", pt1)
+	fmt.Printf("Part 2: %d\n", pt2)
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000)
 }

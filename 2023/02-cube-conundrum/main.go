@@ -72,7 +72,8 @@ func main() {
 		pt2 += max[0] * max[1] * max[2]
 	}
 
-	fmt.Printf("part 1: %d\n", pt1)
-	fmt.Printf("part 2: %d\n", pt2)
-	fmt.Printf("time: %.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000)
+    fmt.Print("--- Day 2: Cube Conundrum ---\n")
+	fmt.Printf("Part 1: %d\n", pt1)
+	fmt.Printf("Part 2: %d\n", pt2)
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000)
 }

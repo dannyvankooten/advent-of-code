@@ -23,12 +23,13 @@ func main() {
 		grid = append(grid, []rune(line))
 	}
 
-	pt1(grid)
-	pt2(grid)
-	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000.0)
+    fmt.Print("--- Day 3: Gear Ratios ---\n")
+	fmt.Printf("Part 1: %d\n", pt1(grid))
+	fmt.Printf("Part 2: %d\n", pt2(grid))
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds()) / 1000.0)
 }
 
-func pt1(grid [][]rune) {
+func pt1(grid [][]rune) int {
 	// loop over grid, check all neighbors
 	dxvals := []int{-1, 0, 1}
 	dyvals := []int{-1, 0, 1}
@@ -73,7 +74,7 @@ func pt1(grid [][]rune) {
 		}
 	}
 
-	fmt.Printf("part 1: %d\n", sum)
+    return sum
 }
 
 func parse(grid [][]rune, x int, y int) int {
@@ -90,7 +91,7 @@ func parse(grid [][]rune, x int, y int) int {
 	return n
 }
 
-func pt2(grid [][]rune) {
+func pt2(grid [][]rune) int {
 	// loop over grid, check all neighbors
 	dxvals := []int{-1, 0, 1}
 	dyvals := []int{-1, 0, 1}
@@ -142,5 +143,5 @@ func pt2(grid [][]rune) {
 		}
 	}
 
-	fmt.Printf("part 2: %d\n", sum)
+	return sum
 }

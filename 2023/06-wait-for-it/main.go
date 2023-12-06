@@ -32,10 +32,10 @@ func main() {
 	fmt.Print("---- Day 6: Wait For It ---\n")
 
 	a1 := solve(times, distances)
-	fmt.Printf("part 1: %d\n", a1)
+	fmt.Printf("Part 1: %d\n", a1)
 
 	a2 := solve([]int{61709066}, []int{643118413621040})
-	fmt.Printf("part 2: %d\n", a2)
+	fmt.Printf("Part 2: %d\n", a2)
 
-	fmt.Printf("%.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
+	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
 }

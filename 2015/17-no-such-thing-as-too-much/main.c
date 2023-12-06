@@ -5,17 +5,15 @@
 int min_containers = 1 << 30;
 int pt2 = 0;
 
-int permute(int sizes[], char flags[], int i, int n) {
-    int sum = 0;
-
+int permute(int sizes[], int flags, int i, int n) {
     if (i == n) {
         int s = 0;
         int c = 0;
+        int b;
         for (int x = 0; x < n; x++) {
-            c += flags[x];
-            s += sizes[x] * flags[x];
-
-            if (s > 150) {break;}
+            b = (int) ((flags >> (n-x)) & 1);
+            c += b;
+            s += sizes[x] *b;
         }
 
         if (s == 150) {
@@ -34,19 +32,13 @@ int permute(int sizes[], char flags[], int i, int n) {
     // try to bail early
     int s = 0;
     for (int x = 0; x < i; x++) {
-        s += sizes[x] * flags[x];
+        s += sizes[x] * (int) ((flags >> (n-x)) & 1);
     }
     if (s > 150) {
-        return sum;
+        return 0;
     }
 
-    flags[i] = 0;
-    sum += permute(sizes, flags, i+1, n);
-
-    flags[i] = 1;
-    sum += permute(sizes, flags, i+1, n);
-
-    return sum;
+    return permute(sizes, flags, i+1, n) + permute(sizes, flags | 1 << (n-i), i+1, n);
 }
 
 int main() {
@@ -57,32 +49,27 @@ int main() {
 
     int sizes[] = {
         47,
-            46,
-            44,
-            44,
-            43,
-            41,
-            38,
-            36,
-            34,
-            31,
-            27,
-            21,
-            17,
-            17,
-            10,
-            9,
-            6,
-            4,
-            4,
-            3
+        46,
+        44,
+        44,
+        43,
+        41,
+        38,
+        36,
+        34,
+        31,
+        27,
+        21,
+        17,
+        17,
+        10,
+        9,
+        6,
+        4,
+        4,
+        3
     };
-    char flags[20];
-    memset(flags, 0, 20 * sizeof(char));
-
-//    int sizes[] = {20, 15, 10, 5, 5};
-//    int flags[] = {0, 0, 0, 0, 0};
-
+    int flags = 0;
     int count = permute(sizes, flags,0, 20);
 
     printf("Part 1: %d\n", count);

@@ -1,13 +1,16 @@
-# Advent of Code 2015
+# Advent of Code 2015 in C
 
-For this year I really enjoyed writing the solutions in C (again).
+See https://adventofcode.com/2015/ for puzzle texts and inputs.
 
-To compile and run all solutions for all days using bash:
+Execute [run.sh](run.sh) to run all solutions for all days (using bash + awk). 
+Needs a C compiler toolchain like gcc or Clang.
 
 ```bash
 for d in */; do cd $d && cc -Ofast -march=native main.c -lcrypto && ./a.out && echo "" && cd ..; done
 (for d in */; do cd $d && cc -Ofast -march=native main.c -lcrypto && ./a.out && cd ..; done) | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'
 ```
+
+Results:
 
 ```txt 
 --- Day 1: Not Quite Lisp ---

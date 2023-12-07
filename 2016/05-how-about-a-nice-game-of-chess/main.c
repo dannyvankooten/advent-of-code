@@ -1,33 +1,27 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
-#include <openssl/evp.h>
+#include <openssl/md5.h>
+#include <stdint.h>
 
 void solve(char *doorid, char *password, char *password2) {
-    unsigned char digest[16];
     int p1 = 0;
     int p2 = 0;
-    int pos = 0;
+    int pos;
     strcpy(password2, "........");
     int keylen = strlen(doorid);
-    char input[32];
-    strcpy(input, doorid);
-    unsigned char zero[2] = {0, 0};
-
-    EVP_MD_CTX *mdctx;
-    mdctx = EVP_MD_CTX_new();
-    EVP_DigestInit_ex2(mdctx, EVP_md5(), NULL);
+    uint8_t input[32] = "abbhdwsy";
+    uint8_t digest[MD5_DIGEST_LENGTH];
 
     char buf[8];
     char *dst = input + keylen;
     int i = 1;
     for (;; i++) {
         sprintf(dst, "%d", i);
-        EVP_DigestInit_ex2(mdctx, NULL, NULL);
-        EVP_DigestUpdate(mdctx, input, keylen + strlen(dst));
-        EVP_DigestFinal_ex(mdctx, digest, NULL);
+        MD5(input, keylen + strlen(dst), digest);
 
-        if (memcmp(digest, zero, 2) == 0 && digest[2] <= 1 << 4) {
+        unsigned char skip = digest[0] | digest[1] | (digest[2] & 0xf0);
+        if (!skip) {
             sprintf(buf, "%02x%02x", digest[2], digest[3]);
 
             if (p1 < 8) {
@@ -46,7 +40,7 @@ void solve(char *doorid, char *password, char *password2) {
         }
     }
 
-    EVP_MD_CTX_free(mdctx);
+//    EVP_MD_CTX_free(mdctx);
 }
 
 

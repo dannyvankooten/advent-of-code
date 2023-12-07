@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <time.h>
 
 int compare_ints(const void* a, const void* b)
 {
@@ -13,6 +14,9 @@ int compare_ints(const void* a, const void* b)
 
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     FILE *fp = fopen("input.txt", "r");
     if (!fp) {
         abort();
@@ -20,6 +24,7 @@ int main() {
     char input[32*1024];
     size_t nread = fread(input, 1, 32*1024, fp);
     input[nread] = '\0';
+    fclose(fp);
 
     char *s = input;
     int *values = malloc(32 * sizeof(int));
@@ -63,8 +68,14 @@ int main() {
         s++;
     }
 
-    printf("%d\n", checksum);
-    printf("%d\n", checksum2);
+    printf("--- Day 2: Corruption Checksum ---\n");
+    printf("Part 1: %d\n", checksum);
+    printf("Part 2: %d\n", checksum2);
+
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
+
     free(values);
     return 0;
 }

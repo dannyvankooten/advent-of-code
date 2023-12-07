@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <time.h>
 
 char *parse_uint8(uint8_t *dest, char *s) {
     uint8_t n = 0;
@@ -14,10 +15,14 @@ char *parse_uint8(uint8_t *dest, char *s) {
 }
 
 int main() {
+    clock_t start_t, end_t;
+    start_t = clock();
+
     char input[64*1024];
     FILE *fp = fopen("input.txt", "r");
     size_t nread = fread(input, 1, 64*1024, fp);
     input[nread] = '\0';
+    fclose(fp);
 
     char *s = input;
     int pos[] = {0, 0};
@@ -63,7 +68,12 @@ int main() {
         }
     }
 
-    fprintf(stdout, "part 1: %d\n", abs(pos[0]) + abs(pos[1]));
-    fprintf(stdout, "part 2: %d\n", pt2);
+    printf("--- Day 1: No Time for a Taxicab ---\n");
+    fprintf(stdout, "Part 1: %d\n", abs(pos[0]) + abs(pos[1]));
+    fprintf(stdout, "Part 2: %d\n", pt2);
+
+    end_t = clock();
+    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
+    printf("Time: %.2fms\n", total_t);
     return 0;
 }

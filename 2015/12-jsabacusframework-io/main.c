@@ -99,6 +99,10 @@ int pt2(char *input) {
 
 int main() {
     FILE *fp = fopen("input.txt", "r");
+    if (fp == NULL) {
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
+    }
     char *input = (char *) malloc(1024 * 32);
     size_t nread = fread(input, 1, 1024*32, fp);
     fclose(fp);

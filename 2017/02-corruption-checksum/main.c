@@ -19,7 +19,8 @@ int main() {
 
     FILE *fp = fopen("input.txt", "r");
     if (!fp) {
-        abort();
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
     }
     char input[32*1024];
     size_t nread = fread(input, 1, 32*1024, fp);

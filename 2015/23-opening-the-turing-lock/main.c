@@ -80,6 +80,10 @@ int solve(int codes[][3], int ncodes, int registers[2]) {
 
 int parse(char *filename, int codes[64][3]) {
     FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
+    }
     char input[1024*32];
     size_t nread = fread(input, 1, 1024*32, fp);
     input[nread] = '\0';

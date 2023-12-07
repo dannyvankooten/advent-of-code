@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <time.h>
+#include <stdlib.h>
 
 int count_neighbors(const char *grid, int size, int y, int x) {
     static const char dirs[][2] = {
@@ -85,6 +86,10 @@ int main() {
     start_t = clock();
 
     FILE *fp = fopen("input.txt", "r");
+    if (fp == NULL) {
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
+    }
     char input[1024*32];
     size_t nread = fread(input, 1, 1024*32, fp);
     input[nread] = '\0';

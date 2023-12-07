@@ -19,8 +19,9 @@ int main() {
     start_t = clock();
 
     FILE *fp = fopen("input.txt", "r");
-    if (!fp) {
-        abort();
+    if (fp == NULL) {
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
     }
     char input[32*1024];
     size_t nread = fread(input, 1, 32*1024, fp);

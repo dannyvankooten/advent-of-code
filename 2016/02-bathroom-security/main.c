@@ -5,8 +5,8 @@
 void read_input(char *dst) {
     FILE *fp = fopen("input.txt", "r");
     if (fp == NULL) {
-        fprintf(stderr, "error reading input.txt\n");
-        abort();
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
     }
     size_t nread = fread(dst, 1, 64 * 1024, fp);
     fclose(fp);

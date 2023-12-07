@@ -20,6 +20,10 @@ int main() {
 
     char input[64*1024];
     FILE *fp = fopen("input.txt", "r");
+    if (fp == NULL) {
+        fprintf(stderr, "error reading input.txt");
+        exit(EXIT_FAILURE);
+    }
     size_t nread = fread(input, 1, 64*1024, fp);
     input[nread] = '\0';
     fclose(fp);

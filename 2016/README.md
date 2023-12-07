@@ -26,6 +26,11 @@ Part 1: 983
 Part 2: 1836
 Time: 0.46ms
 
+--- Day 4: Security Through Obscurity ---
+Part 1: 278221
+Part 2: 267
+Time: 1.30ms
+
 
 Total time: 0.29ms
 ```

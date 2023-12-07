@@ -31,8 +31,13 @@ Part 1: 278221
 Part 2: 267
 Time: 1.30ms
 
+--- Day 5: How About a Nice Game of Chess? ---
+Part 1: 801b56a7
+Part 2: 424a0197
+Time: 9586.37ms
 
-Total time: 0.29ms
+
+Total time: 6655.28ms
 ```
 
 ## License

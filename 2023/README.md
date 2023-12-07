@@ -1,15 +1,17 @@
-# Advent of Code 2023
+# Advent of Code 2023 in Golang.
 
-https://adventofcode.com/2023
+See https://adventofcode.com/2023 for puzzle text and inputs.
 
 Solutions for this year are mostly written in [Go](https://go.dev/), with the occassional port to C when I was curious about potential performance improvements.
 
-To run all solutions for all days using bash:
+To run all solutions for all days using bash (requires a Go compiler):
 
 ```bash
 for d in */; do cd $d && go run main.go && echo "" && cd ..; done
 (for d in */; do cd $d && go run main.go && cd ..; done) | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'
 ```
+
+Results:
 
 ```txt
 --- Day 1: Trebuchet?! ---
@@ -41,6 +43,11 @@ Time: 2321.58ms
 Part 1: 293046
 Part 2: 35150181
 Time: 0.03ms
+
+---- Day 6: Wait For It ---
+Part 1: 251545216
+Part 2: 250384185
+Time: 2.27ms
 
 Total time: 2492.36ms
 ```

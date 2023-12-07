@@ -89,7 +89,28 @@ Part 1: 1638
 Part 2: 17
 Time: 2.49ms
 
-Total time: 1887.79ms
+--- Day 18: Like a GIF For Your Yard ---
+Part 1: 814
+Part 2: 924
+Time: 14.76ms
+
+--- Day 19: Medicine for Rudolph ---
+Part 1: 509
+Part 2: 0
+Time: 3.49ms
+
+--- Day 20: Infinite Elves and Infinite Houses ---
+Part 1: 786240
+Part 2: 831600
+Time: 356.46ms
+
+--- Day 23: Opening the Turing Lock ---
+Part 1: 307
+Part 2: 160
+Time: 0.07ms
+
+
+Total time: 1970.64ms
 ```
 
 ## License

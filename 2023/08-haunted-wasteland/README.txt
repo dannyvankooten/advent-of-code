@@ -1,5 +1,5 @@
---- Day 7: Camel Cards ---
+--- Day 8: Haunted Wasteland ---
 
-Your all-expenses-paid trip turns out to be a one-way, five-minute ride in an airship. (At least it's a cool airship!) It drops you off at the edge of a vast desert and descends back to Island Island.
+You're still riding a camel across Desert Island when you spot a sandstorm quickly approaching. When you turn to warn the Elf, she disappears before your eyes! To be fair, she had just finished warning you about ghosts a few minutes ago.
 
-https://adventofcode.com/2023/day/7
+https://adventofcode.com/2023/day/8

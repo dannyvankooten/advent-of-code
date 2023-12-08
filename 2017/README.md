@@ -33,6 +33,16 @@ Part 1: 477
 Part 2: 167
 Time: 1.30ms
 
+--- Day 5: A Maze of Twisty Trampolines, All Alike ---
+Part 1: 364539
+Part 2: 27477714
+Time: 116.15ms
+
+--- Day 6: Memory Reallocation ---
+Part 1: 11137
+Part 2: 1037
+Time: 188.80ms
+
 
 Total time: 0.21ms
 ```

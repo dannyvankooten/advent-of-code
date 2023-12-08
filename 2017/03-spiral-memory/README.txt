@@ -1,5 +1,5 @@
---- Day 3: Spiral Memory ---
+--- Day 4: High-Entropy Passphrases ---
 
-You come across an experimental new kind of memory stored on an infinite two-dimensional grid.
+A new system policy has been put in place that requires all accounts to use a passphrase instead of simply a password. A passphrase consists of a series of words (lowercase letters) separated by spaces.
 
-https://adventofcode.com/2017/day/3
+https://adventofcode.com/2017/day/4

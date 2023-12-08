@@ -28,6 +28,11 @@ Part 1: 474
 Part 2: 279138
 Time: 2.26ms
 
+--- Day 4: High-Entropy Passphrases ---
+Part 1: 477
+Part 2: 167
+Time: 1.30ms
+
 
 Total time: 0.21ms
 ```

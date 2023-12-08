@@ -2,23 +2,14 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include "../hashmap.h"
 
 #define PUZZLE_NAME "Day 6: Memory Reallocation"
 
-unsigned int FNVHash(u_int8_t * str, unsigned int length) {
-    const unsigned int fnv_prime = 0x811C9DC5;
-    unsigned int hash = 0;
-    unsigned int i = 0;
-
-    for (i = 0; i < length; str++, i++)
-    {
-        hash *= fnv_prime;
-        hash ^= (*str);
-    }
-
-    return hash;
-}
-
+typedef struct answer {
+    int pt1;
+    int pt2;
+} answer_t ;
 
 void read_input_file(char *dest, char *file) {
     FILE *fp = fopen(file, "r");
@@ -42,15 +33,9 @@ int imax(const u_int8_t *restrict mem, int nmem) {
     return imax;
 }
 
-typedef struct answer {
-    int pt1;
-    int pt2;
-} answer_t ;
-
 answer_t pt1(u_int8_t *restrict mem, int nmem) {
-    unsigned char seen[1 << 14][nmem];
-    size_t memsize = nmem * sizeof(unsigned char);
-    memcpy(seen[0], mem, memsize);
+    hashmap_t hm = hashmap_new(1024*32);
+    hashmap_set(&hm, mem, 16, 0);
 
     int i, j, m, blocks;
     for (i = 1; ; i++) {
@@ -66,18 +51,19 @@ answer_t pt1(u_int8_t *restrict mem, int nmem) {
         }
 
         // have we seen this state before?
-        for (j = 0; j < i; j++) {
-            if (memcmp(seen[j], mem, memsize) == 0) {
-                return (answer_t ){
-                    i,
-                    i - j,
-                };
-            }
+        int *seen = hashmap_get(&hm, mem, 16);
+        if (seen != NULL) {
+            answer_t a = (answer_t ){
+                i,
+                i - *seen,
+            };
+            hashmap_free(&hm);
+            return a;
         }
 
-        // add to seen states (and store location too)
-        memcpy(seen[i], mem, memsize);
+        hashmap_set(&hm, mem, 16, i);
     }
+
 }
 
 char *parse_uint8(u_int8_t *restrict dst, char *s) {
@@ -105,8 +91,6 @@ int parse_input(u_int8_t *dst, char *s) {
     }
     return n;
 }
-
-
 
 int main() {
     clock_t start_t, end_t;

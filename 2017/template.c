@@ -8,16 +8,12 @@
 void read_input_file(char *dest, char *file) {
     FILE *fp = fopen(file, "r");
     if (!fp) {
-        fprintf(stderr, "error reading input.txt");
+        fprintf(stderr, "error reading %s", file);
         exit(EXIT_FAILURE);
     }
     size_t nread = fread(dest, 1, 64*1024, fp);
     dest[nread] = '\0';
     fclose(fp);
-}
-
-int solve(char *s) {
-    return 0;
 }
 
 int main() {
@@ -27,7 +23,6 @@ int main() {
     char input[1024 * 64];
     read_input_file(input, "input.txt");
 
-    int answers = solve(input);
     printf("--- %s ---\n", PUZZLE_NAME);
     printf("Part 1: %d\n", 0);
     printf("Part 2: %d\n", 0);

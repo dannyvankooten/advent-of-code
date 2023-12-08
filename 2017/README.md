@@ -41,7 +41,8 @@ Time: 116.15ms
 --- Day 6: Memory Reallocation ---
 Part 1: 11137
 Part 2: 1037
-Time: 188.80ms
+Time: 2.13ms
+
 
 
 Total time: 0.21ms

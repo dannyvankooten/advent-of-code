@@ -16,11 +16,12 @@ void read_input_file(char *dest, char *file) {
     fclose(fp);
 }
 
-typedef struct {
+typedef struct program {
     char name[16];
     int weight;
-    char children[8][16];
+    char childnames[8][16];
     int nchildren;
+    struct program **children;
 } program_t;
 
 char *parse_int(int *restrict dst, char *s) {
@@ -38,6 +39,16 @@ char *parse_int(int *restrict dst, char *s) {
     n *= mod;
     *dst = n;
     return s;
+}
+
+program_t *byname(char *name, program_t *programs, int nprograms) {
+    for (int j = 0; j < nprograms; j++) {
+        if (strcmp(name, programs[j].name) == 0) {
+            return &programs[j];
+        }
+    }
+
+    return NULL;
 }
 
 int parse_input(program_t *programs, char *input) {
@@ -62,7 +73,7 @@ int parse_input(program_t *programs, char *input) {
 
             // parse children
             while (*s != '\n') {
-                w = programs[n].children[programs[n].nchildren];
+                w = programs[n].childnames[programs[n].nchildren];
                 while (*s >= 'a' && *s <= 'z') {
                     *w++ = *s++;
                 }
@@ -78,13 +89,20 @@ int parse_input(program_t *programs, char *input) {
         n++;
     }
 
+    for (int i = 0; i < n; i++) {
+        programs[i].children = (program_t **) malloc(programs[i].nchildren * sizeof(program_t *));
+        for (int c = 0; c < programs[i].nchildren; c++) {
+            programs[i].children[c] = byname(programs[i].childnames[c], programs, n);
+        }
+    }
+
     return n;
 }
 
-unsigned char isroot(program_t *node, program_t *programs, int nprograms) {
+unsigned char isroot(program_t *restrict node, const program_t *restrict programs, int nprograms) {
     for (int j = 0; j < nprograms; j++) {
         for (int c = 0; c < programs[j].nchildren; c++) {
-            if (strcmp(node->name, programs[j].children[c]) == 0) {
+            if (strcmp(node->name, programs[j].childnames[c]) == 0) {
                 return 0;
             }
         }
@@ -93,26 +111,17 @@ unsigned char isroot(program_t *node, program_t *programs, int nprograms) {
     return 1;
 }
 
-program_t *byname(char *name, program_t *programs, int nprograms) {
-    for (int j = 0; j < nprograms; j++) {
-        if (strcmp(name, programs[j].name) == 0) {
-            return &programs[j];
-        }
-    }
 
-    return NULL;
-}
 
-int sumweight(program_t *root, program_t *programs, int nprograms) {
+int sumweight(program_t *restrict root, const program_t *restrict programs, int nprograms) {
     int sum = root->weight;
     for (int i = 0; i < root->nchildren; i++) {
-        program_t *child = byname(root->children[i], programs, nprograms);
-        sum += sumweight(child, programs, nprograms);
+        sum += sumweight(root->children[i], programs, nprograms);
     }
     return sum;
 }
 
-program_t *pt1(program_t *programs, int nprograms) {
+program_t *pt1(program_t *restrict programs, int nprograms) {
     for (int i = 0; i < nprograms; i++) {
         if (isroot(&programs[i], programs, nprograms)) {
             return &programs[i];
@@ -122,13 +131,11 @@ program_t *pt1(program_t *programs, int nprograms) {
     return NULL;
 }
 
-int pt2(program_t *programs, int nprograms, program_t *root, int unbalanced) {
-    program_t *children[root->nchildren];
+int pt2(program_t *restrict programs, int nprograms, program_t *restrict root, int unbalanced) {
     int weights[root->nchildren];
 
     for (int i = 0; i < root->nchildren; i++) {
-        children[i] = byname(root->children[i], programs, nprograms);
-        weights[i] = sumweight(children[i], programs, nprograms);
+        weights[i] = sumweight(root->children[i], programs, nprograms);
     }
 
     for (int i = 0, diff = 0; i < root->nchildren; i++) {
@@ -141,7 +148,7 @@ int pt2(program_t *programs, int nprograms, program_t *root, int unbalanced) {
         }
 
         if (diff != 0) {
-            return pt2(programs, nprograms, children[i], diff);
+            return pt2(programs, nprograms, root->children[i], diff);
         }
     }
 
@@ -157,14 +164,17 @@ int main() {
 
     program_t *programs = malloc(2048 * sizeof(program_t));
     int nprograms = parse_input(programs, input);
-    program_t *root = pt1(programs, nprograms);
 
+    program_t *root = pt1(programs, nprograms);
     int a2 = pt2(programs, nprograms, root, 0);
 
     printf("--- %s ---\n", PUZZLE_NAME);
     printf("Part 1: %s\n", root->name);
     printf("Part 2: %d\n", a2);
 
+    for (int i = 0; i < nprograms; i++) {
+        free(programs[i].children);
+    }
     free(programs);
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;

@@ -23,6 +23,12 @@ Part 1: 44670
 Part 2: 285
 Time: 0.21ms
 
+--- Day 3: Spiral Memory ---
+Part 1: 474
+Part 2: 279138
+Time: 2.26ms
+
+
 Total time: 0.21ms
 ```
 

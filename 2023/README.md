@@ -44,10 +44,16 @@ Part 1: 293046
 Part 2: 35150181
 Time: 0.03ms
 
----- Day 6: Wait For It ---
+--- Day 7: Camel Cards ---
 Part 1: 251545216
 Part 2: 250384185
-Time: 2.27ms
+Time: 2.32ms
+
+--- Day 8: Haunted Wasteland ---
+Part 1: 19099
+Part 2: 17099847107071
+Time: 2.93ms
+
 
 Total time: 2492.36ms
 ```

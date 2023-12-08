@@ -168,7 +168,7 @@ func main() {
 	}
 	a2 := solve(hands, cardValues)
 
-	fmt.Print("---- Day 6: Wait For It ---\n")
+	fmt.Print("--- Day 7: Camel Cards ---\n")
 	fmt.Printf("Part 1: %d\n", a1)
 	fmt.Printf("Part 2: %d\n", a2)
 	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)

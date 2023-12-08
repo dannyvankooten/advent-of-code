@@ -9,7 +9,7 @@ void read_input_file(char *dest, char *file) {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    size_t nread = fread(dest, 1, 32*1024, fp);
+    size_t nread = fread(dest, 1, 64*1024, fp);
     dest[nread] = '\0';
     fclose(fp);
 }

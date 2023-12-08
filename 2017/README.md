@@ -43,6 +43,10 @@ Part 1: 11137
 Part 2: 1037
 Time: 2.13ms
 
+--- Day 7: Recursive Circus ---
+Part 1: wiapj
+Part 2: 1072
+Time: 7.94ms
 
 
 Total time: 0.21ms

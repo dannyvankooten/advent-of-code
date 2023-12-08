@@ -5,10 +5,25 @@
 
 #define PUZZLE_NAME "Day 6: Memory Reallocation"
 
+unsigned int FNVHash(u_int8_t * str, unsigned int length) {
+    const unsigned int fnv_prime = 0x811C9DC5;
+    unsigned int hash = 0;
+    unsigned int i = 0;
+
+    for (i = 0; i < length; str++, i++)
+    {
+        hash *= fnv_prime;
+        hash ^= (*str);
+    }
+
+    return hash;
+}
+
+
 void read_input_file(char *dest, char *file) {
     FILE *fp = fopen(file, "r");
     if (!fp) {
-        fprintf(stderr, "error reading input.txt");
+        fprintf(stderr, "error reading %s", file);
         exit(EXIT_FAILURE);
     }
     size_t nread = fread(dest, 1, 64*1024, fp);
@@ -16,29 +31,8 @@ void read_input_file(char *dest, char *file) {
     fclose(fp);
 }
 
-int solve(char *s) {
-    return 0;
-}
-
-/*
- 0 2 7 0        start
-       v
- 0 2 6 1        1
- v
- 1 2 5 1        2
-   v
- 1 3 4 1        3
-     v
- 1 3 4 1        4
-       v
- 1 3 3 2        5
- v
- 2 3 2 2        6
-   v
- 2 4 1 2        7
- */
-
-int imax(u_int8_t mem[], int nmem) {
+static inline
+int imax(const u_int8_t *restrict mem, int nmem) {
     int imax = 0;
     for (int i = 1; i < nmem; i++) {
         if (mem[i] > mem[imax]) {
@@ -48,15 +42,22 @@ int imax(u_int8_t mem[], int nmem) {
     return imax;
 }
 
-int pt1(u_int8_t mem[], int nmem) {
-    u_int8_t seen[1 << 14][nmem];
-    int nseen = 0;
-    memcpy(seen[nseen++], mem, nmem * sizeof(u_int8_t));
+typedef struct answer {
+    int pt1;
+    int pt2;
+} answer_t ;
 
-    for (int i = 1; ; i++) {
-        int m = imax(mem, nmem);
-        int blocks = mem[m];
-        for (int j = m+1; blocks > 0; j++) {
+answer_t pt1(u_int8_t *restrict mem, int nmem) {
+    unsigned char seen[1 << 14][nmem];
+    size_t memsize = nmem * sizeof(unsigned char);
+    memcpy(seen[0], mem, memsize);
+
+    int i, j, m, blocks;
+    for (i = 1; ; i++) {
+        // distribute blocks
+        m = imax(mem, nmem);
+        blocks = mem[m];
+        for (j = m+1; blocks > 0; j++) {
             if (j == nmem) j = 0;
 
             mem[j]++;
@@ -65,13 +66,17 @@ int pt1(u_int8_t mem[], int nmem) {
         }
 
         // have we seen this state before?
-        for (int j = 0; j < nseen; j++) {
-            if (memcmp(seen[j], mem, sizeof(u_int8_t) * nmem) == 0) {
-                return i;
+        for (j = 0; j < i; j++) {
+            if (memcmp(seen[j], mem, memsize) == 0) {
+                return (answer_t ){
+                    i,
+                    i - j,
+                };
             }
         }
 
-        memcpy(seen[nseen++], mem, nmem * sizeof(u_int8_t));
+        // add to seen states (and store location too)
+        memcpy(seen[i], mem, memsize);
     }
 }
 
@@ -101,6 +106,8 @@ int parse_input(u_int8_t *dst, char *s) {
     return n;
 }
 
+
+
 int main() {
     clock_t start_t, end_t;
     start_t = clock();
@@ -111,11 +118,10 @@ int main() {
     u_int8_t mem[16];
     int nmem = parse_input(mem, input);
 
-    int a1 = pt1(mem, nmem);
-    int a2 = pt1(mem, nmem);
+    answer_t a = pt1(mem, nmem);
     printf("--- %s ---\n", PUZZLE_NAME);
-    printf("Part 1: %d\n", a1);
-    printf("Part 2: %d\n", a2);
+    printf("Part 1: %d\n", a.pt1);
+    printf("Part 2: %d\n", a.pt2);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;

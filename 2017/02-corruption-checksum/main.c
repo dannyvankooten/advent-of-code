@@ -28,7 +28,7 @@ int main() {
     fclose(fp);
 
     char *s = input;
-    int *values = malloc(32 * sizeof(int));
+    int values[32];
     int checksum = 0;
     int checksum2 = 0;
     while (*s != '\0') {
@@ -76,7 +76,5 @@ int main() {
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
     printf("Time: %.2fms\n", total_t);
-
-    free(values);
     return 0;
 }

@@ -2,33 +2,19 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include "../adventofcode.h"
 
-#define PUZZLE_NAME "Day 6: Memory Reallocation"
+#define PUZZLE_NAME "Day 10: Knot Hash"
 
-void read_input_file(char *dest, char *file) {
-    FILE *fp = fopen(file, "r");
-    if (!fp) {
-        fprintf(stderr, "error reading %s", file);
-        exit(EXIT_FAILURE);
-    }
-    size_t nread = fread(dest, 1, 64*1024, fp);
-    dest[nread] = '\0';
-    fclose(fp);
-}
 
 int main() {
-    clock_t start_t, end_t;
-    start_t = clock();
-
+    clock_t t = timer_start();
     char input[1024 * 64];
     read_input_file(input, "input.txt");
 
     printf("--- %s ---\n", PUZZLE_NAME);
     printf("Part 1: %d\n", 0);
     printf("Part 2: %d\n", 0);
-
-    end_t = clock();
-    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("Time: %.2fms\n", total_t);
+    printf("Time: %.2fms\n", timer_stop(t));
     return EXIT_SUCCESS;
 }

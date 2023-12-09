@@ -58,6 +58,11 @@ Part 1: 11089
 Part 2: 5288
 Time: 0.30ms
 
+--- Day 10: Knot Hash ---
+Part 1: 8536
+Part 2: aff593797989d665349efe11bb4fd99b
+Time: 0.45ms
+
 
 Total time: 0.21ms
 ```

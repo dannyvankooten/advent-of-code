@@ -63,6 +63,11 @@ Part 1: 8536
 Part 2: aff593797989d665349efe11bb4fd99b
 Time: 0.45ms
 
+--- Day 11: Hex Ed ---
+Part 1: 834
+Part 2: 1569
+Time: 0.83ms
+
 
 Total time: 0.21ms
 ```

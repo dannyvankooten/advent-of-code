@@ -18,7 +18,7 @@ char *parse_ident(char *dst, char *s) {
     while (*s >= 'a' && *s <= 'z') {
         *dst++ = *s++;
     }
-    *dst = 0x0;
+    *dst = '\0';
     return s;
 }
 

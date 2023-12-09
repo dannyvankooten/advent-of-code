@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 #include <string.h>
+#include "../adventofcode.h"
 
 #define PUZZLE_NAME "Day 8: I Heard You Like Registers"
 
@@ -15,41 +16,6 @@ enum opcodes {
     OP_LT,
     OP_LTE,
 };
-
-void read_input_file(char *dest, char *file) {
-    FILE *fp = fopen(file, "r");
-    if (!fp) {
-        fprintf(stderr, "error reading %s", file);
-        exit(EXIT_FAILURE);
-    }
-    size_t nread = fread(dest, 1, 64*1024, fp);
-    dest[nread] = '\0';
-    fclose(fp);
-}
-
-char *parse_ident(char *dst, char *s) {
-    while (*s >= 'a' && *s <= 'z') {
-        *dst++ = *s++;
-    }
-    *dst = 0x0;
-    return s;
-}
-
-char *parse_int(int *dst, char *s) {
-    int n = 0;
-    int mod = 1;
-    if (*s == '-') {
-        mod = -1;
-        s++;
-    }
-
-    while (*s >= '0' && *s <= '9') {
-        n = (n * 10) + (*s - '0');
-        s++;
-    }
-    *dst = n * mod;
-    return s;
-}
 
 typedef struct {
     char (*reg_names)[4];
@@ -93,20 +59,6 @@ char *parse_infix_op(char *dst, char *s) {
     }
 
 
-    return s;
-}
-
-static inline
-char *skip(char *expects, char *s) {
-    while (*s == *expects) {
-        s++;
-        expects++;
-    };
-
-    if (*expects != '\0') {
-        printf("Parse error. Expected '%c', got '%c'.\n%s\n", *expects, *s, s);
-        exit(EXIT_FAILURE);
-    }
     return s;
 }
 

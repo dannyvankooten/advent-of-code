@@ -48,6 +48,11 @@ Part 1: wiapj
 Part 2: 1072
 Time: 7.94ms
 
+--- Day 8: I Heard You Like Registers ---
+Part 1: 5221
+Part 2: 7491
+Time: 0.48ms
+
 
 Total time: 0.21ms
 ```

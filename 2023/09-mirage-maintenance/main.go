@@ -15,13 +15,13 @@ func parse(filename string) [][]int {
 		panic(err)
 	}
 
-	sequences := make([][]int, 0)
+	sequences := make([][]int, 0, 256)
 	for _, l := range strings.Split(string(input), "\n") {
 		if l == "" {
 			continue
 		}
 
-		sequence := make([]int, 0)
+		sequence := make([]int, 0, 32)
 		for _, str := range strings.Split(l, " ") {
 			n, _ := strconv.Atoi(str)
 			sequence = append(sequence, n)
@@ -33,20 +33,11 @@ func parse(filename string) [][]int {
 	return sequences
 }
 
-func sumInts(ns []int) int {
-	s := 0
-	for _, n := range ns {
-		s += n
-	}
-
-	return s
-}
-
 func pt1(seqs [][]int) int {
 	pt1 := 0
 
 	for _, s := range seqs {
-		sub := make([][]int, 0)
+		sub := make([][]int, 0, 16)
 		sub = append(sub, s)
 
 		for {

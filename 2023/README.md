@@ -54,6 +54,11 @@ Part 1: 19099
 Part 2: 17099847107071
 Time: 2.93ms
 
+--- Day 9: Mirage Maintenance ---
+Part 1: 1479011877
+Part 2: 973
+Time: 1.00ms
+
 
 Total time: 2492.36ms
 ```

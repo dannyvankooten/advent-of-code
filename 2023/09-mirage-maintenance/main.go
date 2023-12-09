@@ -21,9 +21,12 @@ func parse(filename string) [][]int {
 			continue
 		}
 
-		sequence := make([]int, 0, 32)
+		sequence := make([]int, 0, strings.Count(l, " ")+1)
 		for _, str := range strings.Split(l, " ") {
-			n, _ := strconv.Atoi(str)
+			n, err := strconv.Atoi(str)
+			if err != nil {
+				panic(err)
+			}
 			sequence = append(sequence, n)
 		}
 
@@ -33,34 +36,25 @@ func parse(filename string) [][]int {
 	return sequences
 }
 
-func pt1(seqs [][]int) int {
+func pt1(mainSequences [][]int) int {
 	pt1 := 0
+	diffs := make([]int, 0, len(mainSequences[0])-1)
 
-	for _, s := range seqs {
-		sub := make([][]int, 0, 16)
-		sub = append(sub, s)
+	for _, s := range mainSequences {
+		pt1 += s[len(s)-1]
+		hasNonZero := 1
 
-		for {
-			diffs := make([]int, len(s)-1)
-			sumDiffs := 0
+		for hasNonZero != 0 {
+			diffs = diffs[:0]
+			hasNonZero = 0
 			for i := 0; i < len(s)-1; i++ {
-				diffs[i] = s[i+1] - s[i]
-				sumDiffs += diffs[i]
+				diffs = append(diffs, s[i+1]-s[i])
+				hasNonZero |= diffs[i]
 			}
 
-			if sumDiffs == 0 {
-				break
-			}
-
-			sub = append(sub, diffs)
+			pt1 += diffs[len(diffs)-1]
 			s = diffs
 		}
-
-		// walk subs
-		for _, d := range sub {
-			pt1 += d[len(d)-1]
-		}
-
 	}
 
 	return pt1

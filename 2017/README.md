@@ -53,6 +53,11 @@ Part 1: 5221
 Part 2: 7491
 Time: 0.48ms
 
+--- Day 9: Stream Processing ---
+Part 1: 11089
+Part 2: 5288
+Time: 0.30ms
+
 
 Total time: 0.21ms
 ```

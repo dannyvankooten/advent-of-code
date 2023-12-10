@@ -13,20 +13,21 @@ char *dirnames[] = {
 };
 
 int pt1() {
-    const int center = W/2;
-    const char directions[][2] = {
-    {0, 1}, // right
-    {-1, 0}, // up
-    {0, -1}, // left
-    {1, 0}, // down
+    int center = W/2;
+    char directions[][2] = {
+        {0, 1}, // right
+        {-1, 0}, // up
+        {0, -1}, // left
+        {1, 0}, // down
     };
-    int grid[W*W];
+    int *grid = malloc(sizeof(int) * W * W);
     grid[center*W+center] = 1;
     for (int i = 2, steps = 1, x = center, y = center, d = 0;;) {
         // spiral grid until we're entering the value we're looking for
         for (int k = 0; k < 2; k++) {
             for (int j = 0; j < steps; j++) {
                 if (i == 277678) {
+                    free(grid);
                     return abs(y-center)+abs(x-center);
                 }
 
@@ -39,15 +40,15 @@ int pt1() {
 
         steps += 1;
     }
-
+    free(grid);
     return -1;
 }
 
 int sum_neighbors(int *grid, int y, int x) {
-    const char directions[][2] = {
-    {-1, -1}, {-1, 0}, {-1, 1},
-    {0, -1}, {0, 1},
-    {1, -1}, {1, 0}, {1, 1},
+    char directions[][2] = {
+        {-1, -1}, {-1, 0}, {-1, 1},
+        {0, -1}, {0, 1},
+        {1, -1}, {1, 0}, {1, 1},
     };
     int sum = 0;
     for (int i = 0; i < 8; i++) {
@@ -64,18 +65,22 @@ int sum_neighbors(int *grid, int y, int x) {
 }
 
 int pt2() {
-    int grid[W*W];
+    int *grid = malloc(sizeof(int) * W * W);
     memset(grid, 0, sizeof(int) * W * W);
-    const int center = W/2;
-    const char directions[][2] = {
-    {0, 1}, // right
-    {-1, 0}, // up
-    {0, -1}, // left
-    {1, 0}, // down
+    int center = W/2;
+    char directions[][2] = {
+        {0, 1}, // right
+        {-1, 0}, // up
+        {0, -1}, // left
+        {1, 0}, // down
     };
     grid[center*W+center] = 1;
 
-    for (int steps = 1, x = center, y = center, d = 0, sum;;) {
+    for (int steps = 1;;) {
+        int sum = 0;
+        int d = 0;
+        int x = center;
+        int y = center;
         // spiral grid until we're entering the value we're looking for
         for (int k = 0; k < 2; k++) {
             for (int j = 0; j < steps; j++) {
@@ -83,6 +88,7 @@ int pt2() {
                 x += directions[d][1];
                 sum = sum_neighbors(grid, y, x);
                 if (sum > 277678) {
+                    free(grid);
                     return sum;
                 }
                 grid[y * W + x] = sum;
@@ -93,6 +99,7 @@ int pt2() {
         steps += 1;
     }
 
+    free(grid);
     return -1;
 }
 

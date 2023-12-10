@@ -40,7 +40,7 @@ int parse(struct claim *claims, char *s) {
 struct answer solve(char *input) {
     struct claim *claims = malloc(2048 * sizeof(*claims));
     int nclaims = parse(claims, input);
-    int grid[1000][1000];
+    int *grid = malloc(1000 * 1000 * sizeof(int));
     memset(grid, 0, 1000 * 1000 * sizeof(int));
     struct answer answer = {0, 0};
 
@@ -49,7 +49,7 @@ struct answer solve(char *input) {
         struct claim *claim = &claims[n];
         for (int i = 0; i < claim->height; i++) {
             for (int j = 0; j < claim->width; j++) {
-                grid[claim->offset_y + i + 1][claim->offset_x + j + 1]++;
+                grid[(claim->offset_y + i + 1) * 1000 + claim->offset_x + j + 1]++;
             }
         }
     }
@@ -57,7 +57,7 @@ struct answer solve(char *input) {
     // for pt1, count all grid items with two or more claimed squares
     for (int y = 0; y < 1000; y++) {
         for (int x = 0; x < 1000; x++) {
-            if (grid[y][x] >= 2) {
+            if (grid[y*1000+x] >= 2) {
                 answer.pt1++;
             }
         }
@@ -69,7 +69,7 @@ struct answer solve(char *input) {
         int overlaps = 0;
         for (int i = 0; i < claim->height && overlaps == 0; i++) {
             for (int j = 0; j < claim->width && overlaps == 0; j++) {
-                int v = grid[claim->offset_y + i + 1][claim->offset_x + j + 1];
+                int v = grid[(claim->offset_y + i + 1) * 1000 + claim->offset_x + j + 1];
                 if (v >= 2) {
                     overlaps = 1;
                 }
@@ -81,6 +81,8 @@ struct answer solve(char *input) {
         }
     }
 
+    free(grid);
+    free(claims);
     return answer;
 }
 

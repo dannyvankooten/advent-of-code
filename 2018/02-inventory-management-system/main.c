@@ -3,8 +3,11 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdbool.h>
+#include "../adventofcode.h"
 
-void pt1(char *s) {
+#define PUZZLE_NAME "Day 2: Inventory Management System"
+
+int pt1(char *s) {
     uint8_t counts[26] = {0};
     int twos = 0;
     int threes = 0;
@@ -32,15 +35,15 @@ void pt1(char *s) {
         s++;
     }
 
-    printf("%d\n", twos * threes);
+    return twos * threes;
 }
 
-void pt2(char *s) {
+void pt2(char *common, char *s) {
     // 27 chars per line (incl. trailing \n)
     // 250 lines
     // 25 must match
-    char common[26] = {0};
-    uint8_t ncommon = 0;
+    char *c = common;
+    int ncommon = 0;
     for (uint8_t i = 0; i < 250; i++) {
         for (uint8_t j = i; j < 250; j++) {
             for (uint8_t k = 0; k < 26; k++) {
@@ -50,28 +53,29 @@ void pt2(char *s) {
             }
 
             if (ncommon == 25) {
-                goto end;
+                common[ncommon] = '\0';
+                return;
+
             }
 
             ncommon = 0;
         }
     }
-
-    end:
-    common[ncommon] = '\0';
-    printf("%s\n", common);
 }
 
-int main() {
-    FILE *fp = fopen("input.txt", "r");
-    if (!fp) {
-        abort();
-    }
-    char input[32*1024];
-    size_t nread = fread(input, 1, 32*1024, fp);
-    input[nread] = '\0';
-    fclose(fp);
 
-    pt1(input);
-    pt2(input);
+int main() {
+    clock_t t = timer_start();
+    char input[1024 * 64];
+    read_input_file(input, "input.txt");
+
+    int a1 = pt1(input);
+    char buf[26];
+    pt2(buf, input);
+
+    printf("--- %s ---\n", PUZZLE_NAME);
+    printf("Part 1: %d\n", a1);
+    printf("Part 2: %s\n",  buf);
+    printf("Time: %.2fms\n", timer_stop(t));
+    return EXIT_SUCCESS;
 }

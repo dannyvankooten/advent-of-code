@@ -1,18 +1,15 @@
 #include <assert.h>
-#include <inttypes.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include "inputs/09.h"
 
 int day9() {
   const unsigned char *s = input;
-  int32_t numbers[1000];
-  uint32_t numbers_n = 0;
-  int32_t invalid_n = 104054607;
+  int numbers[1000];
+  int numbers_n = 0;
+  int invalid_n = 104054607;
   while (*s != '\0') {
-    int32_t n = 0;
+    int n = 0;
     while (*s >= '0' && *s <= '9') {
       n = n * 10 + (*s - '0');
       s++;
@@ -24,11 +21,11 @@ int day9() {
 
   // loop through numbers to find contiguous set
   // that sums to invalid_n (127)
-  uint32_t range_start = 0;
-  uint32_t range_end = 0;
-  for (uint32_t i = 0; i < numbers_n - 1; i++) {
-    int32_t sum = numbers[i];
-    uint32_t j = i;
+  int range_start = 0;
+  int range_end = 0;
+  for (int i = 0; i < numbers_n - 1; i++) {
+    int sum = numbers[i];
+    int j = i;
     for (; j < numbers_n - 1 && sum < invalid_n;) {
       sum += numbers[++j];
     }
@@ -40,9 +37,9 @@ int day9() {
     }
   }
 
-  int32_t smallest = numbers[range_start];
-  int32_t largest = numbers[range_start];
-  for (uint32_t i = range_start; i <= range_end; i++) {
+  int smallest = numbers[range_start];
+  int largest = numbers[range_start];
+  for (int i = range_start; i <= range_end; i++) {
     if (numbers[i] < smallest) {
       smallest = numbers[i];
     } else if (numbers[i] > largest) {
@@ -50,7 +47,7 @@ int day9() {
     }
   }
 
-  int32_t answer = largest + smallest;
+  int answer = largest + smallest;
   printf("%d\n", answer);
   assert(answer == 13935797);
 

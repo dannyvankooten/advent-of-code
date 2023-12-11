@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <err.h>
-#include <inttypes.h>
-#include <limits.h>
+#include <stdint.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,7 +15,7 @@ static const char* input =
 
 int day13() {
   const char* s = input;
-  int64_t ready_timestamp = 0;
+  int ready_timestamp = 0;
   while (*s != '\n') {
     ready_timestamp = (ready_timestamp * 10) + (*s - '0');
     s++;
@@ -25,14 +24,14 @@ int day13() {
   s++;  // Skip '\n'
 
   // parse bus schedules from 2nd line
-  int64_t buses[64] = {0};
-  size_t nbuses = 0;
+  int buses[64] = {0};
+  int nbuses = 0;
   while (*s != '\0') {
     if (*s == 'x') {
       buses[nbuses++] = 1;
       s++;
     } else {
-      int64_t n = 0;
+      int n = 0;
       while (*s >= '0' && *s <= '9') {
         n = (n * 10) + (*s - '0');
         s++;
@@ -69,10 +68,10 @@ int day13() {
   // Theorem. https://en.wikipedia.org/wiki/Chinese_remainder_theorem
   int64_t t = 0;
   int64_t step = buses[0];
-  for (size_t b = 0; b < nbuses; b++) {
+  for (int b = 0; b < nbuses; b++) {
     while (1) {
       if ((t + b) % buses[b] == 0) {
-        step *= buses[b];
+        step *= (int64_t) buses[b];
         break;
       }
 
@@ -81,7 +80,7 @@ int day13() {
   }
 
   // Part 2
-  printf("%" PRId64 "\n", t);
+  printf("%ld\n", t);
   assert(t == 415579909629976);
   return EXIT_SUCCESS;
 }

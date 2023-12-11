@@ -1,10 +1,16 @@
 
 #include <stdint.h>
 #include <stdlib.h>
-#include <err.h>
+#include <stdint.h>
+#include <stdio.h>
 #include "intmap.h"
 
 #define INTMAP_MAX_PROBING_TRIES 10
+
+static void err(int status, const char * const message) {
+  fputs(message, stderr);
+  exit(status);
+}
 
 intmap_t *
 intmap_new(const size_t size) {
@@ -33,7 +39,7 @@ hash_func (size_t key) {
   return key;
 }
 
-int64_t 
+int64_t
 intmap_get(intmap_t *hm, const size_t key) {
     size_t index = hash_func(key) & (hm->cap - 1);
     uint8_t tries = 0;
@@ -54,10 +60,10 @@ intmap_get(intmap_t *hm, const size_t key) {
     return hm->entries[index].value;
 }
 
-int64_t  
+int64_t
 intmap_set(intmap_t *hm, const size_t key, const int64_t value) {
     size_t index = hash_func(key) & (hm->cap - 1);
-    u_int8_t tries = 0;
+    uint8_t tries = 0;
     while (hm->entries[index].key != 0) {
         if (hm->entries[index].key == key) {
             int64_t old_value = hm->entries[index].value;
@@ -65,7 +71,7 @@ intmap_set(intmap_t *hm, const size_t key, const int64_t value) {
             return old_value;
         }
 
-        // did we exchaust # of tries?        
+        // did we exchaust # of tries?
         if (++tries > INTMAP_MAX_PROBING_TRIES) {
             err(EXIT_FAILURE, "exhausted linear probing attempts");
         }

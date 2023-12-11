@@ -1,15 +1,14 @@
 #include <assert.h>
-#include <err.h>
 #include <stdio.h>
-#include <stdlib.h>
+
 #include "inputs/02.h"
 
 int day2() {
-  int32_t count_valid = 0;
+  int count_valid = 0;
   const unsigned char *s = input;
   while (*s != '\0') {
     // read lower limit
-    int32_t lower_limit = 0;
+    int lower_limit = 0;
     while (*s >= '0' && *s <= '9') {
       lower_limit = (lower_limit * 10) + (*s - '0');
       s++;
@@ -19,7 +18,7 @@ int day2() {
     s++;
 
     // read higher limit
-    int32_t higher_limit = 0;
+    int higher_limit = 0;
     while (*s >= '0' && *s <= '9') {
       higher_limit = (higher_limit * 10) + (*s - '0');
       s++;

@@ -11,21 +11,21 @@ typedef enum {
   SQ_OPEN = 0,
 } square_t;
 
-const int32_t HEIGHT = 323;
-const int32_t WIDTH = 31;
-static uint64_t count_trees(square_t* grid, int32_t slope_y, int32_t slope_x);
+const int HEIGHT = 323;
+const int WIDTH = 31;
+static uint64_t count_trees(square_t* grid, int slope_y, int slope_x);
 
 int day3() {
   const unsigned char *s = input;
-  
+
   square_t* grid = calloc(HEIGHT * WIDTH, sizeof(square_t));
   if (!grid) {
     err(EXIT_FAILURE, "error allocating memory for grid values");
   }
 
-  int32_t y = 0;
+  int y = 0;
   while (*s != '\0') {
-    int32_t x = 0;
+    int x = 0;
 
     while (*s != '\n' && *s != '\0') {
       grid[y * WIDTH + x] = (*s == '#') ? SQ_TREE : SQ_OPEN;
@@ -60,10 +60,10 @@ int day3() {
   return 0;
 }
 
-static 
+static
 uint64_t count_trees(square_t* grid, int slope_y, int slope_x) {
   uint64_t tree_count = 0;
-  for (int32_t y = 0, x = 0; y < 322; y += slope_y, x += slope_x) {
+  for (int y = 0, x = 0; y < 322; y += slope_y, x += slope_x) {
     if (x >= 31) {
       x -= 31;
     }

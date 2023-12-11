@@ -1,9 +1,7 @@
 #include <assert.h>
-#include <ctype.h>
 #include <err.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include "inputs/06.h"
 
@@ -12,7 +10,7 @@ int8_t count_yes_answers(const char* s) {
   char group_answers[26];
   char user_answers[26] = {0};
   memset(group_answers, 1, 26 * sizeof(char));
- 
+
   while (*s >= 'a' && *s <= 'z') {
     user_answers[*s - 'a'] = 1;
     s++;
@@ -51,7 +49,7 @@ int day6() {
 
   const unsigned char *s = input;
   char group_buf[BUFSIZ] = {0};
-  int32_t sum = 0;
+  int sum = 0;
   char *s2 = group_buf;
 
   while (*s != '\0') {

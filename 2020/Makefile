@@ -1,4 +1,4 @@
-CFLAGS+=-Wextra -Wall
+CFLAGS+=-Wextra -Wall -std=c11
 BIN=aoc2020
 
 all: release

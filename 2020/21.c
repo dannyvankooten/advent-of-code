@@ -1,11 +1,11 @@
 #include <assert.h>
 #include <err.h>
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "inputs/21.h"
 // #include "inputs/21_test.h"
 
@@ -24,7 +24,7 @@ typedef struct {
   int noptions;
 } allergen_t;
 
-static void* emalloc(size_t size) {
+static void* emalloc(int size) {
   void* ptr = malloc(size);
   if (!ptr) {
     err(EXIT_FAILURE, "error allocating memory");
@@ -33,7 +33,7 @@ static void* emalloc(size_t size) {
   return ptr;
 }
 
-static void* erealloc(void* ptr, size_t size) {
+static void* erealloc(void* ptr, int size) {
   ptr = realloc(ptr, size);
   if (!ptr) {
     err(EXIT_FAILURE, "error allocating memory");
@@ -42,12 +42,12 @@ static void* erealloc(void* ptr, size_t size) {
   return ptr;
 }
 
-static size_t 
+static int
 parse_input(food_t* restrict dest) {
   const unsigned char *s = input;
-  size_t n = 0;
-  size_t i_cap = 16;
-  size_t a_cap = 8;
+  int n = 0;
+  int i_cap = 16;
+  int a_cap = 8;
 
   // mxmxvkd kfcds sqjhc nhms (contains dairy, fish)
   while (*s != '\0') {
@@ -64,7 +64,7 @@ parse_input(food_t* restrict dest) {
             erealloc(f->ingredients, i_cap * MAX_NAME_LENGTH * sizeof(char));
       }
 
-      // patse ingredient name
+      // parse ingredient name
       char* i = f->ingredients[f->ningredients++];
       while (*s != ' ') {
         *i++ = *s++;
@@ -73,7 +73,7 @@ parse_input(food_t* restrict dest) {
 
       s++;  // skip ' '
     }
-    
+
     s += strlen("(contains ");  // skip forward to first allergen
 
     while (*s != ')') {
@@ -82,7 +82,7 @@ parse_input(food_t* restrict dest) {
         f->allergens =
             erealloc(f->allergens, a_cap * MAX_NAME_LENGTH * sizeof(char));
       }
-      
+
       // parse allergen name
       char* a = f->allergens[f->nallergens++];
       while (*s != ',' && *s != ')') {
@@ -96,22 +96,22 @@ parse_input(food_t* restrict dest) {
     }
 
     s++; // ')'
-    
+
     if (*s == '\n') s++;
   }
 
   return n;
 }
 
-static void 
+static void
 print_food(const food_t* f) {
-  for (size_t j = 0; j < f->ningredients; j++) {
+  for (int j = 0; j < f->ningredients; j++) {
     printf("%s ", f->ingredients[j]);
   }
 
   if (f->nallergens > 0) {
     printf("(contains ");
-    for (size_t j = 0; j < f->nallergens; j++) {
+    for (int j = 0; j < f->nallergens; j++) {
       if (j > 0) {
         printf(", ");
       }
@@ -122,9 +122,9 @@ print_food(const food_t* f) {
   printf("\n");
 }
 
-static bool 
+static bool
 food_has_ingredient(const food_t* f, const char* ingredient) {
-  for (size_t i = 0; i < f->ningredients; i++) {
+  for (int i = 0; i < f->ningredients; i++) {
     if (strcmp(f->ingredients[i], ingredient) == 0) {
       return true;
     }
@@ -133,9 +133,9 @@ food_has_ingredient(const food_t* f, const char* ingredient) {
   return false;
 }
 
-static allergen_t* 
-get_allergen(allergen_t* list, const size_t size, const char* name) {
-  for (size_t i = 0; i < size; i++) {
+static allergen_t*
+get_allergen(allergen_t* list, int size, const char* name) {
+  for (int i = 0; i < size; i++) {
     if (strcmp(list[i].name, name) == 0) {
       return &list[i];
     }
@@ -145,13 +145,13 @@ get_allergen(allergen_t* list, const size_t size, const char* name) {
 }
 
 // returns true if this ingredient is a possible option for any allergen
-static bool 
+static bool
 ingredient_can_contain_allergen(const allergen_t * list,
-                                     const size_t size,
+                                     int size,
                                      const char* ingredient) {
-  for (size_t i = 0; i < size; i++) {
+  for (int i = 0; i < size; i++) {
     const allergen_t* a = &list[i];
-    for (size_t j = 0; j < a->noptions; j++) {
+    for (int j = 0; j < a->noptions; j++) {
       if (strcmp(a->options[j], ingredient) == 0) {
         return true;
       }
@@ -161,37 +161,37 @@ ingredient_can_contain_allergen(const allergen_t * list,
   return false;
 }
 
-static int 
+static int
 cmp_allergen(void const* p1, void const* p2) {
   const allergen_t* a = (allergen_t*)p1;
   const allergen_t* b = (allergen_t*)p2;
   return strcmp(a->name, b->name);
 }
 
-static void 
-remove_option_from_allergen(allergen_t* restrict a, const size_t index) {
+static void
+remove_option_from_allergen(allergen_t* restrict a, int index) {
   a->options[index] = a->options[a->noptions - 1];
   a->noptions--;
 }
 
 int day21() {
   food_t foods[32];
-  size_t nfoods = parse_input(foods);
+  int nfoods = parse_input(foods);
 
   // go over each allergen, finding intersection of ingredients as we go
-  size_t nallergens = 0;
+  int nallergens = 0;
   allergen_t allergen_list[32];
-  for (size_t i = 0; i < nfoods; i++) {
+  for (int i = 0; i < nfoods; i++) {
     food_t* f = &foods[i];
 
-    for (size_t j = 0; j < f->nallergens; j++) {
+    for (int j = 0; j < f->nallergens; j++) {
       allergen_t* a = get_allergen(allergen_list, nallergens, f->allergens[j]);
       if (a == NULL) {
         a = &allergen_list[nallergens++];
         a->name = f->allergens[j];
         a->options = emalloc(f->ningredients * sizeof(char*));
         a->noptions = f->ningredients;
-        for (size_t k = 0; k < f->ningredients; k++) {
+        for (int k = 0; k < f->ningredients; k++) {
           a->options[k] = f->ingredients[k];
         }
       } else {
@@ -208,9 +208,9 @@ int day21() {
   }
 
   // // print options
-  // for (size_t i=0; i < nallergens; i++) {
+  // for (int i=0; i < nallergens; i++) {
   //     printf("%s: ", allergen_list[i].name);
-  //     for (size_t j=0; j < allergen_list[i].noptions; j++) {
+  //     for (int j=0; j < allergen_list[i].noptions; j++) {
   //         printf("%s, ", allergen_list[i].options[j]);
   //     }
   //     printf("\n");
@@ -218,9 +218,9 @@ int day21() {
 
   // then, find ingredients not in any of the allergen options
   int64_t count = 0;
-  for (size_t i = 0; i < nfoods; i++) {
+  for (int i = 0; i < nfoods; i++) {
     food_t* f = &foods[i];
-    for (size_t j = 0; j < f->ningredients; j++) {
+    for (int j = 0; j < f->ningredients; j++) {
       const char* ingredient = f->ingredients[j];
       if (ingredient_can_contain_allergen(allergen_list, nallergens,
                                           ingredient)) {
@@ -229,12 +229,12 @@ int day21() {
       count++;
     }
   }
-  printf("%" PRId64 "\n", count);
+  printf("%ld\n", count);
   assert(count == 1685);
 
   // find each allergen with only 1 option
   // remove this option from all other allergens, repeat until stable
-  for (size_t i = 0; i < nallergens; i++) {
+  for (int i = 0; i < nallergens; i++) {
     allergen_t* a = &allergen_list[i];
     if (a->noptions != 1) {
       continue;
@@ -242,13 +242,13 @@ int day21() {
     const char* ingredient = a->options[0];
     bool stable = true;
 
-    for (size_t j = 0; j < nallergens; j++) {
+    for (int j = 0; j < nallergens; j++) {
       // skip self
       if (j == i)
         continue;
 
       allergen_t* a2 = &allergen_list[j];
-      for (size_t k = 0; k < a2->noptions; k++) {
+      for (int k = 0; k < a2->noptions; k++) {
         if (strcmp(a2->options[k], ingredient) == 0) {
           remove_option_from_allergen(a2, k);
           stable = false;
@@ -269,7 +269,7 @@ int day21() {
   // copy every option to answer string
   char answer[BUFSIZ] = { '\0' };
   char *s = answer;
-  for (size_t i = 0; i < nallergens; i++) {
+  for (int i = 0; i < nallergens; i++) {
     if (i > 0) {
       *s++ = ',';
     }
@@ -285,10 +285,10 @@ int day21() {
   assert(strcmp(answer, "ntft,nhx,kfxr,xmhsbd,rrjb,xzhxj,chbtp,cqvc") == 0);
 
   // free foods, ingredients and allergens
-  for (size_t i = 0; i < nallergens; i++) {
+  for (int i = 0; i < nallergens; i++) {
     free(allergen_list[i].options);
   }
-  for (size_t i = 0; i < nfoods; i++) {
+  for (int i = 0; i < nfoods; i++) {
     free(foods[i].allergens);
     free(foods[i].ingredients);
   }

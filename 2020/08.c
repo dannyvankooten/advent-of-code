@@ -1,14 +1,18 @@
 #include <assert.h>
-#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include "inputs/08.h"
 
+static void err(int status, char *message) {
+  fputs(message, stderr);
+  exit(status);
+}
+
 enum instruction_types { NOOP, ACC, JUMP };
 
 struct Instruction {
-  int32_t value;
+  int value;
   enum instruction_types type;
   char sign;
 };
@@ -22,7 +26,7 @@ struct Instructions {
 static const unsigned char *
  parse_instruction_line(const unsigned char* line, struct Instruction *ins) {
   char buf[32];
-  int32_t i = 0;
+  int i = 0;
   while (*line != ' ') {
     buf[i++] = *line++;
   };
@@ -51,7 +55,7 @@ static const unsigned char *
     line++;
 
   // read value
-  int32_t v = 0;
+  int v = 0;
   while (*line != '\n' && *line != '\0') {
     v = v * 10 + (*line - '0');
     line++;
@@ -86,7 +90,7 @@ int day8() {
     if (*s == '\n') s++;
   }
 
-  int32_t* seen = malloc(ins.size * sizeof(int32_t));
+  int* seen = malloc(ins.size * sizeof(int));
   if (!seen) {
     err(EXIT_FAILURE, "error allocating memory for seen array");
   }
@@ -98,7 +102,7 @@ int day8() {
       continue;
     }
 
-    int32_t acc = 0;
+    int acc = 0;
     size_t ip;
     memset(seen, 0, ins.size * sizeof(0));
 

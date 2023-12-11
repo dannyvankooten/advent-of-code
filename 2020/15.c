@@ -1,14 +1,9 @@
-#define _GNU_SOURCE
 #include <assert.h>
-#include <err.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
 #include <limits.h>     /* for CHAR_BIT */
-#include <sys/mman.h>
-#include <linux/mman.h>
 #include "hugemem.h"
 
 #define N 30000000
@@ -19,12 +14,12 @@
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
 
-static int32_t
-parse_input(int32_t* restrict numbers, const char* s) {
-  int32_t n = 0;
+static int
+parse_input(int* numbers, const char* s) {
+  int n = 0;
 
   while (*s != '\0') {
-    int32_t num = 0;
+    int num = 0;
     while (*s >= '0' && *s <= '9') {
       num = (num * 10) + (*s++ - '0');
     }
@@ -39,20 +34,18 @@ parse_input(int32_t* restrict numbers, const char* s) {
 }
 
 int day15() {
-  int32_t numbers[6];
-  int32_t nnumbers = parse_input(numbers, "12,1,16,3,11,0");
+  int numbers[6];
+  int nnumbers = parse_input(numbers, "12,1,16,3,11,0");
 
-  uint32_t* seen = (uint32_t*) hugemem(N * sizeof(uint32_t));
+  int* seen = hugemem(N * sizeof(int));
   if (seen == NULL) {
     perror("hugemem error");
     return 1;
   }
   assert(seen != NULL);
-  // memset(seen, 0, (N * sizeof(uint32_t)));
 
-  int32_t i = 0;
-  int32_t prev = 0;
-  // char bitarray[BITNSLOTS(N)] = {0};
+  int i = 0;
+  int prev = 0;
   char* bitarray = calloc(BITNSLOTS(N), sizeof(char));
 
   for (; i < nnumbers; i++) {
@@ -61,7 +54,7 @@ int day15() {
     BITSET(bitarray, prev);
   }
 
-  uint32_t last_seen_at;
+  int last_seen_at;
   for (; i < N; i++) {
     if (prev < (i >> 6)) {
       last_seen_at = seen[prev];
@@ -86,7 +79,7 @@ int day15() {
   printf("%d\n", prev);
   assert(prev == 37385);
 
-  hugemem_free((void *) seen, N * sizeof(uint32_t));
+  hugemem_free((void *) seen, N * sizeof(int));
 
   return 0;
 }

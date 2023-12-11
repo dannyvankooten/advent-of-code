@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <err.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -45,18 +44,23 @@ static const char directions[2][6][2] = {
     { 1, 0},   // E
     { 1, 1},  // SE
     { 0, 1},   // SW
-    { -1, 0},   // W  
+    { -1, 0},   // W
     { 0, -1},   // NW
   }
 };
 
-static void 
+void err(int status, char *message) {
+  fputs(message, stderr);
+  exit(status);
+}
+
+static void
 print_direction(const direction_t d) {
   static const char* names[] = {"NE", "NW", "E", "W", "SE", "SW"};
   printf("%s", names[d]);
 }
 
-static int32_t 
+static int32_t
 parse_line(direction_t* restrict directions, const unsigned char* restrict s) {
   int32_t ndirections = 0;
   while (*s != '\n' && *s != '\0') {
@@ -108,7 +112,7 @@ apply_to_neighbors(int8_t* restrict neighbors, const int32_t x, const int32_t y,
   }
 }
 
-static void 
+static void
 apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* restrict x_bound, bound_t* restrict y_bound) {
   int8_t* new_neighbors = &neighbors[GRIDSIZE_SQ];
 
@@ -138,7 +142,7 @@ apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* r
             } else if (x > x_bound->max) {
               x_bound->max = x;
             }
-          } 
+          }
           break;
 
         case BLACK:
@@ -146,11 +150,11 @@ apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* r
             grid->tiles[y * GRIDSIZE + x] = WHITE;
             grid->black_tile_count--;
             apply_to_neighbors(new_neighbors, x, y, -1);
-          } 
+          }
           break;
       }
     }
-  } 
+  }
 
   // copy over new neighbors to neighbors
   memcpy(neighbors, new_neighbors, sizeof(int8_t) * GRIDSIZE_SQ);

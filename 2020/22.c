@@ -1,12 +1,10 @@
 #include <assert.h>
 #include <err.h>
-#include <inttypes.h>
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
 
 #include "inputs/22.h"
 #define NDEBUG 1
@@ -32,7 +30,7 @@ static player_t* play_game(game_t* g);
 game_t* games_memory;
 size_t games_memory_ptr = 0;
 
-static game_t* 
+static game_t*
 new_game() {
   game_t* game = &games_memory[games_memory_ptr++];
   game->p1.ncards = 0;
@@ -45,7 +43,7 @@ new_game() {
   return game;
 }
 
-static game_t* 
+static game_t*
 copy_game(game_t* g1, const int8_t card_p1, const int8_t card_p2) {
   game_t* g2 = new_game();
   g2->index = g1->index + 1;
@@ -70,12 +68,12 @@ copy_game(game_t* g1, const int8_t card_p1, const int8_t card_p2) {
   // immediately declare him as winner
   if (largest_card_p1 > largest_card_p2) {
     g2->winner = &g2->p1;
-    
+
   }
   return g2;
 }
 
-static game_t* 
+static game_t*
 parse_input() {
   game_t* game = new_game();
   const unsigned char *s = input;
@@ -115,7 +113,7 @@ parse_input() {
   return game;
 }
 
-static int8_t 
+static int8_t
 shift_card_from_deck(player_t* restrict p) {
   int8_t card = p->deck[p->offset % 50];
   p->offset++;
@@ -123,20 +121,20 @@ shift_card_from_deck(player_t* restrict p) {
   return card;
 }
 
-static void 
+static void
 add_card_to_deck(player_t* restrict p, const int8_t card) {
   p->deck[(p->offset + p->ncards) % 50] = card;
   p->ncards++;
 }
 
-static void 
+static void
 print_player_deck(const player_t* restrict p) {
   for (int8_t i = 0; i < p->ncards; i++) {
     printf("%s%d", i > 0 ? ", " : "", p->deck[(p->offset + i) % 50]);
   }
 }
 
-static player_t* 
+static player_t*
 play_round(game_t* restrict g) {
   player_t* p1 = &(g->p1);
   player_t* p2 = &(g->p2);
@@ -217,7 +215,7 @@ play_round(game_t* restrict g) {
   return winner;
 }
 
-static player_t* 
+static player_t*
 play_game(game_t* restrict game) {
   while (game->winner == NULL) {
     play_round(game);

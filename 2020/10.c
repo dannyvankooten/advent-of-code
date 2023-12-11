@@ -46,7 +46,7 @@ int day10() {
 
   // add device difference
   diff[device_joltage - adapter_joltages[adapter_n - 1]]++;
-  int32_t answer_pt1 = diff[1] * diff[3];
+  int answer_pt1 = diff[1] * diff[3];
   printf("%d\n", answer_pt1);
   assert(answer_pt1 == 2400);
 

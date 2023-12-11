@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <ctype.h>
 #include <err.h>
 #include <stdint.h>
 #include <stdio.h>
@@ -23,9 +22,9 @@ bag_t* mbags;
 
 static
 void parse_rules_from_input() {
-  int32_t qty;
-  int32_t cap = 1024;
-  int32_t size = 0;
+  int qty;
+  int cap = 1024;
+  int size = 0;
   mbags = (bag_t*)malloc(cap * sizeof(bag_t));
   if (!mbags) {
     err(EXIT_FAILURE, "error allocating memory for bags");
@@ -127,7 +126,7 @@ may_bag_contain_color(bag_t* b, const char *color) {
   }
 
   // search children for the given color
-  for (int32_t j = 0; j < b->nchildren; j++) {
+  for (int j = 0; j < b->nchildren; j++) {
     if (strcmp(b->children[j].color, color) == 0) {
       return true;
     }
@@ -142,8 +141,8 @@ may_bag_contain_color(bag_t* b, const char *color) {
 }
 
 static
-int32_t search_bags_for_color(const char *color) {
-  int32_t count = 0;
+int search_bags_for_color(const char *color) {
+  int count = 0;
   hti it = ht_iterator(bags);
   while (ht_next(&it)) {
     count += may_bag_contain_color((bag_t*) it.value, color);
@@ -152,13 +151,13 @@ int32_t search_bags_for_color(const char *color) {
 }
 
 static
-int32_t count_children(bag_t* b) {
+int count_children(bag_t* b) {
   if (b == NULL) {
     return 0;
   }
 
-  int32_t count = 0;
-  for (int32_t i = 0; i < b->nchildren; i++) {
+  int count = 0;
+  for (int i = 0; i < b->nchildren; i++) {
     count += (1 + count_children(find_bag(b->children[i].color))) *
              b->children[i].qty;
   }
@@ -171,10 +170,10 @@ int day7() {
   bag_t* shiny_gold = find_bag("shiny gold");
   assert(shiny_gold != NULL);
 
-  int32_t part_1 = search_bags_for_color("shiny gold");
+  int part_1 = search_bags_for_color("shiny gold");
   assert(part_1 == 211);
   printf("%d\n", part_1);
-  int32_t part_2 = count_children(shiny_gold);
+  int part_2 = count_children(shiny_gold);
   printf("%d\n", part_2);
   assert(part_2 == 12414);
 

@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <ctype.h>
 #include <err.h>
-#include <limits.h>
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -31,9 +30,9 @@ const char* token_names[] = {
     "NUMBER", "PLUS", "ASTERISK", "LPAREN", "RPAREN", "EOF",
 };
 const char* s;
-static int64_t _eval();
+static int64_t _eval(precedence_t);
 
-static token_t 
+static token_t
 gettoken() {
   while (isspace(*s))
     s++;
@@ -83,7 +82,7 @@ gettoken() {
   return tok;
 }
 
-static token_t 
+static token_t
 nexttoken() {
   const char* tmp = s;
   token_t tok = gettoken();
@@ -91,7 +90,7 @@ nexttoken() {
   return tok;
 }
 
-static int64_t 
+static int64_t
 _eval_infix_expression(int64_t left) {
   // parse operator
   token_t op = gettoken();
@@ -119,7 +118,7 @@ _eval_infix_expression(int64_t left) {
   return left;
 }
 
-static int64_t 
+static int64_t
 _eval(precedence_t precedence) {
   int64_t left;
 
@@ -156,7 +155,7 @@ _eval(precedence_t precedence) {
   return left;
 }
 
-static int64_t 
+static int64_t
 eval(const char* input) {
   s = input;
   return _eval(LOWEST);

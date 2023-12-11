@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 // https://adventofcode.com/2020/day/4#part2
 
@@ -16,7 +15,7 @@ static bool is_passport_valid(const char passport[]) {
 }
 
 static bool is_valid_hgt(const char *v) {
-  int32_t n = 0;
+  int n = 0;
   int8_t i = 0;
 
   while (*v >= '0' && *v <= '9') {
@@ -95,8 +94,8 @@ int day4() {
   char key[32];
   char value[32];
   size_t i;
-  int32_t valid_pp_count = 0;
-  int32_t num;
+  int valid_pp_count = 0;
+  int num;
   char *v;
   const unsigned char *s = input;
 

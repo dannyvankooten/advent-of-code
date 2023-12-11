@@ -1,11 +1,16 @@
 #include <assert.h>
-#include <err.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "inputs/17.h"
 
 #define GRIDSIZE 24
+
+static void err(int status, char *message) {
+  fputs(message, stderr);
+  exit(status);
+}
 
 typedef enum {
   STATE_ACTIVE = 1,
@@ -18,7 +23,7 @@ struct grid {
 };
 typedef struct grid grid_t;
 
-static grid_t 
+static grid_t
 read_input() {
   const unsigned char *s = input;
 
@@ -39,7 +44,7 @@ read_input() {
   int32_t y = c;
   const int32_t z = c;
   const int32_t w = c;
-  int32_t offset_2d = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
+  int32_t offset_2d = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE)
             + (z * GRIDSIZE * GRIDSIZE);
 
   while (*s != '\0') {
@@ -61,7 +66,7 @@ read_input() {
   return g;
 }
 
-static void 
+static void
 print_grid(grid_t g) {
   int32_t count = 0;
   for (int32_t z = 0; z < GRIDSIZE; z++) {
@@ -90,19 +95,19 @@ add_one_to_all_neighbours(grid_t* restrict g,
                                const int32_t pos_y,
                                const int32_t pos_z,
                                const int32_t pos_w) {
-  const int32_t idx_self = (pos_w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
-                      + (pos_z * GRIDSIZE * GRIDSIZE) 
-                      + (pos_y * GRIDSIZE) 
+  const int32_t idx_self = (pos_w * GRIDSIZE * GRIDSIZE * GRIDSIZE)
+                      + (pos_z * GRIDSIZE * GRIDSIZE)
+                      + (pos_y * GRIDSIZE)
                       + pos_x;
   for (int8_t w = pos_w - 1; w <= pos_w + 1; w++) {
     for (int8_t z = pos_z - 1; z <= pos_z + 1; z++) {
       for (int8_t y = pos_y - 1; y <= pos_y + 1; y++) {
         for (int8_t x = pos_x - 1; x <= pos_x + 1; x++) {
-          int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
-            + (z * GRIDSIZE * GRIDSIZE) 
-            + (y * GRIDSIZE) 
+          int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE)
+            + (z * GRIDSIZE * GRIDSIZE)
+            + (y * GRIDSIZE)
             + x;
-            g->neighbor_counts[idx] += 1;;     
+            g->neighbor_counts[idx] += 1;;
         }
       }
     }
@@ -113,7 +118,7 @@ add_one_to_all_neighbours(grid_t* restrict g,
   g->neighbor_counts[idx_self] -= 1;
 }
 
-static void 
+static void
 update_neighbor_counts(grid_t* restrict g) {
   memset(g->neighbor_counts, 0,
          GRIDSIZE * GRIDSIZE * GRIDSIZE * GRIDSIZE * sizeof(int8_t));
@@ -121,9 +126,9 @@ update_neighbor_counts(grid_t* restrict g) {
     for (int8_t z = 1; z < GRIDSIZE - 1; z++) {
       for (int8_t y = 1; y < GRIDSIZE - 1; y++) {
         for (int8_t x = 1; x < GRIDSIZE - 1; x++) {
-          const int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
-            + (z * GRIDSIZE * GRIDSIZE) 
-            + (y * GRIDSIZE) 
+          const int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE)
+            + (z * GRIDSIZE * GRIDSIZE)
+            + (y * GRIDSIZE)
             + x;
           if (g->values[idx] == STATE_ACTIVE) {
             // add one to all neighbors
@@ -135,7 +140,7 @@ update_neighbor_counts(grid_t* restrict g) {
   }
 }
 
-static int32_t 
+static int32_t
 transmute_grid(grid_t* restrict g) {
   update_neighbor_counts(g);
   int32_t count = 0;
@@ -143,9 +148,9 @@ transmute_grid(grid_t* restrict g) {
     for (int32_t z = 1; z < GRIDSIZE - 1; z++) {
       for (int32_t y = 1; y < GRIDSIZE - 1; y++) {
         for (int32_t x = 1; x < GRIDSIZE - 1; x++) {
-          const int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE) 
-              + (z * GRIDSIZE * GRIDSIZE) 
-              + (y * GRIDSIZE) 
+          const int32_t idx = (w * GRIDSIZE * GRIDSIZE * GRIDSIZE)
+              + (z * GRIDSIZE * GRIDSIZE)
+              + (y * GRIDSIZE)
               + x;
           const int8_t active_neighbor_count = g->neighbor_counts[idx];
 

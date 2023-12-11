@@ -1,20 +1,18 @@
 #include <assert.h>
-#include <err.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "hugemem.h"
 
 // const char *test_input = "389125467";
 const char* input = "327465189";
 
-static void print_raw(const int32_t* restrict cups);
+static void print_raw(const int* restrict cups);
 
-static int32_t
-parse_input(int32_t* restrict cups, const char* s) {
-  int32_t i = 1;
-  int32_t first = (*s++ - '0');
-  int32_t prev = first;
+static int
+parse_input(int* restrict cups, const char* restrict s) {
+  int i = 1;
+  int first = (*s++ - '0');
+  int prev = first;
 
   for (; *s != '\0'; s++, i++) {
     cups[prev] = (*s - '0');
@@ -35,22 +33,22 @@ parse_input(int32_t* restrict cups, const char* s) {
 }
 
 static void
-print_raw(const int32_t* restrict cups) {
+print_raw(const int* restrict cups) {
   printf("| ");
-  for (int32_t i = 1; i <= 9; i++) {
+  for (int i = 1; i <= 9; i++) {
     printf("%2d | ", i);
   }
   printf("\n| ");
-  for (int32_t i = 1; i <= 9; i++) {
+  for (int i = 1; i <= 9; i++) {
     printf("%2d | ", cups[i]);
   }
   printf("\n\n");
 }
 
 static void
-print_cups(const int32_t* restrict cups, const int32_t first, const size_t n, const char* restrict before) {
+print_cups(const int* restrict cups, const int first, const size_t n, const char* restrict before) {
   printf("%s", before);
-  int32_t c = first;
+  int c = first;
   for (size_t i = 0; i < n; i++, c = cups[c]) {
     printf("%s%d", i > 0 ? ", " : "", c);
   }
@@ -58,14 +56,14 @@ print_cups(const int32_t* restrict cups, const int32_t first, const size_t n, co
 }
 
 int day23() {
-  int32_t *cups = (int32_t *) hugemem(1000000 * sizeof(int32_t));
-  int32_t current_cup = parse_input(cups, input);
-  int32_t a, b, c;
-  int32_t destination;
+  int *cups = (int *) hugemem(1000000 * sizeof(int));
+  int current_cup = parse_input(cups, input);
+  int a, b, c;
+  int destination;
   assert(current_cup == 3);
-  int32_t next_cur;
+  int next_cur;
 
-  for (int32_t m = 0; m < 10000000; m++) {
+  for (int m = 0; m < 10000000; m++) {
     a = cups[current_cup];
     b = cups[a];
     c = cups[b];
@@ -84,10 +82,10 @@ int day23() {
     current_cup = next_cur;
   }
 
-  int32_t c1 = cups[1];
+  int c1 = cups[1];
   int64_t r = (int64_t)c1 * (int64_t)cups[c1];
   printf("%ld\n", r);
   assert(r == 474600314018);
-  hugemem_free(cups, 1000000 * sizeof(int32_t));
+  hugemem_free(cups, 1000000 * sizeof(int));
   return 0;
 }

@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <err.h>
 #include <stdbool.h>
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -15,16 +14,16 @@ enum position {
 
 typedef struct seat seat_t;
 struct seat {
-  int32_t index;
-  int32_t neighbors[8];
-  int32_t nneighbors;
+  int index;
+  int neighbors[8];
+  int nneighbors;
 };
 
 struct grid {
-  int32_t occupied_seat_count;
-  int32_t nseats;
-  int32_t width;
-  int32_t height;
+  int occupied_seat_count;
+  int nseats;
+  int width;
+  int height;
   seat_t *seats;
   enum position* values;
   enum position* new_values;
@@ -33,9 +32,9 @@ typedef struct grid grid_t;
 
 #define get_grid_value_by_coords(grid, x, y) grid->values[y * grid->width + x]
 
-static void 
+static void
 collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
-  static const int8_t directions[][2] = {
+  static const int directions[][2] = {
       {0, 1},    // right
       {0, -1},   // left
       {1, 0},    // down
@@ -45,13 +44,13 @@ collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
       {1, -1},   // down-left
       {-1, -1},  // up-left
   };
-  const int32_t pos_x = seat->index % grid->width;
-  const int32_t pos_y = (seat->index - pos_x) / grid->width;
+  const int pos_x = seat->index % grid->width;
+  const int pos_y = (seat->index - pos_x) / grid->width;
 
-  for (int_fast8_t d = 0; d < 8; d++) {
-    int_fast8_t dy = directions[d][0];
-    int_fast8_t dx = directions[d][1];
-    for (int32_t y = pos_y + dy, x = pos_x + dx;
+  for (int d = 0; d < 8; d++) {
+    int dy = directions[d][0];
+    int dx = directions[d][1];
+    for (int y = pos_y + dy, x = pos_x + dx;
          y >= 0 && x >= 0 && x < grid->width && y < grid->height; x += dx, y += dy) {
       if (get_grid_value_by_coords(grid, x, y) != POS_FLOOR) {
         seat->neighbors[seat->nneighbors++] = y * grid->width + x;
@@ -61,10 +60,10 @@ collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
   }
 }
 
-static void 
+static void
 print_grid(grid_t* restrict grid) {
-    for (int32_t y=0; y < grid->height; y++) {
-        for (int32_t x=0; x < grid->width; x++) {
+    for (int y=0; y < grid->height; y++) {
+        for (int x=0; x < grid->width; x++) {
             switch (get_grid_value_by_coords(grid, x, y)) {
                 case POS_EMPTY_SEAT:
                     printf("L");
@@ -84,9 +83,9 @@ print_grid(grid_t* restrict grid) {
 }
 
 static int
-count_occupied_neighbors(grid_t* restrict grid, int32_t* restrict neighbors, int32_t nneighbors) {
-  int32_t count = 0;
-  for (int32_t i=0; i < nneighbors; i++) {
+count_occupied_neighbors(grid_t* restrict grid, int* restrict neighbors, int nneighbors) {
+  int count = 0;
+  for (int i=0; i < nneighbors; i++) {
     if (grid->values[neighbors[i]] == POS_OCCUPIED_SEAT) {
       count++;
     }
@@ -94,18 +93,18 @@ count_occupied_neighbors(grid_t* restrict grid, int32_t* restrict neighbors, int
   return count;
 }
 
-/* 
-A seat is permanently occupied if it has more than 8-n (n=5 for part 2) permanently empty neighbours and no permanently occupied neighbours yet. 
+/*
+A seat is permanently occupied if it has more than 8-n (n=5 for part 2) permanently empty neighbours and no permanently occupied neighbours yet.
 It is permanently empty if it has a permanently occupied neighbour. :)
 */
-static bool 
+static bool
 transmute_grid(grid_t* restrict grid) {
   bool changed = false;
   memcpy(grid->new_values, grid->values, grid->width * grid->height * sizeof(enum position));
 
-  for (int32_t i=grid->nseats-1; i >= 0; i--) {
+  for (int i=grid->nseats-1; i >= 0; i--) {
     seat_t* seat = &grid->seats[i];
-    const int32_t occupied_count = count_occupied_neighbors(grid, seat->neighbors, seat->nneighbors); 
+    const int occupied_count = count_occupied_neighbors(grid, seat->neighbors, seat->nneighbors);
     enum position state = grid->values[seat->index];
     if (state == POS_OCCUPIED_SEAT) {
         if (occupied_count >= 5) {
@@ -116,7 +115,7 @@ transmute_grid(grid_t* restrict grid) {
             // permanently seated, remove from list
             grid->seats[i] = grid->seats[grid->nseats-1];
             grid->nseats--;
-        }        
+        }
     } else {
         if (occupied_count == 0) {
           grid->new_values[seat->index] = POS_OCCUPIED_SEAT;
@@ -124,8 +123,8 @@ transmute_grid(grid_t* restrict grid) {
           changed = true;
         } else {
           // permanently empty, remove from list
-            grid->seats[i] = grid->seats[grid->nseats-1];
-            grid->nseats--;
+          grid->seats[i] = grid->seats[grid->nseats-1];
+          grid->nseats--;
         }
     }
   }
@@ -137,16 +136,16 @@ transmute_grid(grid_t* restrict grid) {
   return changed;
 }
 
-static void 
+static void
 parse_input(grid_t* restrict grid) {
   const unsigned char *s = input;
-  
+
   // parse width
   while (s[grid->width] != '\n') grid->width++;
 
   // parse height
   while (s[(grid->width+1) * grid->height] != '\0') grid->height++;
-  
+
   // allocate memory for values (twice, for swapping out grid)
   grid->values = (enum position *) malloc(grid->width * grid->height * 2 * sizeof(enum position));
   if (!grid->values) {
@@ -156,9 +155,9 @@ parse_input(grid_t* restrict grid) {
   grid->seats = malloc(grid->width * grid->height * sizeof(seat_t));
   grid->nseats = 0;
 
-  int32_t y = 0;
+  int y = 0;
   while (*s != '\0') {
-    for (int32_t x = 0; *s != '\n' && *s != '\0'; s++, x++) {
+    for (int x = 0; *s != '\n' && *s != '\0'; s++, x++) {
       const enum position v = (*s == '.') ? POS_FLOOR : POS_EMPTY_SEAT;
       grid->values[y * grid->width + x] = v;
       grid->new_values[y * grid->width + x] = v;
@@ -172,15 +171,15 @@ parse_input(grid_t* restrict grid) {
     }
 
     y++;
-    
-    if (*s == '\n') { 
+
+    if (*s == '\n') {
       s++;
     }
   }
 
   assert(y == grid->height);
 
-  for (int32_t i=0; i < grid->nseats; i++) {
+  for (int i=0; i < grid->nseats; i++) {
     collect_neighbors(grid, &grid->seats[i]);
   }
 }
@@ -192,14 +191,14 @@ int day11() {
       .occupied_seat_count = 0,
   };
   parse_input(&grid);
-    
+
   // transmute grid until stable
   while (transmute_grid(&grid));
 
   // count occupied seats
   printf("%d\n", grid.occupied_seat_count);
   assert(grid.occupied_seat_count == 1990);
-  
+
   free(grid.seats);
   free(grid.values);
   return 0;

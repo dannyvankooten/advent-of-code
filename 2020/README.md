@@ -12,13 +12,13 @@ Blog post: https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second
 To run a solution, build the executable and then run it providing a day argument or no argument to run all the days consecutively.
 
 ```
-make release        
+make release
 aoc2020 10          # run a single day
 aoc2020             # run all days
 aoc2020 --bench     # run all days, best of 10
 ```
 
-PS. Day 15 will need huge pages enabled on your machine:
+Day 15 will need huge pages enabled on your machine:
 
 ```
 echo 550 > /proc/sys/vm/nr_hugepages
@@ -26,35 +26,35 @@ echo 550 > /proc/sys/vm/nr_hugepages
 
 ### Benchmarks
 
-On my Lenovo Yoga Slim 7 laptop (AMD Ryzen 7 4700U). 
+On my Lenovo Yoga Slim 7 laptop (AMD Ryzen 7 4700U).
 
 ```
-Day 1:	      49 μs
-Day 2:	      38 μs
-Day 3:	      27 μs
-Day 4:	      35 μs
-Day 5:	      25 μs
-Day 6:	      33 μs
-Day 7:	    4221 μs
-Day 8:	     104 μs
-Day 9:	      43 μs
-Day 10:	       3 μs
-Day 11:	    2133 μs
-Day 12:	      20 μs
-Day 13:	       4 μs
-Day 14:	    1033 μs
-Day 15:	  360147 μs
-Day 16:	     174 μs
-Day 17:	    1838 μs
-Day 18:	     466 μs
-Day 19:	     486 μs
-Day 20:	     984 μs
-Day 21:	     276 μs
-Day 22:	     109 μs
-Day 23:	  172981 μs
-Day 24:	    3102 μs
-Day 25:	      37 μs
-Total:	  548368 μs (0.548 s)
+Day 1:	    0.05 ms
+Day 2:	    0.03 ms
+Day 3:	    0.03 ms
+Day 4:	    0.06 ms
+Day 5:	    0.05 ms
+Day 6:	    0.05 ms
+Day 7:	    4.45 ms
+Day 8:	    0.18 ms
+Day 9:	    0.06 ms
+Day 10:	    0.01 ms
+Day 11:	    2.58 ms
+Day 12:	    0.04 ms
+Day 13:	    0.01 ms
+Day 14:	    1.65 ms
+Day 15:	  319.22 ms
+Day 16:	    0.18 ms
+Day 17:	    1.99 ms
+Day 18:	    0.20 ms
+Day 19:	    0.50 ms
+Day 20:	    1.09 ms
+Day 21:	    0.27 ms
+Day 22:	    0.10 ms
+Day 23:	  160.27 ms
+Day 24:	    3.11 ms
+Day 25:	    0.04 ms
+Total:	  496.23 ms
 ```
 
 

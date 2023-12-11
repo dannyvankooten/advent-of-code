@@ -9,28 +9,27 @@ import (
 )
 
 type Galaxy struct {
-	r int64 // row
-	c int64 // col
+	r int // row
+	c int // col
 }
 
-func parse(filename string, expand int64) []Galaxy {
+func parse(filename string, expand int) []Galaxy {
 	bytes, err := os.ReadFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	lines := strings.Split(strings.TrimSpace(string(bytes)), "\n")
-	width := int64(len(lines[0]))
-	galaxies := make([]Galaxy, 0, 32)
-	rowOffset := int64(0)
+	galaxies := make([]Galaxy, 0, 512)
+	rowOffset := 0
 
+	// 1st pass: iterate row-wise and create all galaxies with proper row offset for expanded universe
 	for r, row := range lines {
 		rowHasGalaxy := false
 
 		for c, col := range row {
 			if col == '#' {
-				g := Galaxy{int64(r) + rowOffset, int64(c)}
-				galaxies = append(galaxies, g)
+				galaxies = append(galaxies, Galaxy{r + rowOffset, c})
 				rowHasGalaxy = true
 			}
 		}
@@ -40,16 +39,18 @@ func parse(filename string, expand int64) []Galaxy {
 		}
 	}
 
-	for c := int64(0); c < width; c++ {
-		rowHasGalaxy := false
+	// 2nd pass: iterate col-wise and add column offsets to account for expansions
+	width := len(lines[0])
+	for c := 0; c < width; c++ {
+		hasGalaxy := false
 		for _, g := range galaxies {
 			if g.c == c {
-				rowHasGalaxy = true
+				hasGalaxy = true
 				break
 			}
 		}
-		if rowHasGalaxy == false {
-			// shift every galaxy to the right of this column
+		if hasGalaxy == false {
+			// shift every galaxy to the right of this column by expand amounts
 			for i, _ := range galaxies {
 				if galaxies[i].c > c {
 					galaxies[i].c += expand
@@ -63,22 +64,25 @@ func parse(filename string, expand int64) []Galaxy {
 	return galaxies
 }
 
-func sumDistances(galaxies []Galaxy) int64 {
-	distance := int64(0)
+func manhattan(a Galaxy, b Galaxy) int {
+	r := a.r - b.r
+	c := a.c - b.c
+	if r < 0 {
+		r *= -1
+	}
+	if c < 0 {
+		c *= -1
+	}
+	return r + c
+}
+
+func sumDistances(galaxies []Galaxy) int {
+	distance := 0
 	for g1, a := range galaxies {
 		for _, b := range galaxies[g1+1:] {
-			r := a.r - b.r
-			c := a.c - b.c
-			if r < 0 {
-				r *= -1
-			}
-			if c < 0 {
-				c *= -1
-			}
-			distance += r + c
+			distance += manhattan(a, b)
 		}
 	}
-
 	return distance
 }
 

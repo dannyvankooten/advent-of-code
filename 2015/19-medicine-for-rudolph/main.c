@@ -37,7 +37,7 @@ void parse(char *s, char needles[64][16], char replacements[64][16], int *nrepla
 }
 
 int pt1(char needles[64][16], char replacements[64][16], int nreplacements, char *medicine) {
-    char *molecules = (char *) malloc(1024 * 512 * sizeof(char));
+    char *molecules = calloc(1024 * 512, sizeof(char));
     int nmolecules = 0;
     int pt1 = 0;
 
@@ -90,7 +90,7 @@ int main() {
     clock_t start_t, end_t;
     start_t = clock();
 
-    char input[1024*32];
+    char input[1024*32] = "";
     FILE *fp = fopen("input.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "error reading input.txt");
@@ -113,7 +113,6 @@ int main() {
     // We need to split off into a recursion at every replacement with multiple replacement values
     // We can bail a recursion whenever the medicine prefix doesn't match.
     char result[1024*16];
-    char buf[1024*16];
     strcpy(result, "e");
 
     printf("--- Day 19: Medicine for Rudolph ---\n");

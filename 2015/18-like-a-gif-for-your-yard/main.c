@@ -65,7 +65,7 @@ void mutate(char *grid, int size, int broken) {
 
 int solve(char *g, int size, int broken) {
     char grid[size*size];
-    memcpy(grid, g, size*size*sizeof(char));
+    memcpy(grid, g, size * size * sizeof(char));
 
     if (broken == 1) {
         grid[0] = '#';
@@ -90,7 +90,7 @@ int main() {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char input[1024*32];
+    char input[1024*32] = "";
     size_t nread = fread(input, 1, 1024*32, fp);
     input[nread] = '\0';
     fclose(fp);

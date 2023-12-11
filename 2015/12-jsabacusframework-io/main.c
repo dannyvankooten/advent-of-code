@@ -103,8 +103,8 @@ int main() {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char *input = (char *) malloc(1024 * 32);
-    size_t nread = fread(input, 1, 1024*32, fp);
+    char input[32*1024] = "";
+    size_t nread = fread(input, 1, 32*1024, fp);
     fclose(fp);
     input[nread] = '\0';
 

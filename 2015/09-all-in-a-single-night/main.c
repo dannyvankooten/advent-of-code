@@ -116,8 +116,8 @@ int main() {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char input[20*1024];
-    size_t nread = fread(input, 1, 20*1024, fp);
+    char input[32*1024] = "";
+    size_t nread = fread(input, 1, 32*1024, fp);
     input[nread] = '\0';
     fclose(fp);
 

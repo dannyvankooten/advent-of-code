@@ -97,7 +97,7 @@ struct guard* guard_by_id(struct guard *guards, int nguards, int id) {
 
 int log_entries_into_guards(struct guard *guards, struct log_entry *entries, int nentries) {
     int nguards = 0;
-    struct guard *guard;
+    struct guard *guard = &guards[0];
 
     for (int i=0; i < nentries; i++) {
         struct log_entry e = entries[i];

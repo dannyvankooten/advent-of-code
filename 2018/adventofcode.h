@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <stdint.h>
 
 void read_input_file(char *dest, char *file) {
     FILE *fp = fopen(file, "r");
@@ -9,6 +10,8 @@ void read_input_file(char *dest, char *file) {
         exit(EXIT_FAILURE);
     }
     size_t nread = fread(dest, 1, 64*1024, fp);
+
+    while (dest[nread-1] == '\n' || dest[nread-1] == 0x0) nread--;
     dest[nread] = '\0';
     fclose(fp);
 }
@@ -43,8 +46,8 @@ char *parse_int(int *dst, char *s) {
 
 
 // parse_uint8 parses a single byte
-char *parse_uint8(u_int8_t *dst, char *s) {
-    u_int8_t n = 0;
+char *parse_uint8(uint8_t *dst, char *s) {
+    uint8_t n = 0;
 
     while (*s >= '0' && *s <= '9') {
         n = (n * 10) + (*s - '0');

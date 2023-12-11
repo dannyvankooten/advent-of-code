@@ -8,19 +8,29 @@ Execute [run.sh](run.sh) to run all days (needs a C compiler like gcc or Clang):
 --- Day 1: Chronal Calibration ---
 Part 1: 561
 Part 2: 563
-Time: 1.07ms
+Time: 0.93ms
 
 --- Day 2: Inventory Management System ---
-Part 1: 7776
+Part 1: 7533
 Part 2: wlkigsqyfecjqqmnxaktdrhbz
-Time: 1.13ms
+Time: 0.94ms
 
 --- Day 3: No Matter How You Slice It ---
 Part 1: 107663
 Part 2: 1166
-Time: 3.18ms
+Time: 2.33ms
 
-Total time: 4.96ms
+--- Day 4: Repose Record ---
+Part 1: 140932
+Part 2: 51232
+Time: 1.31ms
+
+--- Day 5: Alchemical Reduction ---
+Part 1: 10972
+Part 2: 5278
+Time: 7.10ms
+
+Total time: 12.61ms
 ```
 
 ## License

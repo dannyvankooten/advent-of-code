@@ -42,7 +42,6 @@ void pt2(char *common, char *s) {
     // 27 chars per line (incl. trailing \n)
     // 250 lines
     // 25 must match
-    char *c = common;
     int ncommon = 0;
     for (uint8_t i = 0; i < 250; i++) {
         for (uint8_t j = i; j < 250; j++) {

@@ -95,10 +95,8 @@ int day19() {
   char linebuf[BUFSIZ] = {0};
 
   // parse rules
-  rule_t* rules = malloc(200 * sizeof(rule_t));
-  if (!rules) {
-    err(EXIT_FAILURE, "error allocating memory for rules");
-  }
+  rule_t rules[256];
+
   for (int32_t i = 0; i < 200; i++) {
     rules[i].nmain = 0;
     rules[i].nalt = 0;
@@ -195,6 +193,5 @@ int day19() {
   assert(count == 350);
 
   fclose(f);
-  free(rules);
   return 0;
 }

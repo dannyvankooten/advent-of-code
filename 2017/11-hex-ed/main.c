@@ -24,7 +24,7 @@ hex_t axial_add(hex_t a, hex_t b) {
         .q = a.q + b.q,
         .r = a.r + b.r,
     };
-};
+}
 
 hex_t axial_step(hex_t h, unsigned char dir) {
     return axial_add(h, directions[dir]);
@@ -38,7 +38,7 @@ int axial_distance(hex_t a, hex_t b) {
 
 int main() {
     clock_t t = timer_start();
-    char input[1024 * 64];
+    char input[1024 * 64] = "";
     read_input_file(input, "input.txt");
 
     hex_t pos = (hex_t) {

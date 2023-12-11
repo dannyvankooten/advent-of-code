@@ -1,11 +1,12 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
+#include <string.h>
 
 int main() {
     clock_t start_t, end_t;
     start_t = clock();
-
+    
     FILE *fp = fopen("input.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "error reading input.txt");

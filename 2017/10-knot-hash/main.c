@@ -79,7 +79,7 @@ void pt2(char *hash, char *s) {
 
     // write dense hash values to char array
     for (int i = 0; i < 16; i++) {
-        u_int8_t h = 0;
+        uint8_t h = 0;
         for (int j = 0; j < 16; j++) {
             h ^= list[i*16+j];
         }

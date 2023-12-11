@@ -13,15 +13,15 @@
 
 typedef struct {
   char (*ingredients)[MAX_NAME_LENGTH];
-  size_t ningredients;
+  int ningredients;
   char (*allergens)[MAX_NAME_LENGTH];
-  size_t nallergens;
+  int nallergens;
 } food_t;
 
 typedef struct {
   char* name;
   char** options;
-  size_t noptions;
+  int noptions;
 } allergen_t;
 
 static void* emalloc(size_t size) {
@@ -175,12 +175,12 @@ remove_option_from_allergen(allergen_t* restrict a, const size_t index) {
 }
 
 int day21() {
-  food_t* foods = emalloc(28 * sizeof(food_t));
+  food_t foods[32];
   size_t nfoods = parse_input(foods);
 
   // go over each allergen, finding intersection of ingredients as we go
   size_t nallergens = 0;
-  allergen_t* allergen_list = emalloc(28 * sizeof(allergen_t));
+  allergen_t allergen_list[32];
   for (size_t i = 0; i < nfoods; i++) {
     food_t* f = &foods[i];
 
@@ -288,11 +288,9 @@ int day21() {
   for (size_t i = 0; i < nallergens; i++) {
     free(allergen_list[i].options);
   }
-  free(allergen_list);
   for (size_t i = 0; i < nfoods; i++) {
     free(foods[i].allergens);
     free(foods[i].ingredients);
   }
-  free(foods);
   return 0;
 }

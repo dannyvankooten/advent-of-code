@@ -17,7 +17,7 @@ Results:
 --- Day 1: Trebuchet?! ---
 Part 1: 53080
 Part 2: 53268
-Time: 0.68ms
+Time: 1.49ms
 
 --- Day 2: Cube Conundrum ---
 Part 1: 2156
@@ -32,35 +32,44 @@ Time: 0.28ms
 --- Day 4: Scratchcards ---
 Part 1: 25174
 Part 2: 6420979
-Time: 0.70ms
+Time: 0.56ms
 
 --- Day 5: If You Give A Seed A Fertilizer ---
 Part 1: 313045984
 Part 2: 20283860
-Time: 2321.58ms
+Time: 2432.75ms
 
 ---- Day 6: Wait For It ---
 Part 1: 293046
 Part 2: 35150181
-Time: 0.03ms
+Time: 0.06ms
 
 --- Day 7: Camel Cards ---
 Part 1: 251545216
 Part 2: 250384185
-Time: 2.32ms
+Time: 2.35ms
 
 --- Day 8: Haunted Wasteland ---
 Part 1: 19099
 Part 2: 17099847107071
-Time: 2.93ms
+Time: 3.10ms
 
 --- Day 9: Mirage Maintenance ---
 Part 1: 1479011877
 Part 2: 973
-Time: 0.40ms
+Time: 0.46ms
 
+--- Day 9: Mirage Maintenance ---
+Part 1: 6838
+Part 2: 0
+Time: 0.54ms
 
-Total time: 2492.36ms
+--- Day 11: Cosmic Expansion ---
+Part 1: 9686930
+Part 2: 630728425490
+Time: 0.47ms
+
+Total time: 2584.63ms
 ```
 
 ## License

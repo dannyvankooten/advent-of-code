@@ -51,10 +51,7 @@ rotate_waypoint(struct ship* ship, const int32_t value) {
 
 int day12() {
   int32_t instructions_n = 0;
-  struct instruction* instructions = malloc(800 * sizeof(struct instruction));
-  if (!instructions) {
-    err(EXIT_FAILURE, "error allocating memory for instructions");
-  }
+  struct instruction instructions[1024];
   FILE* f = fopen("inputs/12.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
@@ -111,7 +108,5 @@ int day12() {
   int32_t manhattan_distance = abs(ship.pos.x) + abs(ship.pos.y);
   printf("%d\n", manhattan_distance);
   assert(manhattan_distance == 46530);
-
-  free(instructions);
   return 0;
 }

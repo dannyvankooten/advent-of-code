@@ -1,12 +1,12 @@
 #include <stdlib.h>
+#include <stdint.h>
 
 // hash length bytes of data
-unsigned int hash(unsigned char *data, unsigned int length) {
+unsigned int hash(const unsigned char *data, unsigned int length) {
     const unsigned int fnv_prime = 0x811C9DC5;
     unsigned int hash = 0;
-    unsigned int i = 0;
 
-    for (i = 0; i < length; data++, i++)
+    for (unsigned int i = 0; i < length; data++, i++)
     {
         hash *= fnv_prime;
         hash ^= (*data);
@@ -33,7 +33,7 @@ hashmap_t hashmap_new(unsigned int cap) {
     hashmap_t h;
     h.cap = cap;
     h.entries =  malloc(cap * sizeof(hashmap_entry_t));
-    for (int i = 0; i < cap; i++) {
+    for (unsigned int i = 0; i < cap; i++) {
         h.entries[i].key = 0;
     }
     return h;

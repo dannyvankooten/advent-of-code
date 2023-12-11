@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
 #include <time.h>
 #include <string.h>
 #include "../hashmap.h"
@@ -23,7 +24,7 @@ void read_input_file(char *dest, char *file) {
 }
 
 static inline
-int imax(const u_int8_t *restrict mem, int nmem) {
+int imax(const uint8_t *restrict mem, int nmem) {
     int imax = 0;
     for (int i = 1; i < nmem; i++) {
         if (mem[i] > mem[imax]) {
@@ -33,7 +34,7 @@ int imax(const u_int8_t *restrict mem, int nmem) {
     return imax;
 }
 
-answer_t pt1(u_int8_t *restrict mem, int nmem) {
+answer_t pt1(uint8_t *restrict mem, int nmem) {
     hashmap_t hm = hashmap_new(1024*32);
     hashmap_set(&hm, mem, 16, 0);
 
@@ -66,7 +67,7 @@ answer_t pt1(u_int8_t *restrict mem, int nmem) {
 
 }
 
-char *parse_uint8(u_int8_t *restrict dst, char *s) {
+char *parse_uint8(uint8_t *restrict dst, char *s) {
     int mod = 1;
     int n = 0;
     if (*s == '-') {
@@ -83,7 +84,7 @@ char *parse_uint8(u_int8_t *restrict dst, char *s) {
     return s;
 }
 
-int parse_input(u_int8_t *dst, char *s) {
+int parse_input(uint8_t *dst, char *s) {
     int n = 0;
     while (*s != '\n' && *s != '\0') {
         s = parse_uint8(&dst[n++], s);
@@ -99,7 +100,7 @@ int main() {
     char input[1024 * 64];
     read_input_file(input, "input.txt");
 
-    u_int8_t mem[16];
+    uint8_t mem[16];
     int nmem = parse_input(mem, input);
 
     answer_t a = pt1(mem, nmem);

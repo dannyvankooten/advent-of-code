@@ -36,10 +36,7 @@ parse_digit(int32_t* d, char* restrict s) {
 
 int32_t day16() {
   int32_t nrules = 0;
-  struct rule* rules = malloc(sizeof(rule_t) * 100);
-  if (!rules) {
-    err(EXIT_FAILURE, "error allocating memory for rules");
-  }
+  struct rule rules[128];
   FILE* f = fopen("inputs/16.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");
@@ -97,10 +94,7 @@ int32_t day16() {
   while (fgets(linebuf, BUFSIZ, f) != NULL && memcmp(linebuf, "nearby tickets:", strlen("nearby tickets:")) != 0);
 
   bool valid_any;
-  ticket_t* nearby_tickets = malloc(260 * sizeof(ticket_t));
-  if (!nearby_tickets) {
-    err(EXIT_FAILURE, "error allocating memory for nearby tickets");
-  }
+  ticket_t nearby_tickets[256];
   int32_t ntickets = 0;
 
   while (fgets(linebuf, BUFSIZ, f) != NULL) {
@@ -146,10 +140,8 @@ int32_t day16() {
   struct rule* r;
   int32_t tval;
   int32_t nvalues = nearby_tickets[0].nvalues;
-  int32_t* options = (int32_t*)calloc(nrules * nvalues, sizeof(int));
-  if (!options) {
-    err(EXIT_FAILURE, "could not allocate memory for options array");
-  }
+  int options[nrules * nvalues];
+  memset(options, 0, nrules * nvalues * sizeof(int));
 
   for (int32_t i = 0; i < nrules; i++) {
     r = &rules[i];
@@ -221,9 +213,5 @@ int32_t day16() {
 
   printf("%ld\n", product);
   assert(product == 1346570764607);
-
-  free(options);
-  free(rules);
-  free(nearby_tickets);
   return 0;
 }

@@ -114,7 +114,7 @@ void print_instruction(instruction_t i) {
 
 int run(instruction_t *instructions, int ninstructions) {
     int wires[27*27];
-    memset(wires, -1, 27*27*4);
+    memset(wires, -1, 27*27*sizeof(int));
     uint16_t signals[340];
     uint16_t nwires = 0;
 
@@ -128,13 +128,13 @@ int run(instruction_t *instructions, int ninstructions) {
             if (pos != -1) continue;
 
             // resolve signals
-            if (strlen(ins->lhs_ident) > 0) {
+            if (*ins->lhs_ident != 0x0) {
                 signal = getsignal(wires, signals, ins->lhs_ident);
                 if (signal == NULL) continue;
                 ins->lhs_value = *signal;
             }
 
-            if (strlen(ins->rhs_ident) > 0) {
+            if (*ins->rhs_ident != 0x0) {
                 signal = getsignal(wires, signals, ins->rhs_ident);
                 if (signal == NULL) continue;
                 ins->rhs_value = *signal;
@@ -189,12 +189,12 @@ int run(instruction_t *instructions, int ninstructions) {
 
 int main() {
     FILE *fp = fopen("input.txt", "r");
-    if (fp == NULL) {
+    if (!fp) {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char input[20*1024];
-    size_t nread = fread(input, 1, 20*1024, fp);
+    char input[32*1024] = "";
+    size_t nread = fread(input, 1, 32*1024, fp);
     input[nread] = '\0';
     fclose(fp);
 
@@ -208,6 +208,9 @@ int main() {
     char *s = input;
     while (*s != '\0') {
         instruction_t *ins = &instructions[ninstructions++];
+        ins->lhs_value = 0;
+        ins->rhs_ident[0] = 0x0;
+        ins->lhs_ident[0] = 0x0;
 
         if (*s >= '0' && *s <= '9') {
             s = parse_int(&ins->lhs_value, s);

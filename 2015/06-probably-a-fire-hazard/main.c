@@ -26,13 +26,13 @@ int main() {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char input[20*1024];
-    size_t nread = fread(input, 1, 20*1024, fp);
+    char input[32*1024] = "";
+    size_t nread = fread(input, 1, 32*1024, fp);
     input[nread] = '\0';
     fclose(fp);
 
-    uint8_t grid_pt1[1000 * 1000] = {0};
-    uint16_t grid_pt2[1000 * 1000] = {0};
+    uint8_t *grid_pt1 = calloc(1000 * 1000, sizeof(uint8_t));
+    uint16_t *grid_pt2 = calloc(1000 * 1000, sizeof(uint16_t));
     int8_t action;
     uint16_t x_start;
     uint16_t y_start;
@@ -41,13 +41,13 @@ int main() {
 
     char *s = input;
     while (*s != '\0') {
-        if (memcmp(s, "toggle", 6) == 0) {
+        if (strncmp(s, "toggle", 6) == 0) {
             action = -1;
             s += 7;
-        } else if(memcmp(s+5, "on", 2) == 0) {
+        } else if(strncmp(s+5, "on", 2) == 0) {
             action = 1;
             s += 8;
-        } else if (memcmp(s+5, "off", 3) == 0) {
+        } else if (strncmp(s+5, "off", 3) == 0) {
             action = 0;
             s += 9;
         } else {
@@ -97,7 +97,6 @@ int main() {
     }
 
     printf("--- Day 6: Probably a Fire Hazard ---\n");
-
     // we loop separately here because it's faster (because of cpu cache hits)
     int pt1 = 0;
     for (int i = 0; i < 1000 * 1000; i++) {
@@ -116,5 +115,8 @@ int main() {
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
     printf("Time: %.2fms\n", total_t);
+
+    free(grid_pt1);
+    free(grid_pt2);
     return 0;
 }

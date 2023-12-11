@@ -59,10 +59,10 @@ Part 1: 1479011877
 Part 2: 973
 Time: 0.46ms
 
---- Day 9: Mirage Maintenance ---
+--- Day 10: Pipe Maze ---
 Part 1: 6838
-Part 2: 0
-Time: 0.54ms
+Part 2: 451
+Time: 3.15ms
 
 --- Day 11: Cosmic Expansion ---
 Part 1: 9686930

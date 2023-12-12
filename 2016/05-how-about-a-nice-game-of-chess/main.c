@@ -10,18 +10,18 @@ void solve(char *doorid, char *password, char *password2) {
     int pos;
     strcpy(password2, "........");
     int keylen = strlen(doorid);
-    uint8_t input[32] = "abbhdwsy";
-    uint8_t digest[MD5_DIGEST_LENGTH];
+    char input[32] = "abbhdwsy";
+    char digest[MD5_DIGEST_LENGTH];
 
     char buf[8];
     char *dst = input + keylen;
     int i = 1;
     for (;; i++) {
         sprintf(dst, "%d", i);
-        MD5(input, keylen + strlen(dst), digest);
+        MD5((unsigned char *)  input, keylen + strlen(dst), (unsigned char *) digest);
 
-        unsigned char skip = digest[0] | digest[1] | (digest[2] & 0xf0);
-        if (!skip) {
+        int skip = digest[0] | digest[1] | (digest[2] & 0xf0);
+        if (0 == skip) {
             sprintf(buf, "%02x%02x", digest[2], digest[3]);
 
             if (p1 < 8) {

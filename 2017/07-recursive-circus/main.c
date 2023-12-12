@@ -90,7 +90,10 @@ int parse_input(program_t *programs, char *input) {
     }
 
     for (int i = 0; i < n; i++) {
-        programs[i].children = (program_t **) malloc(programs[i].nchildren * sizeof(program_t *));
+        programs[i].children = malloc(programs[i].nchildren * sizeof(program_t *));
+        if (programs[i].children == NULL) {
+            exit(EXIT_FAILURE);
+        }
         for (int c = 0; c < programs[i].nchildren; c++) {
             programs[i].children[c] = byname(programs[i].childnames[c], programs, n);
         }
@@ -128,7 +131,7 @@ program_t *pt1(program_t *restrict programs, int nprograms) {
         }
     }
 
-    return NULL;
+    abort();
 }
 
 int pt2(program_t *restrict programs, int nprograms, program_t *restrict root, int unbalanced) {
@@ -163,6 +166,9 @@ int main() {
     read_input_file(input, "input.txt");
 
     program_t *programs = malloc(2048 * sizeof(program_t));
+    if (programs == NULL) {
+        exit(EXIT_FAILURE);
+    }
     int nprograms = parse_input(programs, input);
 
     program_t *root = pt1(programs, nprograms);

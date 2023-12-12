@@ -21,6 +21,9 @@ int pt1() {
         {1, 0}, // down
     };
     int *grid = malloc(sizeof(int) * W * W);
+    if (grid == NULL) {
+        exit(EXIT_FAILURE);
+    }
     grid[center*W+center] = 1;
     for (int i = 2, steps = 1, x = center, y = center, d = 0;;) {
         // spiral grid until we're entering the value we're looking for
@@ -66,6 +69,9 @@ int sum_neighbors(int *grid, int y, int x) {
 
 int pt2() {
     int *grid = malloc(sizeof(int) * W * W);
+    if (grid == NULL) {
+        exit(EXIT_FAILURE);
+    }
     memset(grid, 0, sizeof(int) * W * W);
     int center = W/2;
     char directions[][2] = {

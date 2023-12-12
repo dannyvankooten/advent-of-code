@@ -35,7 +35,7 @@ int imax(const uint8_t *restrict mem, int nmem) {
 }
 
 answer_t pt1(uint8_t *restrict mem, int nmem) {
-    hashmap_t hm = hashmap_new(1024*32);
+    hashmap_t hm = hashmap_new(2 << 14);
     hashmap_set(&hm, mem, 16, 0);
 
     int i, j, m, blocks;

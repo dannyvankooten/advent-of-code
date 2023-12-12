@@ -1,6 +1,12 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+/*
+Prime capacity: use modulo
+Power of 2 capacity: bit-and
+*/
+
+
 // hash length bytes of data
 unsigned int hash(const unsigned char *data, unsigned int length) {
     const unsigned int fnv_prime = 0x811C9DC5;
@@ -32,7 +38,10 @@ typedef struct {
 hashmap_t hashmap_new(unsigned int cap) {
     hashmap_t h;
     h.cap = cap;
-    h.entries =  malloc(cap * sizeof(hashmap_entry_t));
+    h.entries = malloc(cap * sizeof(hashmap_entry_t));
+    if (h.entries == NULL) {
+        exit(EXIT_FAILURE);
+    }
     for (unsigned int i = 0; i < cap; i++) {
         h.entries[i].key = 0;
     }

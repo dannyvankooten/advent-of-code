@@ -29,6 +29,7 @@ void checksum_from_counts(char *dest, int counts[26]) {
     int max[5] = {0, 0, 0, 0, 0};
 
     for (int j = 0; j < 5; j++) {
+        dest[j] = 'a';
         for (int i = 0; i < 26; i++) {
             if (counts[i] > max[j] || (counts[i] >= max[j] && (i + 'a') < dest[j])) {
                 max[j] = counts[i];
@@ -54,7 +55,7 @@ void decrypt(char *buf, int sectorid) {
     }
 
     // trim trailing space
-    if (*(b-1) == ' ') {
+    if (b > buf && *(b-1) == ' ') {
         b--;
     }
 

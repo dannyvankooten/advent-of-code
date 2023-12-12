@@ -114,7 +114,13 @@ int main() {
     // init cpu with plenty of registers
     cpu_t cpu;
     cpu.reg_names = malloc(26*26*26 * sizeof(*cpu.reg_names));
-    cpu.reg_values = malloc(26*26*26 * sizeof(*cpu.reg_values));
+    if (cpu.reg_names == NULL) {
+        exit(EXIT_FAILURE);
+    }
+    cpu.reg_values = calloc(26*26*26, sizeof(*cpu.reg_values));
+    if (cpu.reg_values == NULL) {
+        exit(EXIT_FAILURE);
+    }
     cpu.nregs = 0;
     cpu.highest_value = -1;
 

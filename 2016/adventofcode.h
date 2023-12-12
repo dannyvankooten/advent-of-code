@@ -3,13 +3,14 @@
 #include <time.h>
 #include <stdint.h>
 
-void read_input_file(char *dest, char *file) {
+void read_input_file(char *dest, int size, char *file) {
     FILE *fp = fopen(file, "r");
     if (!fp) {
         fprintf(stderr, "error reading %s", file);
         exit(EXIT_FAILURE);
     }
-    size_t nread = fread(dest, 1, 64*1024, fp);
+    size_t nread = fread(dest, 1, size, fp);
+    while (dest[nread-1] == '\n') nread--;
     dest[nread] = '\0';
     fclose(fp);
 }

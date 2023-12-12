@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int solve(const char *input, size_t size, int offset) {
+int solve(char *input, int size, int offset) {
     int sum = 0;
     for (int i = 0; i < size; i++) {
         int next = (i + offset) % (size-1);
@@ -24,7 +24,7 @@ int main() {
         exit(EXIT_FAILURE);
     }
     char input[32*1024];
-    size_t nread = fread(input, 1, 32*1024, fp);
+    int nread = fread(input, 1, 32*1024, fp);
     input[nread] = '\0';
     fclose(fp);
 

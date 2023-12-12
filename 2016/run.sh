@@ -1,8 +1,19 @@
 #!/bin/bash
 
+set -e
+
 CC="${CC:=gcc}"
 CFLAGS="$CFLAGS -Wall -Wextra -Wpedantic -std=c11 -Ofast -march=native -fanalyzer -Wlarger-than-524288 -Wundef -Winline "
-$CC --version
+
+DAY=$1
+if [ -d "$DAY" ]; then
+  cd $DAY
+  $CC $CFLAGS main.c
+  ./a.out
+  cd ..
+  exit 0
+fi
+
 TIME="0.0"
 for d in */; do
     cd "$d"

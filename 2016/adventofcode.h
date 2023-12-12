@@ -3,7 +3,7 @@
 #include <time.h>
 #include <stdint.h>
 
-void read_input_file(char *dest, int size, char *file) {
+static inline void read_input_file(char *dest, int size, char *file) {
     FILE *fp = fopen(file, "r");
     if (!fp) {
         fprintf(stderr, "error reading %s", file);
@@ -16,7 +16,7 @@ void read_input_file(char *dest, int size, char *file) {
 }
 
 // parse_ident parses a string consisting of only lowercase a-z chars
-char *parse_ident(char *dst, char *s) {
+static inline char *parse_ident(char *dst, char *s) {
     while (*s >= 'a' && *s <= 'z') {
         *dst++ = *s++;
     }
@@ -25,7 +25,7 @@ char *parse_ident(char *dst, char *s) {
 }
 
 // parse_int parses a (signed) integer, with optional plus sign
-char *parse_int(int *dst, char *s) {
+static inline char *parse_int(int *dst, char *s) {
     int n = 0;
     int mod = 1;
     if (*s == '-') {
@@ -45,7 +45,7 @@ char *parse_int(int *dst, char *s) {
 
 
 // parse_uint8 parses a single byte
-char *parse_uint8(uint8_t *dst, char *s) {
+static inline char *parse_uint8(uint8_t *dst, char *s) {
     uint8_t n = 0;
 
     while (*s >= '0' && *s <= '9') {
@@ -57,7 +57,7 @@ char *parse_uint8(uint8_t *dst, char *s) {
 }
 
 // skip advanced the pointer s as long as it matches the corresponding chars from expects
-char *skip(char *expects, char *s) {
+static inline char *skip(char *expects, char *s) {
     while (*s == *expects) {
         s++;
         expects++;
@@ -70,7 +70,7 @@ char *skip(char *expects, char *s) {
     return s;
 }
 
-char *skip_optional(char c, char *s) {
+static inline char *skip_optional(char c, char *s) {
     while (*s == c) {
         s++;
     }
@@ -78,7 +78,7 @@ char *skip_optional(char c, char *s) {
     return s;
 }
 
-char *skip_until(char c, char *s) {
+static inline char *skip_until(char c, char *s) {
     while (*s != c && *s != 0x0) {
         s++;
     }
@@ -86,11 +86,11 @@ char *skip_until(char c, char *s) {
     return s;
 }
 
-clock_t timer_start() {
+static clock_t timer_start() {
     return clock();
 }
 
-double timer_stop(clock_t start_t) {
+static double timer_stop(clock_t start_t) {
     clock_t end_t = clock();
     return (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
 }

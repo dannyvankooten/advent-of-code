@@ -36,7 +36,11 @@ int main() {
 
     int target = 34000000;
     int nhouses = target / 10;
-    int *houses = (int *) malloc(sizeof(int) * nhouses);
+    int *houses = malloc(sizeof(int) * nhouses);
+    if (houses == NULL) {
+        perror("error allocating memory");
+        exit(EXIT_FAILURE);
+    }
     memset(houses, 0, nhouses * sizeof(int));
 
     int a1 = pt1(houses, nhouses, target, 10, -1);

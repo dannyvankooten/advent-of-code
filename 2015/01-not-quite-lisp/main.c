@@ -6,14 +6,14 @@
 int main() {
     clock_t start_t, end_t;
     start_t = clock();
-    
+
     FILE *fp = fopen("input.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
     }
-    char input[64*1024];
-    size_t ninput = fread(input, 1, 64*1024, fp);
+    char input[64*1024] = "";
+    int ninput = fread(input, 1, 64*1024, fp);
     fclose(fp);
     input[ninput] = 0;
 

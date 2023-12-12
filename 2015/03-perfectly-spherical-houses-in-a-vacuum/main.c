@@ -13,7 +13,11 @@ int solve(const char *s, uint8_t nworkers) {
     int8_t dx, dy;
     uint16_t tally[256*256] = {0};
     uint8_t w = 0;
-    pos_t *workers = (pos_t *) malloc(nworkers * sizeof(pos_t));
+    pos_t *workers = malloc(nworkers * sizeof(pos_t));
+    if (workers == NULL) {
+        perror("malloc error");
+        exit(EXIT_FAILURE);
+    }
     for (uint8_t i = 0; i < nworkers; i++) {
         workers[i].x = 0;
         workers[i].y = 0;

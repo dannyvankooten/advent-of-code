@@ -38,6 +38,10 @@ void parse(char *s, char needles[64][16], char replacements[64][16], int *nrepla
 
 int pt1(char needles[64][16], char replacements[64][16], int nreplacements, char *medicine) {
     char *molecules = calloc(1024 * 512, sizeof(char));
+    if (molecules == NULL) {
+        perror("error allocating memory");
+        exit(EXIT_FAILURE);
+    }
     int nmolecules = 0;
     int pt1 = 0;
 

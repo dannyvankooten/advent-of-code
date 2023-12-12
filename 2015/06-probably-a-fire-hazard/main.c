@@ -32,7 +32,15 @@ int main() {
     fclose(fp);
 
     uint8_t *grid_pt1 = calloc(1000 * 1000, sizeof(uint8_t));
+    if (grid_pt1 == NULL) {
+        exit(EXIT_FAILURE);
+    }
+
     uint16_t *grid_pt2 = calloc(1000 * 1000, sizeof(uint16_t));
+     if (grid_pt2 == NULL) {
+        exit(EXIT_FAILURE);
+     }
+
     int8_t action;
     uint16_t x_start;
     uint16_t y_start;

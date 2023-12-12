@@ -126,10 +126,12 @@ int main() {
 
     char *s = input;
     int pt1 = 0;
-    int pt2 = 0;
 
     // parse input
     edge_t *edges = malloc(64 * sizeof(edge_t));
+    if (edges == NULL) {
+        exit(EXIT_FAILURE);
+    }
     int nedges = 0;
     while (*s != '\0') {
         edge_t e;
@@ -194,6 +196,7 @@ int main() {
 //        pt1 = tmp < pt1 ? tmp : pt1;
 //    }
     printf("Part 1: %d\n", pt1);
+    printf("Part 2: %d\n", pt1);
 
     end_t = clock();
     double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;

@@ -38,9 +38,9 @@ int parse(struct claim *claims, char *s) {
 }
 
 struct answer solve(char *input) {
-    struct claim *claims = malloc(2048 * sizeof(*claims));
+    struct claim *claims = malloc_or_die(2048 * sizeof(*claims));
     int nclaims = parse(claims, input);
-    int *grid = malloc(1000 * 1000 * sizeof(int));
+    int *grid = malloc_or_die(1000 * 1000 * sizeof(int));
     memset(grid, 0, 1000 * 1000 * sizeof(int));
     struct answer answer = {0, 0};
 
@@ -89,7 +89,7 @@ struct answer solve(char *input) {
 int main() {
     clock_t t = timer_start();
     char input[1024 * 64];
-    read_input_file(input, "input.txt");
+    read_input_file(input, 1024 * 64, "input.txt");
 
     struct answer a = solve(input);
     printf("--- %s ---\n", PUZZLE_NAME);

@@ -62,7 +62,7 @@ int pt2(char *input) {
 int main() {
     clock_t t = timer_start();
     char input[1024 * 64] = "";
-    read_input_file(input, "input.txt");
+    read_input_file(input, 1024 * 64, "input.txt");
 
     int a1 = react(input); 
     int a2 = pt2(input);

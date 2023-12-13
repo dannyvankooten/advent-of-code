@@ -67,12 +67,12 @@ void pt1(char *buf, struct step **steps, int nsteps) {
   for (int i = 0; i < nsteps; i++) steps[i]->done = 0;
 }
 
-int pt2(char *buf, struct step **steps, int nsteps) {
+int pt2(struct step **steps, int nsteps) {
   int nworkers = 5;
   int delay_s = 60;
   int worker_finish_times[nworkers];
   struct step *worker_tasks[nworkers];
-  memset(worker_finish_times, 0, sizeof(*worker_finish_times));
+  memset(worker_finish_times, 0, sizeof(*worker_finish_times) * nworkers);
   memset(worker_tasks, 0, sizeof(struct step *) * nworkers);
   int ndone = 0;
 
@@ -121,7 +121,7 @@ int pt2(char *buf, struct step **steps, int nsteps) {
 int main() {
   clock_t t = timer_start();
   char input[1024 * 64] = "";
-  read_input_file(input, "input.txt");
+  read_input_file(input, 1024 * 64, "input.txt");
 
   struct step steps[64];
   int nsteps = 0;
@@ -169,7 +169,7 @@ int main() {
   char a1[64];
   pt1(a1, steps_sorted, nsteps);
 
-  int a2 = pt2(a1, steps_sorted, nsteps);
+  int a2 = pt2(steps_sorted, nsteps);
 
   printf("--- %s ---\n", PUZZLE_NAME);
   printf("Part 1: %s\n", a1);

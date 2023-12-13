@@ -15,9 +15,9 @@ int pt1(char *s) {
     while (*s != '\0') {
         if (*s == '\n') {
             // find twos and threes
-            uint8_t c2 = 0;
-            uint8_t c3 = 0;
-            for (uint8_t i=0; i < 26; i++) {
+            int c2 = 0;
+            int c3 = 0;
+            for (int i=0; i < 26; i++) {
                 if (counts[i] == 2) {
                     c2 = 1;
                 } else if (counts[i] == 3) {
@@ -43,9 +43,9 @@ void pt2(char *common, char *s) {
     // 250 lines
     // 25 must match
     int ncommon = 0;
-    for (uint8_t i = 0; i < 250; i++) {
-        for (uint8_t j = i; j < 250; j++) {
-            for (uint8_t k = 0; k < 26; k++) {
+    for (int i = 0; i < 250; i++) {
+        for (int j = i; j < 250; j++) {
+            for (int k = 0; k < 26; k++) {
                 if (s[i * 27 + k] == s[j * 27 + k]) {
                     common[ncommon++] = s[j * 27 + k];
                 }
@@ -66,7 +66,7 @@ void pt2(char *common, char *s) {
 int main() {
     clock_t t = timer_start();
     char input[1024 * 64];
-    read_input_file(input, "input.txt");
+    read_input_file(input, 1024 * 64, "input.txt");
 
     int a1 = pt1(input);
     char buf[26];

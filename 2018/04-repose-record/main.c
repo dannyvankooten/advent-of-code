@@ -3,7 +3,6 @@
 #include <time.h>
 #include <string.h>
 #include "../adventofcode.h"
-
 #define PUZZLE_NAME "Day 4: Repose Record"
 
 struct log_entry {
@@ -97,7 +96,7 @@ struct guard* guard_by_id(struct guard *guards, int nguards, int id) {
 
 int log_entries_into_guards(struct guard *guards, struct log_entry *entries, int nentries) {
     int nguards = 0;
-    struct guard *guard = &guards[0];
+    struct guard *guard = NULL;
 
     for (int i=0; i < nentries; i++) {
         struct log_entry e = entries[i];
@@ -111,6 +110,10 @@ int log_entries_into_guards(struct guard *guards, struct log_entry *entries, int
                 memset(guard->minutes, 0, 60 * sizeof(*guard->minutes));
             }
         } else if (e.awake > 0) {
+            if (i == 0 || guard == NULL) {
+              fprintf(stderr, "logic error");
+              exit(EXIT_FAILURE);
+            }
             struct log_entry  prev = entries[i-1];
             guard->total_sleep_time += (e.minute - prev.minute);
             for (int m = prev.minute; m < e.minute; m++) {
@@ -160,12 +163,12 @@ int solve_pt2(struct guard *guards, int nguards) {
 int main() {
     clock_t t = timer_start();
     char input[1024 * 64] = "";
-    read_input_file(input, "input.txt");
+    read_input_file(input, 1024 * 64, "input.txt");
 
-    struct log_entry *log_entries = malloc(2048 * sizeof (struct log_entry));
+    struct log_entry *log_entries = malloc_or_die(2048 * sizeof (struct log_entry));
     int nentries = parse(log_entries, input);
 
-    struct guard *guards = malloc(512 * sizeof(struct guard));
+    struct guard *guards = malloc_or_die(512 * sizeof(struct guard));
     int nguards = log_entries_into_guards(guards, log_entries, nentries);
     int pt1 = solve_pt1(guards, nguards);
     int pt2 = solve_pt2(guards, nguards);

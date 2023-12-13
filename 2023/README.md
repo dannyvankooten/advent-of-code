@@ -69,6 +69,11 @@ Part 1: 9686930
 Part 2: 630728425490
 Time: 0.47ms
 
+--- Day 13: Point of Incidence ---
+Part 1: 31265
+Part 2: 39359
+Time: 0.45ms
+
 Total time: 2584.63ms
 ```
 

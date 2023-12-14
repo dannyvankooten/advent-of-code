@@ -76,6 +76,64 @@ func weight(grid [][]byte) int {
 	return weight
 }
 
+func isEqual(a [][]byte, b [][]byte) bool {
+	for row := 0; row < len(a); row++ {
+		if !bytes.Equal(a[row], b[row]) {
+			return false
+		}
+	}
+
+	return true
+}
+
+func copyGrid(a [][]byte) [][]byte {
+	rows := make([][]byte, len(a))
+
+	for i := range a {
+		rows[i] = make([]byte, len(a[i]))
+		copy(rows[i], a[i])
+	}
+	return rows
+}
+
+// Floyd's Tortoise and Hare algorithm
+// https://en.wikipedia.org/wiki/Cycle_detection
+func floyd(f func([][]byte), x0 [][]byte) (int, [][]byte) {
+	hare := copyGrid(x0)
+	tortoise := copyGrid(x0)
+
+	f(tortoise)
+	f(hare)
+	f(hare)
+
+	for !isEqual(tortoise, hare) {
+		f(tortoise)
+		f(hare)
+		f(hare)
+	}
+
+	// // move both to start of cycle
+	// mu := 0
+	// tortoise = copyGrid(x0)
+	// for !isEqual(tortoise, hare) {
+	// 	mu += 1
+	// 	f(tortoise)
+	// 	f(hare)
+	// }
+
+	// move hare forward until start of next cycle
+	// tortoise remains in place
+	cycleLength := 1
+	f(hare)
+	for !isEqual(tortoise, hare) {
+		f(hare)
+		cycleLength += 1
+	}
+
+	// return length of cycle and current state of grid
+	return cycleLength, hare
+}
+
 func main() {
 	timeStart := time.Now()
 
@@ -86,27 +144,24 @@ func main() {
 	grid := bytes.Split(bytes.TrimSpace(b), []byte("\n"))
 
 	// pt1
-	tilt(grid, directions[0])
-	pt1 := weight(grid)
+	grid1 := copyGrid(grid)
+	tilt(grid1, directions[0])
+	pt1 := weight(grid1)
 
-	grid = bytes.Split(bytes.TrimSpace(b), []byte("\n"))
-	// seen := make(map[int]int)
-	for i := 0; i < (18*10)+10; i++ {
-		tilt(grid, directions[0])
-		tilt(grid, directions[1])
-		tilt(grid, directions[2])
-		tilt(grid, directions[3])
-
-		// w := weight(grid)
-		// if prev, ok := seen[w]; ok {
-		// 	fmt.Printf("%d: %d (previously at %d, diff = %d)\n", i, weight(grid), prev, i-prev)
-		// } else {
-		// 	fmt.Printf("%d: %d\n", i, weight(grid))
-		// }
-		// seen[w] = i
+	// part 2
+	cycle := func(g [][]byte) {
+		tilt(g, directions[0])
+		tilt(g, directions[1])
+		tilt(g, directions[2])
+		tilt(g, directions[3])
+	}
+	cycleLength, state := floyd(cycle, grid)
+	cyclesRemaining := 1e9 % cycleLength
+	for i := 0; i < cyclesRemaining; i++ {
+		cycle(state)
 	}
 
-	pt2 := weight(grid)
+	pt2 := weight(state)
 	fmt.Printf("--- Day 14: Parabolic Reflector Dish ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)
 	fmt.Printf("Part 2: %d\n", pt2)

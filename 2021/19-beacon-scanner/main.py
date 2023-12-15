@@ -126,5 +126,6 @@ def solve(input):
 
 
 if __name__ == '__main__':
+    print("--- Day 19: Beacon Scanner ---")
     input = Path("input.txt").read_text()
     solve(input)

@@ -24,4 +24,5 @@ for d in range(0, 256):
     babies[day_in_cycle] = 0
    
 
+print("--- Day 6: Lanternfish ---")
 print(num_fish, num_fish == 1595779846729)

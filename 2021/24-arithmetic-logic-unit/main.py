@@ -98,6 +98,7 @@ def run(program, model_number):
     return memory['z']
 
 if __name__ == '__main__':
+    print("--- Day 24: Arithmetic Logic Unit ---")
     input = Path("input.txt").read_text()
     pt1 = solve(input)
     print(pt1)

@@ -46,6 +46,7 @@ def solve(input) -> int:
     return 0
 
 if __name__ == '__main__':
+    print("--- Day 25: Sea Cucumber ---")
     input = Path("input.txt").read_text()
     
     pt1 = solve(input)

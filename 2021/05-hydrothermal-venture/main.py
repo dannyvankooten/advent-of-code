@@ -26,11 +26,10 @@ if __name__ == '__main__':
     input = Path("input.txt").read_text()
     lines = input.split("\n")
 
+    print("--- Day 5: Hydrothermal Venture ---")
+
     pt1 = solve(lines, diagonals=False)
-    assert(pt1 == 7473)
-    print("Part 1: ", pt1)
+    print("Part 1: ", pt1, pt1 == 7473)
 
     pt2 = solve(lines, diagonals=True)
-    assert(pt2 == 24164)
-    print("Part 2: ", pt2)
-   
+    print("Part 2: ", pt2, pt2 == 24164)

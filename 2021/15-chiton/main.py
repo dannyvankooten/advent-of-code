@@ -12,7 +12,6 @@ map_tile = [[int(c) for c in l] for l in lines]
 # init map of zeros
 map = [[0 for x in range(width * 5)] for y in range(height * 5)]
 
-print("{:.2f} Filling map from tile template".format(time.perf_counter() - time_start))
 # create map from tile template
 for nx in range(0, 5):
     for ny in range(0, 5):
@@ -43,7 +42,6 @@ cur.tent_distance = 0
 destination = map[height-1][width-1]
 unvisited = []
 
-print("{:.2f} Start pathfinding".format(time.perf_counter() - time_start))
 while cur != destination:
     # select point with lowest tentative distance
     while cur.visited:
@@ -64,4 +62,5 @@ while cur != destination:
     # mark node as visited
     cur.visited = True
         
-print("{:.2f} Answer: {}".format(time.perf_counter() - time_start, map[height-1][width-1].tent_distance))
+print("--- Day 15: Chiton ---")
+print("Part 2: ", map[height-1][width-1].tent_distance)

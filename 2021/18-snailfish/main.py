@@ -114,6 +114,7 @@ def magnitude(x):
 
 
 if __name__ == '__main__':
+    print("--- Day 18: Snailfish ---")
     input = Path("input.txt").read_text()
     lines = input.split("\n")
     

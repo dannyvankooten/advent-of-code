@@ -64,6 +64,7 @@ def count_wins(player, pos0, score0, pos1, score1):
 
 
 if __name__ == '__main__':
+    print("--- Day 21: Dirac Dice ---")
     input = Path("input.txt").read_text()
     starting_positions = (8, 6)
     pt1 = part1(starting_positions)

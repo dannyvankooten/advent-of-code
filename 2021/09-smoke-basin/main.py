@@ -25,7 +25,7 @@ def pt1():
             else:     
                 risk_sum += 1 + height
             
-    print(risk_sum)
+    return risk_sum
 
 
 
@@ -67,10 +67,11 @@ def pt2():
 
     for b in bassins[0:3]:
         a *= len(b)
-    print(a)
+    return a
 
 
 
 if __name__ == '__main__':
-    pt1()
-    pt2()
+    print("--- Day 9: Smoke Basin ---")
+    print("Part 1: ", pt1())
+    print("Part 2: ", pt2())

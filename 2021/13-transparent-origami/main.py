@@ -51,8 +51,6 @@ for line in input:
         height = max(height, row)
 
 
+print("--- Day 13: Transparent Origami ---")
 dot_count = sum([col for row in paper[0:height+1] for col in row[0:width+1] ])
 pt2 = print_paper()
-assert(dot_count == 100)
-
-

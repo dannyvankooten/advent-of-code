@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-lines = Path("input.txt").read_text().strip().split("]n")
+lines = Path("input.txt").read_text().strip().split("\n")
 pairs = {
     '(': ')',
     '{': '}',
@@ -28,7 +28,7 @@ def pt1():
                         break
                     expect.pop(-1)
 
-    print(score)
+    return score
 
 def autocomplete_score(line):
     expect = []
@@ -60,10 +60,10 @@ def pt2():
     scores = list(filter(lambda s: s is not None, scores))
     scores.sort()
     middle_score = scores[int(len(scores) / 2)]
-    print(middle_score)
+    return middle_score
 
 
 if __name__ == '__main__':
-    pt1()
-    pt2()
-
+    print("--- Day 10: Syntax Scoring ---")
+    print("Part 1: ", pt1())
+    print("Part 2: ", pt2())

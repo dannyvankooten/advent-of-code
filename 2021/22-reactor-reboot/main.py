@@ -65,6 +65,7 @@ def solve(cubes):
 
 
 if __name__ == '__main__':
+    print("--- Day 22: Reactor Reboot ---")
     input = Path("input.txt").read_text()
     cubes = parse_input(input)
     pt1 = solve([c for c in cubes if abs(c.x1) <= 50])

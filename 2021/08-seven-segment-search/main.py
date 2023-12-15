@@ -31,7 +31,7 @@ def part_one():
         for op in output_patterns:
             if len(op) in [2,3,4,7]:
                 count += 1
-    print(count)
+    return count
 
 def part_two():
     sum = 0
@@ -82,8 +82,11 @@ def part_two():
             value += int(find_in_map(m, op)) * pow(10, i)
     
         sum += value 
-    print(sum)
+    return sum
 
 if __name__ == '__main__':
-    part_one()
-    part_two()
+    pt1 = part_one()
+    pt2 = part_two()
+    print("--- Day 8: Seven Segment Search ---")
+    print("Part 1: ", pt1)
+    print("Part 2: ", pt2)

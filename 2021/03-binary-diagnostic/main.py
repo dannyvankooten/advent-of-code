@@ -46,8 +46,10 @@ def part_two():
     co2_rating = search(lines, False)
     return oxygen_gen_rating * co2_rating
    
-pt1 = part_one()
-print(pt1, pt1 == 4160394)
 
+pt1 = part_one()
 pt2 = part_two()  
+
+print("--- Day 3: Binary Diagnostic ---")
+print(pt1, pt1 == 4160394)
 print(pt2, pt2 == 4125600)

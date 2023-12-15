@@ -12,6 +12,6 @@ for pos in range(avg-1, avg+2):
 
     cheapest = min(sum, cheapest)
    
-
+print("--- Day 7: The Treachery of Whales ---")
 print(cheapest)
         

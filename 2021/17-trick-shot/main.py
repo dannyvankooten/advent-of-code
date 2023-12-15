@@ -1,14 +1,18 @@
 from dataclasses import dataclass
 from pathlib import Path
 import sys 
-import parse 
 from dataclasses import dataclass 
 import math 
 
 def parse_input(input):
-    pattern = "target area: x={x1:d}..{x2:d}, y={y1:d}..{y2:d}"
-    match = parse.search(pattern, input)
-    return match.named
+    input = input[len("target area: "):]
+    parts = input.split(', ')
+    parts[0] = parts[0][2:]
+    parts[1] = parts[1][2:]
+
+    x = [int(n) for n in parts[0].split('..')]
+    y = [int(n) for n in parts[1].split('..')]
+    return x, y
 
 @dataclass
 class Velocity:
@@ -35,10 +39,10 @@ class Probe:
         self.velocity.y -= 1
 
 
-def solve(target):
+def solve(xt, yt):
     distinct_velocity_values = 0
-    x_limit = max(abs(target['x1']), abs(target['x2'])) + 1
-    y_limit = max(abs(target['y1']), abs(target['y2'])) + 1
+    x_limit = max(abs(xt[0]), abs(xt[1])) + 1
+    y_limit = max(abs(yt[0]), abs(yt[1])) + 1
     step_limit = 2 * y_limit
 
     for x in range(-x_limit, x_limit):
@@ -47,19 +51,22 @@ def solve(target):
             for _ in range(step_limit):
                 probe.move()
 
-                if target['x1'] <= probe.x <= target['x2'] and target['y1'] <= probe.y <= target['y2']:
+                if xt[0] <= probe.x <= xt[1] and yt[0] <= probe.y <= yt[1]:
                     distinct_velocity_values += 1
                     break
-                elif abs(probe.x) > max(abs(target['x1']), abs(target['x2'])):
+                elif abs(probe.x) > max(abs(xt[0]), abs(xt[1])):
                     # overshot
                     break
-                elif probe.y < target['y1']:
+                elif probe.y < yt[0]:
                     # gravity baby
                     break
 
     return distinct_velocity_values
 
 if __name__ == '__main__':
+    print("--- Day 17: Trick Shot ---")
     input = Path("input.txt").read_text().strip()
-    data = parse_input(input)
-    print(solve(data))
+    x, y  = parse_input(input)
+
+    pt2 = solve(x, y)
+    print("Part 2: ", pt2, pt2 == 3229)

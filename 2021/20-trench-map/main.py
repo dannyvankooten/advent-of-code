@@ -53,6 +53,7 @@ def solve(input, steps):
     return sum([col for row in image for col in row])
 
 if __name__ == '__main__':
+    print("--- Day 20: Trench Map ---")
     input = Path("input.txt").read_text().strip().split("\n")
     print("part 1: ", solve(list(input), 2))
     print("part 2: ", solve(input, 50))

@@ -45,28 +45,30 @@ def maybe_flash(x, y):
         
     return flash_count
 
-flashes = 0
-for s in range(0, 1000):
-    flashed_this_step = 0
 
-    for o in grid:
-        o.flashed = False
-        o.energy_level += 1
+if __name__ == '__main__':
+    print("--- Day 11: Dumbo Octopus ---")
+    flashes = 0
+    for s in range(0, 1000):
+        flashed_this_step = 0
 
-    for y in range(0, H):
-        for x in range(0, W):
-            flashed_this_step += maybe_flash(x, y)
-            
-    flashes += flashed_this_step
-    
-    if s == 100:
-        print("Part 1: ", flashes)
-        assert(flashes == 1706)
-        
-    if flashed_this_step == H*W:
-        print("Part 2:", s+1)
-        assert(s+1 == 265)
-        break
+        for o in grid:
+            o.flashed = False
+            o.energy_level += 1
+
+        for y in range(0, H):
+            for x in range(0, W):
+                flashed_this_step += maybe_flash(x, y)
+
+        flashes += flashed_this_step
+
+        if s == 100:
+            print("Part 1: ", flashes, flashes == 1706)
+
+        if flashed_this_step == H*W:
+            print("Part 2:", s+1, s+1 == 265)
+
+            break
 
 
     

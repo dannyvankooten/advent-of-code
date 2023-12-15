@@ -38,6 +38,7 @@ def solve(rooms, hallway) -> int:
     return 0
 
 if __name__ == '__main__':
+    print("--- Day 23: Amphipod ---")
     rooms = {
         'A': [ 'A', 'B'  ],
         'B': [ 'D', 'C' ],

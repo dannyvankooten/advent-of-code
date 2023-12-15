@@ -36,7 +36,7 @@ def find_winning_board(boards):
 
     return None                        
 
-def part_one():
+def part_2():
     lines = Path("input.txt").read_text().split("\n")
     numbers = lines.pop(0).split(",")
     numbers = [int(n) for n in numbers]
@@ -82,5 +82,6 @@ def part_one():
 
 
 
-pt1 = part_one()
-print(pt1, pt1 == 2568)
+print("--- Day 4: Giant Squid ---")
+pt2 = part_2()
+print("Part 2: ", pt2, pt2 == 2568)

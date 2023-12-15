@@ -38,5 +38,6 @@ def part_2(lines):
 
 if __name__ == '__main__':
     lines = Path("input.txt").read_text().split("\n")
+    print("--- Day 2: Dive! ---")
     print("Part 1: ", part_1(lines))
     print("Part 2: ", part_2(lines))

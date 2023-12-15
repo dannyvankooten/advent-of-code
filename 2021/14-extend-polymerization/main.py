@@ -54,11 +54,10 @@ def apply_steps(n):
     least_common = min(char_count.values())
     return most_common - least_common
 
-# print answer
+
+print("--- Day 14: Extended Polymerization ---")
 pt1 = apply_steps(10)
-print("Part 1: ", pt1)
-assert(pt1 == 2947)
+print("Part 1: ", pt1, pt1 == 2947)
 
 pt2 = apply_steps(40)
-print("Part 2: ", pt2)
-assert(pt2 == 3232426226464)
+print("Part 2: ", pt2, pt2 == 3232426226464)

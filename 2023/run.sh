@@ -1,4 +1,15 @@
 #!/bin/bash
 
-for d in */; do cd $d && go run main.go && echo "" && cd ..; done
-(for d in */; do cd $d && go run main.go && cd ..; done) | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'
+set -e
+
+TIME="0.0"
+for d in */; do
+    cd "$d"
+    OUT=$(go run main.go)
+    TIME_DAY=$(awk 'NR%4==0 { gsub(/ms$/,"", $2); print $2; }' <<< $OUT)
+    TIME=$(echo "$TIME + $TIME_DAY" | bc)
+    echo -e "$OUT\n"
+    cd ..
+done
+
+printf "Total time: %.2fms\n", $TIME

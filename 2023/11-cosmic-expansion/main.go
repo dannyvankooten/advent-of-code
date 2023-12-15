@@ -51,7 +51,7 @@ func parse(filename string, expand int) []Galaxy {
 		}
 		if hasGalaxy == false {
 			// shift every galaxy to the right of this column by expand amounts
-			for i, _ := range galaxies {
+			for i := range galaxies {
 				if galaxies[i].c > c {
 					galaxies[i].c += expand
 				}

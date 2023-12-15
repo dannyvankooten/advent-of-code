@@ -112,15 +112,6 @@ func floyd(f func([][]byte), x0 [][]byte) (int, [][]byte) {
 		f(hare)
 	}
 
-	// // move both to start of cycle
-	// mu := 0
-	// tortoise = copyGrid(x0)
-	// for !isEqual(tortoise, hare) {
-	// 	mu += 1
-	// 	f(tortoise)
-	// 	f(hare)
-	// }
-
 	// move hare forward until start of next cycle
 	// tortoise remains in place
 	cycleLength := 1

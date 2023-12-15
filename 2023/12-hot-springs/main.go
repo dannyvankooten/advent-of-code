@@ -98,7 +98,7 @@ func main() {
 
 	pt1 := 0
 	pt2 := 0
-	for lineno, l := range lines {
+	for _, l := range lines {
 		spacePos := strings.Index(l, " ")
 		a := l[:spacePos]
 		b := l[spacePos+1:]
@@ -124,9 +124,10 @@ func main() {
 		}
 		f2 := permute([]rune(a2), 0, b2)
 		pt2 += f2
-		fmt.Printf("%03d / %03d: %d arrangements \n", lineno, len(lines)-1, f2)
+		// fmt.Printf("%03d / %03d: %d arrangements \n", lineno, len(lines)-1, f2)
 	}
 
+	fmt.Printf("--- Day 12: Hot Springs ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)
 	fmt.Printf("Part 2: %d\n", pt2)
 	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)

@@ -49,7 +49,7 @@ int pt2(const char *input) {
 
     case '}':
       // check if we broke out of red objecty
-      if (red == 0) {
+      if (red == 0 && objs > 0) {
         objsums[objs - 1] += objsums[objs];
       } else if (objs == red) {
         red = 0;
@@ -76,7 +76,7 @@ int pt2(const char *input) {
 }
 
 int main() {
-  clock_t tstart = timer_start();
+  clock_t tstart = clock_time();
   char input[32 * 1024] = "";
   read_input_file(input, 1024 * 32, "input.txt");
 
@@ -99,6 +99,6 @@ int main() {
   printf("--- Day 12: JSAbacusFramework.io ---\n");
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", timer_stop(tstart));
+  printf("Time: %.2fms\n", clock_time_since(tstart));
   return 0;
 }

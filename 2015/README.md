@@ -5,6 +5,8 @@ See https://adventofcode.com/2015/ for puzzle texts and inputs.
 Execute [run.sh](run.sh) to run all solutions for all days (using bash + awk). 
 Needs a C compiler toolchain like gcc or Clang.
 
+Inputs are read from a `input.txt` file in the respective directory for each day's solution.
+
 ```bash
 for d in */; do cd $d && cc -Ofast -march=native main.c -lcrypto && ./a.out && echo "" && cd ..; done
 (for d in */; do cd $d && cc -Ofast -march=native main.c -lcrypto && ./a.out && cd ..; done) | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'

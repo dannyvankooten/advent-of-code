@@ -1,62 +1,65 @@
+#include "../adventofcode.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
-#include <stdlib.h>
 
 int pt1(int *houses, int nhouses, int target, int elfvalue, int elflimit) {
-    int elf, house, j;
+  int elf, house, j;
 
-    if (elflimit > 0) {
-        for (elf = 1; elf < nhouses; elf++) {
-            for (house = elf, j = 0; house < nhouses && j < elflimit; house += elf, j++) {
-                houses[house] += elf * elfvalue;
-            }
-        }
-    } else {
-        // simpler loop without elf limit
-        for (elf = 1; elf < nhouses; elf++) {
-            for (house = elf; house < nhouses; house += elf) {
-                houses[house] += elf * elfvalue;
-            }
-        }
+  if (elflimit > 0) {
+    for (elf = 1; elf < nhouses; elf++) {
+      for (house = elf, j = 0; house < nhouses && j < elflimit;
+           house += elf, j++) {
+        houses[house] += elf * elfvalue;
+      }
     }
-
-    for (int i = 1; i < nhouses; i++) {
-        if (houses[i] > target) {
-            return i;
-        }
+  } else {
+    // simpler loop without elf limit
+    for (elf = 1; elf < nhouses; elf++) {
+      for (house = elf; house < nhouses; house += elf) {
+        houses[house] += elf * elfvalue;
+      }
     }
+  }
 
-    return -1;
+  for (int i = 1; i < nhouses; i++) {
+    if (houses[i] > target) {
+      return i;
+    }
+  }
+
+  return -1;
 }
 
 int main() {
-    clock_t start_t, end_t;
-    start_t = clock();
+  clock_t start_t = clock_time();
 
-    int target = 34000000;
-    int nhouses = target / 10;
-    int *houses = malloc(sizeof(int) * nhouses);
-    if (houses == NULL) {
-        perror("error allocating memory");
-        exit(EXIT_FAILURE);
-    }
-    memset(houses, 0, nhouses * sizeof(int));
+  char input[64];
+  read_input_file(input, 64, "input.txt");
+  int target;
+  parse_int(&target, input);
 
-    int a1 = pt1(houses, nhouses, target, 10, -1);
+  int nhouses = target / 10;
+  int *houses = malloc(sizeof(int) * nhouses);
+  if (houses == NULL) {
+    perror("error allocating memory");
+    exit(EXIT_FAILURE);
+  }
+  memset(houses, 0, nhouses * sizeof(int));
 
-    memset(houses, 0, nhouses * sizeof(int));
-    nhouses = target / 11;
-    int a2 = pt1(houses, nhouses, target, 11, 50);
+  int a1 = pt1(houses, nhouses, target, 10, -1);
 
-    printf("--- Day 20: Infinite Elves and Infinite Houses ---\n");
-    printf("Part 1: %d\n", a1);
-    printf("Part 2: %d\n", a2);
+  memset(houses, 0, nhouses * sizeof(int));
+  nhouses = target / 11;
+  int a2 = pt1(houses, nhouses, target, 11, 50);
 
-    end_t = clock();
-    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("Time: %.2fms\n", total_t);
+  printf("--- Day 20: Infinite Elves and Infinite Houses ---\n");
+  printf("Part 1: %d\n", a1);
+  printf("Part 2: %d\n", a2);
 
-    free(houses);
-    return 0;
+  printf("Time: %.2fms\n", clock_time_since(start_t));
+
+  free(houses);
+  return 0;
 }

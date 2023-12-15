@@ -4,14 +4,6 @@
 #include <string.h>
 #include <time.h>
 
-const char *parse_name(char *dst, const char *src) {
-  while (*src != ' ') {
-    *dst++ = *src++;
-  }
-  *dst = '\0';
-  return src;
-}
-
 int next_pt1(int distances[16], int visited[16], int n) {
   int min = -1;
   int min_index = -1;
@@ -93,7 +85,7 @@ int getcity(char cities[16][16], int ncities, char *c) {
 }
 
 int main() {
-  clock_t tstart = timer_start();
+  clock_t tstart = clock_time();
   char input[1024 * 64] = "";
   read_input_file(input, 1024 * 64, "input.txt");
 
@@ -106,9 +98,9 @@ int main() {
   int distance;
   const char *s = input;
   while (*s != '\0') {
-    s = parse_name(city_from, s);
+    s = parse_ident(city_from, s);
     s = skip(" to ", s);
-    s = parse_name(city_to, s);
+    s = parse_ident(city_to, s);
     s = skip(" = ", s);
     s = parse_int(&distance, s);
     s = skip_optional('\n', s);
@@ -143,6 +135,6 @@ int main() {
   printf("--- Day 9: All in a Single Night ---\n");
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", timer_stop(tstart));
+  printf("Time: %.2fms\n", clock_time_since(tstart));
   return EXIT_SUCCESS;
 }

@@ -1,41 +1,22 @@
-#include <assert.h>
+#include "../adventofcode.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #define HASH(v) ((v[0] - 'a' + 1) * 27 + (v[1] == '\0' ? 0 : v[1] - 'a' + 1))
-
-static inline char *parse_int(uint16_t *dst, char *s) {
-  uint16_t n = 0;
-  while (*s >= '0' && *s <= '9') {
-    n = (n * 10) + (*s - '0');
-    s++;
-  }
-  *dst = n;
-  return s;
-}
-
-static inline char *parse_ident(char *dst, char *s) {
-  while (*s >= 'a' && *s <= 'z') {
-    *dst++ = *s++;
-  }
-  *dst = '\0';
-  return s;
-}
 
 enum op { AND = 0, OR, NOT, LSHIFT, RSHIFT, DIRECT };
 
-char *opcode_to_str(enum op opcode) {
-  char *names[] = {
-      "AND", "OR", "NOT", "LSHIFT", "RSHIFT", "DIRECT",
-  };
+static const char *opcode_names[] = {
+    "AND", "OR", "NOT", "LSHIFT", "RSHIFT", "DIRECT",
+};
 
-  return names[opcode];
+static const char *opcode_to_str(enum op opcode) {
+  return opcode_names[opcode];
 }
 
-static inline char *parse_op(enum op *dst, char *s) {
+static inline const char *parse_op(enum op *dst, const char *s) {
   switch (*s) {
   case 'A':
     *dst = AND;
@@ -74,8 +55,8 @@ typedef struct instruction {
   char rhs_ident[3];
   char target[3];
   enum op opcode;
-  uint16_t lhs_value;
-  uint16_t rhs_value;
+  int lhs_value;
+  int rhs_value;
 } instruction_t;
 
 void print_instruction(instruction_t i) {
@@ -101,7 +82,7 @@ void print_instruction(instruction_t i) {
 int run(instruction_t *instructions, int ninstructions) {
   int wires[27 * 27];
   memset(wires, -1, 27 * 27 * sizeof(int));
-  uint16_t signals[340];
+  uint16_t signals[512];
   uint16_t nwires = 0;
 
   while (1) {
@@ -170,24 +151,15 @@ int run(instruction_t *instructions, int ninstructions) {
 }
 
 int main() {
-  FILE *fp = fopen("input.txt", "r");
-  if (!fp) {
-    fprintf(stderr, "error reading input.txt");
-    exit(EXIT_FAILURE);
-  }
   char input[32 * 1024] = "";
-  size_t nread = fread(input, 1, 32 * 1024, fp);
-  input[nread] = '\0';
-  fclose(fp);
+  read_input_file(input, 32 * 1024, "input.txt");
+  clock_t start_t = clock_time();
 
-  clock_t start_t, end_t;
-  start_t = clock();
-
-  instruction_t instructions[340];
+  instruction_t instructions[512];
   int ninstructions = 0;
 
   // parse input
-  char *s = input;
+  const char *s = input;
   while (*s != '\0') {
     instruction_t *ins = &instructions[ninstructions++];
     ins->lhs_value = 0;
@@ -224,7 +196,7 @@ int main() {
     }
 
     // skip "-> "
-    s += 3;
+    s = skip("-> ", s);
 
     // parse target wire
     s = parse_ident(ins->target, s);
@@ -233,11 +205,8 @@ int main() {
     s++;
   }
 
-  printf("--- Day 7: Some Assembly Required ---\n");
-
   // run instructions
   uint16_t pt1 = run(instructions, ninstructions);
-  printf("Part 1: %d %s\n", pt1, pt1 == 46065 ? "CORRECT" : "WRONG");
 
   // override instructions so b takes direct value from signal a in part 1
   for (int i = 0; i < ninstructions; i++) {
@@ -249,10 +218,9 @@ int main() {
     }
   }
   uint16_t pt2 = run(instructions, ninstructions);
-  printf("Part 2: %d %s\n", pt2, pt2 == 14134 ? "CORRECT" : "WRONG");
-
-  end_t = clock();
-  double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-  printf("Time: %.2fms\n", total_t);
+  printf("--- Day 7: Some Assembly Required ---\n");
+  printf("Part 1: %d %s\n", pt1, pt1 == 46065 ? "✔" : "");
+  printf("Part 2: %d %s\n", pt2, pt2 == 14134 ? "✔" : "");
+  printf("Time: %.2fms\n", clock_time_since(start_t));
   return 0;
 }

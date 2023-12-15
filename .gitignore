@@ -9,3 +9,4 @@ aoc2020debug
 .idea
 .vscode
 input.txt
+*.sublime-*

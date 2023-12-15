@@ -1,9 +1,7 @@
 #include "../adventofcode.h"
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 typedef struct reindeer {
@@ -93,6 +91,14 @@ int pt2(reindeer_t players[], int nplayers) {
   return max_points(players, nplayers);
 }
 
+const char *skip_until_number(const char *s) {
+  while (*s != 0x0 && (*s < '0' || *s > '9')) {
+    s++;
+  }
+
+  return s;
+}
+
 void parse(reindeer_t *players, int *nplayers) {
   char input[32 * 1024] = "";
   read_input_file(input, 32 * 1024, "input.txt");
@@ -101,17 +107,13 @@ void parse(reindeer_t *players, int *nplayers) {
   const char *s = input;
   while (*s != '\0') {
     s = parse_ident(players[n].name, s);
-    while (*s < '0' || *s > '9')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&players[n].speed, s);
-    while (*s < '0' || *s > '9')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&players[n].fly_time, s);
-    while (*s < '0' || *s > '9')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&players[n].rest_time, s);
-    while (*s != '\n')
-      s++;
+    s = skip_until('\n', s);
 
     players[n].points = 0;
     players[n].toggle_at = 0;
@@ -130,16 +132,11 @@ int main() {
   int nplayers = 0;
   parse(players, &nplayers);
 
-  printf("--- Day 14: Reindeer Olympics ---\n");
-
   int a1 = pt1(players, nplayers);
-  printf("Part 1: %d\n", a1);
-  assert(a1 == 2660);
-
   int a2 = pt2(players, nplayers);
-  printf("Part 2: %d\n", a2);
-  assert(a2 == 1256);
-
+  printf("--- Day 14: Reindeer Olympics ---\n");
+  printf("Part 1: %d %s\n", a1, a1 == 2660 ? "✔" : "");
+  printf("Part 2: %d %s\n", a2, a2 == 1256 ? "✔" : "");
   printf("Time: %.2fms\n", clock_time_since(start_t));
-  return 0;
+  return EXIT_SUCCESS;
 }

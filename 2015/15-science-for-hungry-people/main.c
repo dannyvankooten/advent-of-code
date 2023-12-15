@@ -1,8 +1,6 @@
 #include "../adventofcode.h"
 #include <stdbool.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 typedef struct ingredient {
@@ -14,8 +12,14 @@ typedef struct ingredient {
   int calories;
 } ingredient_t;
 
-void parse(ingredient_t *ingredients, int *ningredients) {
+static const char *skip_until_number(const char *s) {
+  while ((*s < '0' || *s > '9') && *s != '-') {
+    s++;
+  }
+  return s;
+}
 
+void parse(ingredient_t *ingredients, int *ningredients) {
   char input[64 * 1024];
   read_input_file(input, 64 * 1024, "input.txt");
 
@@ -23,27 +27,18 @@ void parse(ingredient_t *ingredients, int *ningredients) {
   const char *s = input;
   while (*s != '\0') {
     s = parse_ident(ingredients[n].name, s);
-    while ((*s < '0' || *s > '9') && *s != '-')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&ingredients[n].capacity, s);
-    while ((*s < '0' || *s > '9') && *s != '-')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&ingredients[n].durability, s);
-    while ((*s < '0' || *s > '9') && *s != '-')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&ingredients[n].flavor, s);
-    while ((*s < '0' || *s > '9') && *s != '-')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&ingredients[n].texture, s);
-    while ((*s < '0' || *s > '9') && *s != '-')
-      s++;
+    s = skip_until_number(s);
     s = parse_int(&ingredients[n].calories, s);
-
-    while (*s != '\n' && *s != '\0')
-      s++;
-    if (*s == '\n')
-      s++;
-
+    s = skip_until('\n', s);
+    s = skip_optional('\n', s);
     n++;
   }
 
@@ -109,8 +104,9 @@ int main() {
   }
 
   printf("--- Day 15: Science for Hungry People ---\n");
-  printf("Part 1: %d\n", max_score);
-  printf("Part 2: %d\n", max_score_500c);
+  printf("Part 1: %d %s\n", max_score, max_score == 18965440 ? "✔" : "");
+  printf("Part 2: %d %s\n", max_score_500c,
+         max_score_500c == 15862900 ? "✔" : "");
   printf("Time: %.2fms\n", clock_time_since(start_t));
   return 0;
 }

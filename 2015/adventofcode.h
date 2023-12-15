@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+/* Allocate SIZE bytes of memory.  */
 static inline void *malloc_or_die(unsigned long size) {
   void *ptr = malloc(size);
   if (ptr == NULL) {
@@ -12,6 +13,8 @@ static inline void *malloc_or_die(unsigned long size) {
 
   return ptr;
 }
+
+/* Allocate NMEMB elements of SIZE bytes each, all initialized to 0.  */
 static inline void *calloc_or_die(unsigned long n, unsigned long size) {
   void *ptr = calloc(n, size);
   if (ptr == NULL) {
@@ -66,16 +69,14 @@ static inline const char *parse_int(int *dst, const char *s) {
   return s;
 }
 
-// parse_uint8 parses a single unsigned byte value
-static inline char *parse_uint8(uint8_t *dst, char *s) {
-  uint8_t n = 0;
+// parse_int parses a (signed) integer, with optional plus sign
+static inline const char *parse_uint16(int16_t *dst, const char *s) {
+  return parse_int((int *)dst, s);
+}
 
-  while (*s >= '0' && *s <= '9') {
-    n = (n * 10) + (*s - '0');
-    s++;
-  }
-  *dst = n;
-  return s;
+// parse_uint8 parses a single unsigned byte value
+static inline const char *parse_uint8(uint8_t *dst, char *s) {
+  return parse_int((int *)dst, s);
 }
 
 // skip advanced the pointer s as long as it matches the corresponding chars
@@ -101,7 +102,7 @@ static inline const char *skip_optional(char c, const char *s) {
   return s;
 }
 
-static inline char *skip_until(char c, char *s) {
+static inline const char *skip_until(char c, const char *s) {
   while (*s != c && *s != 0x0) {
     s++;
   }

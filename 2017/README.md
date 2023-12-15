@@ -6,6 +6,9 @@ Solutions implemented in C.
 
 Execute [run.sh](run.sh) to run all days (needs a C compiler like gcc or Clang):
 
+Inputs are read from a `input.txt` file in the respective directory for each day's solution.
+
+
 ```sh 
 ./run.sh 
 ```

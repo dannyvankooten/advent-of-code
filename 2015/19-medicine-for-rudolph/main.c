@@ -1,13 +1,16 @@
 #include "../adventofcode.h"
+#include "../hashmap.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-int parse(const char *s, char needles[64][16], char replacements[64][16],
+int parse(const char *s, char needles[][16], char replacements[][16],
           char *medicine) {
+
   int n = 0;
   while (*s != '\0') {
+    // parse needles => replacements until double newline
     while (*s != '\n') {
       s = parse_ident(needles[n], s);
       s = skip(" => ", s);
@@ -25,86 +28,102 @@ int parse(const char *s, char needles[64][16], char replacements[64][16],
   return n;
 }
 
-int pt1(char needles[64][16], char replacements[64][16], int nreplacements,
-        char *const medicine) {
-  char *molecules = calloc_or_die(1024 * 512, sizeof(char));
+// indexof returns the index of the given string in the array, or -1
+static inline int indexof(char *haystack[], int n, char *needle) {
+  for (int j = 0; j < n; j++) {
+    if (strcmp(haystack[j], needle) == 0) {
+      return j;
+    }
+  }
+
+  return -1;
+}
+
+int pt1(char needles[][16], char replacements[][16], int n, char *medicine) {
+  hashmap_t hm = hashmap_new(1024);
   int nmolecules = 0;
-  int pt1 = 0;
+  char buf[1024];
+  int len = strlen(medicine);
+  for (int pos = 0; pos < len; pos++) {
+    for (int i = 0; i < n; i++) {
+      char *needle = needles[i];
 
-  struct replacement {
-    int pos;
-    char value[16];
-  };
-
-  struct replacement *replaced = malloc(128 * sizeof(struct replacement));
-  int nreplaced = 0;
-
-  char *m = medicine;
-  int pos = 0;
-  while (*m != '\0') {
-    for (int r = 0; r < nreplacements; r++) {
-      if (strncmp(m, needles[r], strlen(needles[r])) != 0) {
+      // check if current position matches needle
+      int needle_length = strlen(needle);
+      if (strncmp(&medicine[pos], needle, needle_length) != 0) {
         continue;
       }
 
-      char *molecule = molecules + (nmolecules * 512 * sizeof(char));
-      strncpy(molecule, medicine, m - medicine);
-      strcat(molecule, replacements[r]);
-      strcat(molecule, m + strlen(needles[r]));
+      char *replacement = replacements[i];
+      char *m = buf;
+      int suffix_length = len - pos - needle_length;
+      int replacement_length = strlen(replacement);
 
-      replaced[nreplaced].pos = pos;
-      strcpy(replaced[nreplaced].value, replacements[r]);
-      nreplaced++;
+      memcpy(m, medicine, pos);
+      m += pos;
 
-      // is this a unique addition
-      int unique = 1;
-      for (int j = 0; j < nreplaced; j++) {
-        if (replaced[j].pos == pos &&
-            strcmp(replaced[j].value, needles[r]) == 0) {
-          unique = 0;
-          break;
-        }
+      memcpy(m, replacement, replacement_length);
+      m += replacement_length;
+
+      memcpy(m, &medicine[pos + needle_length], suffix_length);
+      m += suffix_length;
+      *m = 0x0;
+
+      int *seen = hashmap_entry(&hm, (unsigned char *)buf, m - buf);
+      if (*seen != 1) {
+        *seen = 1;
+        nmolecules++;
       }
-      pt1 += unique;
-      nmolecules++;
     }
-
-    m++;
-    pos++;
   }
 
-  printf("did %d nreplacements\n", nreplaced);
+  hashmap_free(&hm);
+  return nmolecules;
+}
 
-  free(molecules);
-  return pt1;
+// for part 2 a recursive solution isn't feasible
+// but a greedy algorithm starting from "e" doesn't work
+// working backwards doesn't work on the sample input "HOHOHO" but it
+// does on my actual input...
+int pt2(char needles[][16], char replacements[][16], int n, char *medicine) {
+  char buf[1024];
+  int steps = 0;
+
+  while (strcmp(medicine, "e") != 0) {
+    for (int i = 0; i < n; i++) {
+      const char *needle = needles[i];
+      const char *replacement = replacements[i];
+
+      char *pos = strstr(medicine, replacement);
+      if (pos != NULL) {
+        strcpy(buf, pos + strlen(replacement));
+        strcpy(pos, needle);
+        strcat(pos, buf);
+        steps += 1;
+      }
+    }
+  }
+
+  return steps;
 }
 
 int main() {
   clock_t start_t = clock_time();
 
   char input[1024 * 32] = "";
-  read_input_file(input, 1024 * 32, "input_test.txt");
+  read_input_file(input, 1024 * 32, "input.txt");
 
   char needles[64][16];
   char replacements[64][16];
-  char medicine[512];
+  char medicine[1024];
   int nreplacements = parse(input, needles, replacements, medicine);
 
   int a1 = pt1(needles, replacements, nreplacements, medicine);
-
-  int pt2 = 0;
-  // TODO: Since we have multiple possible replacements
-  // We need to split off into a recursion at every replacement with multiple
-  // replacement values We can bail a recursion whenever the medicine prefix
-  // doesn't match.
-  char result[1024 * 16];
-  strcpy(result, "e");
+  int a2 = pt2(needles, replacements, nreplacements, medicine);
 
   printf("--- Day 19: Medicine for Rudolph ---\n");
   printf("Part 1: %d\n", a1);
-  printf("Part 2: %d\n", pt2);
-
+  printf("Part 2: %d\n", a2);
   printf("Time: %.2fms\n", clock_time_since(start_t));
-
-  return 0;
+  return EXIT_SUCCESS;
 }

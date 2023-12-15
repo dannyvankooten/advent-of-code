@@ -4,6 +4,8 @@ See https://adventofcode.com/2018 for puzzle text and inputs.
 
 Execute [run.sh](run.sh) to run all days (needs a C compiler like gcc or Clang):
 
+Inputs are read from a `input.txt` file in the respective directory for each day's solution.
+
 ```
 --- Day 1: Chronal Calibration ---
 Part 1: 561

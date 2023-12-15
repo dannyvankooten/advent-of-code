@@ -1,15 +1,12 @@
 #!/bin/bash
 
-set -e
-
-TIME="0.0"
+ALLOUT=""
 for d in */; do
     cd "$d"
     OUT=$(go run main.go)
-    TIME_DAY=$(awk 'NR%4==0 { gsub(/ms$/,"", $2); print $2; }' <<< $OUT)
-    TIME=$(echo "$TIME + $TIME_DAY" | bc)
+    ALLOUT+="$OUT\n"
     echo -e "$OUT\n"
     cd ..
 done
 
-printf "Total time: %.2fms\n", $TIME
+echo -e "$ALLOUT" | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'

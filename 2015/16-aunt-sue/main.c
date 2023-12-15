@@ -1,5 +1,4 @@
 #include "../adventofcode.h"
-#include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,13 +12,12 @@ int pt1(char *input) {
 
   const char *s = input;
   while (*s != '\0') {
-    while (*s != ':')
-      s++;
-    s++;
+    s = skip_until(':', s);
+    s = skip(": ", s);
 
     while (*s != '\n') {
       s = parse_ident(ident, s);
-      s += 2; // ": "
+      s = skip(": ", s);
       s = parse_int(&amount, s);
       if (*s == ',')
         s += 2;
@@ -50,10 +48,8 @@ int pt1(char *input) {
     return n + 1;
 
   skip:
-    while (*s != '\n' && *s != '\0')
-      s++;
-    if (*s == '\n')
-      s++;
+    s = skip_until('\n', s);
+    s = skip_optional('\n', s);
     n++;
   }
 
@@ -111,16 +107,12 @@ int main() {
   clock_t start_t = clock_time();
   char input[64 * 1024];
   read_input_file(input, 64 * 1024, "input.txt");
+  int a1 = pt1(input);
+  int a2 = pt2(input);
 
   printf("--- Day 16: Aunt Sue ---\n");
-  int a1 = pt1(input);
-  printf("Part 1: %d\n", a1);
-  assert(a1 == 213);
-
-  int a2 = pt2(input);
-  printf("Part 2: %d\n", a2);
-  assert(a2 == 323);
-
+  printf("Part 1: %d %s\n", a1, a1 == 213 ? "✔" : "");
+  printf("Part 2: %d %s\n", a2, a2 == 323 ? "✔" : "");
   printf("Time: %.2fms\n", clock_time_since(start_t));
-  return 0;
+  return EXIT_SUCCESS;
 }

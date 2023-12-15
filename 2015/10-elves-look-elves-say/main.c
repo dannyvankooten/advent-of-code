@@ -1,8 +1,6 @@
 #include "../adventofcode.h"
-#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 int apply(char *dst, char *in) {
@@ -34,8 +32,6 @@ int main() {
   char *buf = input + (1024 * 1024 * 8 * sizeof(char));
   char *tmp;
 
-  printf("--- Day 10: Elves Look, Elves Say ---\n");
-
   int pt1;
   for (int i = 0; i < 40; i++) {
     pt1 = apply(buf, input);
@@ -43,8 +39,6 @@ int main() {
     input = buf;
     buf = tmp;
   }
-  printf("Part 1: %d\n", pt1);
-  assert(pt1 == 492982);
 
   int pt2;
   for (int i = 0; i < 10; i++) {
@@ -53,9 +47,10 @@ int main() {
     input = buf;
     buf = tmp;
   }
-  printf("Part 2: %d\n", pt2);
-  assert(pt2 == 6989950);
 
+  printf("--- Day 10: Elves Look, Elves Say ---\n");
+  printf("Part 1: %d %s\n", pt1, pt1 == 492982 ? "✔" : "");
+  printf("Part 2: %d %s\n", pt2, pt2 == 6989950 ? "✔" : "");
   printf("Time: %.2fms\n", clock_time_since(start_t));
   free(input);
   return 0;

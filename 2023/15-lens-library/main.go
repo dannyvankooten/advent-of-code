@@ -90,9 +90,9 @@ func pt2(input []byte) int {
 	}
 
 	a := 0
-	for i := 0; i < 256; i++ {
-		for l, lens := range boxes[i] {
-			a += (i + 1) * (l + 1) * lens.FocalLength
+	for boxId := 0; boxId < 256; boxId++ {
+		for slot, lens := range boxes[boxId] {
+			a += (boxId + 1) * (slot + 1) * lens.FocalLength
 		}
 	}
 

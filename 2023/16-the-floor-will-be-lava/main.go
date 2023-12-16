@@ -28,45 +28,48 @@ type Pos struct {
 	y int
 }
 
+var MIRROR_A = []int{
+	E: N,
+	W: S,
+	S: W,
+	N: E,
+}
+
+var MIRROR_B = []int{
+	E: S,
+	S: E,
+	W: N,
+	N: W,
+}
+
+var seen = make(map[[3]int]bool)
+
 func beam(grid []string, energy [][]int, p Pos, dir int, depth int) {
-	if depth > 28 {
-		return
-	}
+
+	width := len(grid[0])
+	height := len(grid)
 
 	for {
-		// bail if we just escaped the grid
-		if p.y < 0 || p.y >= len(grid) {
-			return
-		}
-
-		if p.x < 0 || p.x >= len(grid[p.y]) {
+		key := [3]int{p.y, p.x, dir}
+		if _, ok := seen[key]; ok {
 			return
 		}
 
 		// energize current tile
 		energy[p.y][p.x] = 1
+		seen[key] = true
 
 		// change dir?
 		switch grid[p.y][p.x] {
 		case byte('/'):
 			// go north if traveling eastwards
-			change := []int{
-				E: N,
-				W: S,
-				S: W,
-				N: E,
-			}
-			dir = change[dir]
+
+			dir = MIRROR_A[dir]
 			break
 
 		case byte('\\'):
-			change := []int{
-				E: S,
-				S: E,
-				W: N,
-				N: W,
-			}
-			dir = change[dir]
+
+			dir = MIRROR_B[dir]
 			break
 
 		case byte('|'):
@@ -87,9 +90,18 @@ func beam(grid []string, energy [][]int, p Pos, dir int, depth int) {
 			break
 		}
 
-		// take a step in the current direction
 		p.x += directions[dir].x
 		p.y += directions[dir].y
+
+		// bail if we just escaped the grid
+		if p.y < 0 || p.y >= height {
+			return
+		}
+
+		if p.x < 0 || p.x >= width {
+			return
+		}
+
 	}
 }
 
@@ -127,6 +139,7 @@ func pt2(grid []string) int {
 
 	// start at every row in first and last column
 	for row := 0; row < len(grid); row++ {
+		clear(seen)
 		clearEnergy(energy)
 		beam(grid, energy, Pos{0, row}, E, 0)
 		e := sumEnergy(energy)
@@ -134,6 +147,7 @@ func pt2(grid []string) int {
 			best = e
 		}
 
+		clear(seen)
 		clearEnergy(energy)
 		energy = makeEnergy(grid)
 		beam(grid, energy, Pos{len(grid[0]) - 1, row}, W, 0)
@@ -147,6 +161,7 @@ func pt2(grid []string) int {
 	for col := 0; col < len(grid[0]); col++ {
 
 		// top row going south
+		clear(seen)
 		clearEnergy(energy)
 		beam(grid, energy, Pos{col, 0}, S, 0)
 		e := sumEnergy(energy)
@@ -155,6 +170,7 @@ func pt2(grid []string) int {
 		}
 
 		// bottom row going north
+		clear(seen)
 		clearEnergy(energy)
 		energy = makeEnergy(grid)
 		beam(grid, energy, Pos{col, len(grid) - 1}, N, 0)
@@ -183,6 +199,7 @@ func main() {
 	grid := strings.Split(string(bytes.TrimSpace(input)), "\n")
 
 	a1 := pt1(grid)
+	// a2 := 0
 	a2 := pt2(grid)
 	fmt.Printf("--- Day 16: The Floor Will Be Lava ---\n")
 	fmt.Printf("Part 1: %d\n", a1)

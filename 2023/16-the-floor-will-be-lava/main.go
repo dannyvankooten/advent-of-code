@@ -42,50 +42,45 @@ var MIRROR_B = []int{
 	N: W,
 }
 
-var seen = make(map[[3]int]bool)
-
-func beam(grid []string, energy [][]int, p Pos, dir int, depth int) {
-
-	width := len(grid[0])
-	height := len(grid)
+func (c *Grid) Beam(p Pos, dir int) {
+	width := len(c.tiles[0])
+	height := len(c.tiles)
 
 	for {
-		key := [3]int{p.y, p.x, dir}
-		if _, ok := seen[key]; ok {
+		// create single int key from coords + direction
+		// grid in input is 110x110 so we really only need 21 bits
+		key := (p.y * 110 * 10) + (p.x * 10) + dir
+		if c.seen[key] == true {
 			return
 		}
 
 		// energize current tile
-		energy[p.y][p.x] = 1
-		seen[key] = true
+		c.energized[p.y][p.x] = true
+		c.seen[key] = true
 
 		// change dir?
-		switch grid[p.y][p.x] {
+		switch c.tiles[p.y][p.x] {
 		case byte('/'):
 			// go north if traveling eastwards
-
 			dir = MIRROR_A[dir]
 			break
 
 		case byte('\\'):
-
 			dir = MIRROR_B[dir]
 			break
 
 		case byte('|'):
 			// if going to East or West split
 			if dir == E || dir == W {
-				beam(grid, energy, p, N, depth+1)
-				beam(grid, energy, p, S, depth+1)
-				return
+				c.Beam(p, N)
+				dir = S
 			}
 			break
 
 		case byte('-'):
 			if dir == N || dir == S {
-				beam(grid, energy, p, E, depth+1)
-				beam(grid, energy, p, W, depth+1)
-				return
+				c.Beam(p, E)
+				dir = W
 			}
 			break
 		}
@@ -105,19 +100,19 @@ func beam(grid []string, energy [][]int, p Pos, dir int, depth int) {
 	}
 }
 
-func makeEnergy(grid []string) [][]int {
-	energy := make([][]int, len(grid))
+func makeEnergy(grid []string) [][]bool {
+	energy := make([][]bool, len(grid))
 	for row := range grid {
-		energy[row] = make([]int, len(grid[row]))
+		energy[row] = make([]bool, len(grid[row]))
 	}
 	return energy
 }
 
-func sumEnergy(energy [][]int) int {
+func (c *Grid) CountEnergizedTiles() int {
 	e := 0
-	for _, row := range energy {
+	for _, row := range c.energized {
 		for _, col := range row {
-			if col > 0 {
+			if col {
 				e += 1
 			}
 		}
@@ -125,68 +120,71 @@ func sumEnergy(energy [][]int) int {
 	return e
 }
 
-func clearEnergy(energy [][]int) {
-	for row := range energy {
-		for col := range energy[row] {
-			energy[row][col] = 0
+func (c *Grid) ClearEnergy() {
+	for row := range c.energized {
+		for col := range c.energized[row] {
+			c.energized[row][col] = false
 		}
 	}
 }
 
-func pt2(grid []string) int {
+func pt2(c *Grid) int {
 	best := 0
-	energy := makeEnergy(grid)
+	height := len(c.tiles)
+	width := len(c.tiles[0])
 
 	// start at every row in first and last column
-	for row := 0; row < len(grid); row++ {
-		clear(seen)
-		clearEnergy(energy)
-		beam(grid, energy, Pos{0, row}, E, 0)
-		e := sumEnergy(energy)
-		if e > best {
-			best = e
+	for row := 0; row < len(c.tiles); row++ {
+		energy := c.calculateEnergy(Pos{0, row}, E)
+		if energy > best {
+			best = energy
 		}
 
-		clear(seen)
-		clearEnergy(energy)
-		energy = makeEnergy(grid)
-		beam(grid, energy, Pos{len(grid[0]) - 1, row}, W, 0)
-		e = sumEnergy(energy)
-		if e > best {
-			best = e
+		energy = c.calculateEnergy(Pos{width - 1, row}, W)
+		if energy > best {
+			best = energy
 		}
 	}
 
 	// start at every column in top row and bottom row
-	for col := 0; col < len(grid[0]); col++ {
-
+	for col := 0; col < len(c.tiles[0]); col++ {
 		// top row going south
-		clear(seen)
-		clearEnergy(energy)
-		beam(grid, energy, Pos{col, 0}, S, 0)
-		e := sumEnergy(energy)
-		if e > best {
-			best = e
+		energy := c.calculateEnergy(Pos{col, 0}, S)
+		if energy > best {
+			best = energy
 		}
 
 		// bottom row going north
-		clear(seen)
-		clearEnergy(energy)
-		energy = makeEnergy(grid)
-		beam(grid, energy, Pos{col, len(grid) - 1}, N, 0)
-		e = sumEnergy(energy)
-		if e > best {
-			best = e
+		energy = c.calculateEnergy(Pos{col, height - 1}, N)
+		if energy > best {
+			best = energy
 		}
 	}
 
 	return best
 }
 
-func pt1(grid []string) int {
-	energy := makeEnergy(grid)
-	beam(grid, energy, Pos{0, 0}, E, 0)
-	return sumEnergy(energy)
+type Grid struct {
+	tiles     []string
+	energized [][]bool
+	seen      []bool
+}
+
+func (c *Grid) Reset() {
+	clear(c.seen)
+	c.ClearEnergy()
+}
+
+func (c *Grid) calculateEnergy(startPos Pos, startDir int) int {
+	c.Reset()
+	c.Beam(startPos, startDir)
+	return c.CountEnergizedTiles()
+}
+
+func NewGrid(grid []string) *Grid {
+	energyMatrix := makeEnergy(grid)
+	seen := make([]bool, 110*110*10)
+	return &Grid{grid, energyMatrix, seen}
 }
 
 func main() {
@@ -196,10 +194,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	grid := strings.Split(string(bytes.TrimSpace(input)), "\n")
-
-	a1 := pt1(grid)
-	// a2 := 0
+	grid := NewGrid(strings.Split(string(bytes.TrimSpace(input)), "\n"))
+	a1 := grid.calculateEnergy(Pos{0, 0}, E)
 	a2 := pt2(grid)
 	fmt.Printf("--- Day 16: The Floor Will Be Lava ---\n")
 	fmt.Printf("Part 1: %d\n", a1)

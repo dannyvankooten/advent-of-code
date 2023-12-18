@@ -1,42 +1,30 @@
-#include <stdlib.h>
+#include "../adventofcode.h"
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
-#include <string.h>
 
 int main() {
-    clock_t start_t, end_t;
-    start_t = clock();
+  clock_t start_t = clock_time();
+  char input[64 * 1024] = "";
+  int ninput = (int)read_input_file(input, 64 * 1024, "input.txt");
 
-    FILE *fp = fopen("input.txt", "r");
-    if (fp == NULL) {
-        fprintf(stderr, "error reading input.txt");
-        exit(EXIT_FAILURE);
-    }
-    char input[64*1024] = "";
-    int ninput = fread(input, 1, 64*1024, fp);
-    fclose(fp);
-    input[ninput] = 0;
-
-    int v = 0;
-    int pos = -1;
-    for (int i = 0; i < ninput; i++) {
-        if (input[i] == '(') {
-            v++;
-        } else if (input[i] == ')') {
-            v--;
-        }
-
-        if (pos == -1 && v == -1) {
-            pos = i + 1;
-        }
+  int v = 0;
+  int pos = -1;
+  for (int i = 0; i < ninput; i++) {
+    if (input[i] == '(') {
+      v++;
+    } else if (input[i] == ')') {
+      v--;
     }
 
-    fprintf(stdout, "--- Day 1: Not Quite Lisp ---\n");
-    fprintf(stdout, "Part 1: %d\n", v);
-    fprintf(stdout, "Part 2: %d\n", pos);
+    if (pos == -1 && v == -1) {
+      pos = i + 1;
+    }
+  }
 
-    end_t = clock();
-    double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-    printf("Time: %.2fms\n", total_t);
-    return 0;
+  fprintf(stdout, "--- Day 1: Not Quite Lisp ---\n");
+  fprintf(stdout, "Part 1: %d\n", v);
+  fprintf(stdout, "Part 2: %d\n", pos);
+  printf("Time: %.2fms\n", clock_time_since(start_t));
+  return EXIT_SUCCESS;
 }

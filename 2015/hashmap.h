@@ -7,8 +7,7 @@ Power of 2 capacity: bit-and
 */
 
 // hash length bytes of data
-static inline unsigned int hash(const unsigned char *data,
-                                unsigned int length) {
+static inline unsigned int hash(const unsigned char *data, size_t length) {
   const unsigned int fnv_prime = 0x811C9DC5;
   unsigned int hash = 0;
 
@@ -48,7 +47,7 @@ hashmap_t hashmap_new(unsigned int cap) {
 }
 
 // hashmap_set inserts a key-value pair into the map.
-int *hashmap_set(hashmap_t *h, unsigned char *data, unsigned int datasize,
+int *hashmap_set(hashmap_t *h, unsigned char *data, size_t datasize,
                  int value) {
   unsigned int key = hash(data, datasize);
   unsigned int k = key % h->cap;
@@ -70,7 +69,7 @@ int *hashmap_set(hashmap_t *h, unsigned char *data, unsigned int datasize,
 
 // Gets the given key’s corresponding entry in the map for in-place
 // manipulation.
-int *hashmap_entry(hashmap_t *h, unsigned char *data, unsigned int datasize) {
+int *hashmap_entry(hashmap_t *h, unsigned char *data, size_t datasize) {
   unsigned int key = hash(data, datasize);
   unsigned int k = key % h->cap;
   unsigned int probes = 0;
@@ -92,7 +91,7 @@ int *hashmap_entry(hashmap_t *h, unsigned char *data, unsigned int datasize) {
 }
 
 // hashmap_get returns a reference to the value corresponding to the key.
-int *hashmap_get(hashmap_t *h, unsigned char *data, unsigned int datasize) {
+int *hashmap_get(hashmap_t *h, unsigned char *data, size_t datasize) {
   unsigned int key = hash(data, datasize);
   unsigned int k = key % h->cap;
   unsigned int probes = 0;

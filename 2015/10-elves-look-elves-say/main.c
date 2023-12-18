@@ -13,13 +13,13 @@ int apply(char *dst, char *in) {
     for (; s[d] == *s; d++)
       ;
 
-    *o++ = d + '0';
+    *o++ = (char)(d + '0');
     *o++ = *s;
     s += d;
   }
 
   *o = '\0';
-  return o - dst;
+  return (int)(o - dst);
 }
 
 int main() {

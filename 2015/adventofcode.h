@@ -25,14 +25,14 @@ static inline void *calloc_or_die(unsigned long n, unsigned long size) {
   return ptr;
 }
 
-static unsigned int read_input_file(char *dest, unsigned int size, char *file) {
+static size_t read_input_file(char *dest, unsigned int size, char *file) {
   FILE *fp = fopen(file, "r");
   if (!fp) {
     fprintf(stderr, "error reading %s", file);
     exit(EXIT_FAILURE);
     return 0;
   }
-  unsigned int nread = fread(dest, 1, size, fp);
+  size_t nread = fread(dest, 1, size, fp);
   // skip trailing newlines
   while (dest[nread - 1] == '\n')
     nread--;

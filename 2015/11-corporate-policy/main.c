@@ -3,15 +3,16 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
 int pw_is_valid(char *pw) {
   char *s = pw;
 
-  uint_fast16_t pairs = 0;
-  uint_fast16_t straights = 0;
-  uint_fast16_t i = 0;
+  int pairs = 0;
+  int straights = 0;
+  int i = 0;
   while (*s != '\0') {
 
     switch (*s) {
@@ -41,8 +42,8 @@ int pw_is_valid(char *pw) {
 
 void pw_increment(char *src) {
   do {
-    int_fast8_t len = strlen(src);
-    for (int_fast8_t i = len - 1; i >= 1; i--) {
+    int len = (int)strlen(src);
+    for (int i = len - 1; i >= 1; i--) {
       if (src[i] == 'z') {
         src[i] = 'a';
       } else {
@@ -75,5 +76,5 @@ int main() {
   assert(strcmp(buf, "cqkaabcc") == 0);
 
   printf("Time: %.2fms\n", clock_time_since(start_t));
-  return 0;
+  return EXIT_SUCCESS;
 }

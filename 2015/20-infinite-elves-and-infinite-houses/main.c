@@ -5,19 +5,18 @@
 #include <time.h>
 
 int pt1(int *houses, int nhouses, int target, int elfvalue, int elflimit) {
-  int elf, house, j;
 
   if (elflimit > 0) {
-    for (elf = 1; elf < nhouses; elf++) {
-      for (house = elf, j = 0; house < nhouses && j < elflimit;
+    for (int elf = 1; elf < nhouses; elf++) {
+      for (int house = elf, j = 0; house < nhouses && j < elflimit;
            house += elf, j++) {
         houses[house] += elf * elfvalue;
       }
     }
   } else {
     // simpler loop without elf limit
-    for (elf = 1; elf < nhouses; elf++) {
-      for (house = elf; house < nhouses; house += elf) {
+    for (int elf = 1; elf < nhouses; elf++) {
+      for (int house = elf; house < nhouses; house += elf) {
         houses[house] += elf * elfvalue;
       }
     }
@@ -41,16 +40,16 @@ int main() {
   parse_int(&target, input);
 
   int nhouses = target / 10;
-  int *houses = malloc(sizeof(int) * nhouses);
+  int *houses = malloc(sizeof(int) * (size_t)nhouses);
   if (houses == NULL) {
     perror("error allocating memory");
     exit(EXIT_FAILURE);
   }
-  memset(houses, 0, nhouses * sizeof(int));
+  memset(houses, 0, (size_t)nhouses * sizeof(int));
 
   int a1 = pt1(houses, nhouses, target, 10, -1);
 
-  memset(houses, 0, nhouses * sizeof(int));
+  memset(houses, 0, (size_t)nhouses * sizeof(int));
   nhouses = target / 11;
   int a2 = pt1(houses, nhouses, target, 11, 50);
 

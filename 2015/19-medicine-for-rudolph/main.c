@@ -43,21 +43,21 @@ int pt1(char needles[][16], char replacements[][16], int n, char *medicine) {
   hashmap_t hm = hashmap_new(1024);
   int nmolecules = 0;
   char buf[1024];
-  int len = strlen(medicine);
-  for (int pos = 0; pos < len; pos++) {
+  size_t len = strlen(medicine);
+  for (size_t pos = 0; pos < len; pos++) {
     for (int i = 0; i < n; i++) {
       char *needle = needles[i];
 
       // check if current position matches needle
-      int needle_length = strlen(needle);
+      size_t needle_length = strlen(needle);
       if (strncmp(&medicine[pos], needle, needle_length) != 0) {
         continue;
       }
 
       char *replacement = replacements[i];
       char *m = buf;
-      int suffix_length = len - pos - needle_length;
-      int replacement_length = strlen(replacement);
+      size_t suffix_length = len - pos - needle_length;
+      size_t replacement_length = strlen(replacement);
 
       memcpy(m, medicine, pos);
       m += pos;

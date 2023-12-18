@@ -24,7 +24,7 @@ int pt1(reindeer_t players[], int nplayers) {
     double cycles = 2503 / (double)cycle_time;
     int distance_traveled = (int)cycles * p.fly_time * p.speed;
     // get max of leftover flying time
-    double leftover_flying_time = (double)(int)cycles * cycle_time;
+    int leftover_flying_time = (int)(cycles * cycle_time);
     if (leftover_flying_time > p.fly_time) {
       leftover_flying_time = p.fly_time;
     }

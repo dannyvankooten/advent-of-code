@@ -85,9 +85,9 @@ Part 2: 1256
 Time: 0.15ms
 
 --- Day 15: Science for Hungry People ---
-Part 1: 18965440
-Part 2: 15862900
-Time: 45.52ms
+Part 1: 18965440 ✔
+Part 2: 15862900 ✔
+Time: 0.29ms
 
 --- Day 16: Aunt Sue ---
 Part 1: 213

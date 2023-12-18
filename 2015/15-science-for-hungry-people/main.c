@@ -3,14 +3,13 @@
 #include <stdio.h>
 #include <time.h>
 
-typedef struct ingredient {
-  char name[14];
+struct ingredient {
   int capacity;
   int durability;
   int flavor;
   int texture;
   int calories;
-} ingredient_t;
+};
 
 static const char *skip_until_number(const char *s) {
   while ((*s < '0' || *s > '9') && *s != '-') {
@@ -19,14 +18,15 @@ static const char *skip_until_number(const char *s) {
   return s;
 }
 
-void parse(ingredient_t *ingredients, int *ningredients) {
+void parse(struct ingredient *ingredients, int *ningredients) {
   char input[64 * 1024];
   read_input_file(input, 64 * 1024, "input.txt");
 
   int n = 0;
   const char *s = input;
   while (*s != '\0') {
-    s = parse_ident(ingredients[n].name, s);
+    // skip name to save 14 bytes
+    // s = parse_ident(ingredients[n].name, s);
     s = skip_until_number(s);
     s = parse_int(&ingredients[n].capacity, s);
     s = skip_until_number(s);
@@ -48,7 +48,7 @@ void parse(ingredient_t *ingredients, int *ningredients) {
 int main() {
   clock_t start_t = clock_time();
 
-  ingredient_t ingredients[4];
+  struct ingredient ingredients[4];
   int ningredients = 0;
   parse(ingredients, &ningredients);
 
@@ -61,43 +61,40 @@ int main() {
   int max_score = -1;
   int max_score_500c = -1;
   for (int i = 0; i < 100; i++) {
-    for (int k = 0; k < 100 - i; k++) {
-      for (int l = 0; l < 100 - k; l++) {
-        for (int m = 0; m < 100 - l; m++) {
-          if (i + k + l + m != 100)
-            continue;
+    for (int k = i; k < 100 - i; k++) {
+      for (int l = k; l < 100 - k; l++) {
+        int m = 100 - i - k - l;
 
-          capacity = ingredients[0].capacity * i + ingredients[1].capacity * k +
-                     ingredients[2].capacity * l + ingredients[3].capacity * m;
-          if (capacity <= 0)
-            continue;
+        capacity = ingredients[0].capacity * i + ingredients[1].capacity * k +
+                   ingredients[2].capacity * l + ingredients[3].capacity * m;
+        if (capacity <= 0)
+          continue;
 
-          durability =
-              ingredients[0].durability * i + ingredients[1].durability * k +
-              ingredients[2].durability * l + ingredients[3].durability * m;
-          if (durability <= 0)
-            continue;
+        durability =
+            ingredients[0].durability * i + ingredients[1].durability * k +
+            ingredients[2].durability * l + ingredients[3].durability * m;
+        if (durability <= 0)
+          continue;
 
-          flavor = ingredients[0].flavor * i + ingredients[1].flavor * k +
-                   ingredients[2].flavor * l + ingredients[3].flavor * m;
-          if (flavor <= 0)
-            continue;
+        flavor = ingredients[0].flavor * i + ingredients[1].flavor * k +
+                 ingredients[2].flavor * l + ingredients[3].flavor * m;
+        if (flavor <= 0)
+          continue;
 
-          texture = ingredients[0].texture * i + ingredients[1].texture * k +
-                    ingredients[2].texture * l + ingredients[3].texture * m;
-          if (texture <= 0)
-            continue;
+        texture = ingredients[0].texture * i + ingredients[1].texture * k +
+                  ingredients[2].texture * l + ingredients[3].texture * m;
+        if (texture <= 0)
+          continue;
 
-          score = capacity * durability * flavor * texture;
-          if (score > max_score) {
-            max_score = score;
-          }
+        score = capacity * durability * flavor * texture;
+        if (score > max_score) {
+          max_score = score;
+        }
 
-          calories = ingredients[0].calories * i + ingredients[1].calories * k +
-                     ingredients[2].calories * l + ingredients[3].calories * m;
-          if (calories == 500 && score > max_score_500c) {
-            max_score_500c = score;
-          }
+        calories = ingredients[0].calories * i + ingredients[1].calories * k +
+                   ingredients[2].calories * l + ingredients[3].calories * m;
+        if (calories == 500 && score > max_score_500c) {
+          max_score_500c = score;
         }
       }
     }

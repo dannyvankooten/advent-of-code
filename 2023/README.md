@@ -91,6 +91,11 @@ Part 1: 507666
 Part 2: 233537
 Time: 0.38ms
 
+--- Day 17: Clumsy Crucible ---
+Part 1: 1155
+Part 2: 1283
+Time: 41.54ms
+
 Total time: 4197.08ms
 ```
 

@@ -74,6 +74,11 @@ Part 1: 119433
 Part 2: 67653
 Time: 0.11ms
 
+--- Day 13: Knights of the Dinner Table ---
+Part 1: 618
+Part 2: 601
+Time: 2.22ms
+
 --- Day 14: Reindeer Olympics ---
 Part 1: 2660
 Part 2: 1256
@@ -101,13 +106,18 @@ Time: 14.76ms
 
 --- Day 19: Medicine for Rudolph ---
 Part 1: 509
-Part 2: 0
-Time: 3.49ms
+Part 2: 195
+Time: 1.51ms
 
 --- Day 20: Infinite Elves and Infinite Houses ---
 Part 1: 786240
 Part 2: 831600
-Time: 356.46ms
+Time: 322.97ms
+
+--- Day 21: RPG Simulator 20XX ---
+Part 1: 111
+Part 2: 188
+Time: 0.04ms
 
 --- Day 23: Opening the Turing Lock ---
 Part 1: 307

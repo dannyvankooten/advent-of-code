@@ -110,6 +110,14 @@ static inline const char *skip_until(char c, const char *s) {
   return s;
 }
 
+static inline const char *skip_until_digit(const char *s) {
+  while ((*s < '0' || *s > '9') && *s != 0x0) {
+    s++;
+  }
+
+  return s;
+}
+
 static clock_t clock_time() { return clock(); }
 
 static double clock_time_since(clock_t start_t) {

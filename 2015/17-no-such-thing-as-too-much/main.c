@@ -58,7 +58,7 @@ int parse(const char *s, int *dest) {
     s = skip_optional('\n', s);
   }
 
-  qsort(dest, n, sizeof(*dest), qsort_compare_int_desc);
+  qsort(dest, (size_t)n, sizeof(*dest), qsort_compare_int_desc);
   return n;
 }
 

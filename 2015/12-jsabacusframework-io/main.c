@@ -27,7 +27,7 @@ int pt2(const char *input) {
   const char *s = input;
   int n;
 
-  const int MAX_DEPTH = 64;
+  const size_t MAX_DEPTH = 64;
   int objsums[MAX_DEPTH];
   memset(objsums, 0, MAX_DEPTH * sizeof(int));
   objsums[0] = 0;

@@ -44,8 +44,7 @@ static inline int find(int wires[], const char *target) {
   return wires[HASH(target)];
 }
 
-static inline uint16_t *getsignal(int wires[], uint16_t *signals,
-                                  const char *target) {
+static inline int *getsignal(int wires[], int *signals, const char *target) {
   int pos = find(wires, target);
   return pos > -1 ? &signals[pos] : NULL;
 }
@@ -82,13 +81,13 @@ void print_instruction(instruction_t i) {
 int run(instruction_t *instructions, int ninstructions) {
   int wires[27 * 27];
   memset(wires, -1, 27 * 27 * sizeof(int));
-  uint16_t signals[512];
-  uint16_t nwires = 0;
+  int signals[512];
+  int nwires = 0;
 
   while (1) {
     for (int i = 0; i < ninstructions; i++) {
       instruction_t *ins = &instructions[i];
-      uint16_t *signal;
+      int *signal;
 
       // don't send to gates that already have a signal
       int pos = find(wires, ins->target);
@@ -110,7 +109,7 @@ int run(instruction_t *instructions, int ninstructions) {
         ins->rhs_value = *signal;
       }
 
-      uint16_t v = 0;
+      int v = 0;
       switch (ins->opcode) {
       case DIRECT: {
         v = ins->lhs_value;
@@ -206,7 +205,7 @@ int main() {
   }
 
   // run instructions
-  uint16_t pt1 = run(instructions, ninstructions);
+  int pt1 = run(instructions, ninstructions);
 
   // override instructions so b takes direct value from signal a in part 1
   for (int i = 0; i < ninstructions; i++) {
@@ -217,7 +216,7 @@ int main() {
       break;
     }
   }
-  uint16_t pt2 = run(instructions, ninstructions);
+  int pt2 = run(instructions, ninstructions);
   printf("--- Day 7: Some Assembly Required ---\n");
   printf("Part 1: %d %s\n", pt1, pt1 == 46065 ? "✔" : "");
   printf("Part 2: %d %s\n", pt2, pt2 == 14134 ? "✔" : "");

@@ -1,14 +1,13 @@
 #include "../adventofcode.h"
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-int count_neighbors(const char *grid, int size, int y, int x) {
-  static const char dirs[][2] = {
-      {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
-  };
+static const char dirs[][2] = {
+    {-1, -1}, {-1, 0}, {-1, 1}, {0, -1}, {0, 1}, {1, -1}, {1, 0}, {1, 1},
+};
 
+int count_neighbors(const char *grid, int size, int y, int x) {
   int count = 0;
   for (int n = 0; n < 8; n++) {
     int ny = y + dirs[n][0];
@@ -39,7 +38,7 @@ int count_on(const char *grid, int size) {
 
 void mutate(char *grid, int size, int broken) {
   char buf[size * size];
-  memcpy(buf, grid, size * size * sizeof(char));
+  memcpy(buf, grid, ((size_t)size) * ((size_t)size) * sizeof(char));
 
   for (int y = 0; y < size; y++) {
     for (int x = 0; x < size; x++) {
@@ -63,7 +62,7 @@ void mutate(char *grid, int size, int broken) {
 
 int solve(char *g, int size, int broken) {
   char grid[size * size];
-  memcpy(grid, g, size * size * sizeof(char));
+  memcpy(grid, g, ((size_t)size) * ((size_t)size) * sizeof(char));
 
   if (broken == 1) {
     grid[0] = '#';

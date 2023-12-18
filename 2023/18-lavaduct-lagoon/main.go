@@ -114,6 +114,7 @@ func solve(plan []PlanItem) int {
 		vectors = append(vectors, Point{x, y})
 	}
 
+	// lol, accidental pick's theorem
 	return linelength/2 + area(vectors) + 1
 }
 

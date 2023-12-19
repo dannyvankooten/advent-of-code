@@ -1,8 +1,8 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <time.h>
-#include <string.h>
 #include "../adventofcode.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
 
 #define PUZZLE_NAME "Day 7: The Sum Of Its Parts"
 
@@ -10,13 +10,13 @@ struct step {
   char name;
   char done;
   char busy;
-  int nprereqs;
+  size_t nprereqs;
   struct step *prereqs[16];
 };
 
 // step_byname finds the step with the given name
-static struct step *step_byname(struct step *steps, int nsteps, char name) {
-  for (int i = 0; i < nsteps; i++) {
+static struct step *step_byname(struct step *steps, size_t nsteps, char name) {
+  for (size_t i = 0; i < nsteps; i++) {
     if (steps[i].name == name) {
       return &steps[i];
     }
@@ -25,14 +25,16 @@ static struct step *step_byname(struct step *steps, int nsteps, char name) {
   return NULL;
 }
 
-// step_next finds the first available step that's not already done in an alphabetically sorted list of steps
-static struct step *step_next(struct step **steps, int nsteps) {
-  for (int i = 0; i < nsteps; i++) {
+// step_next finds the first available step that's not already done in an
+// alphabetically sorted list of steps
+static struct step *step_next(struct step **steps, size_t nsteps) {
+  for (size_t i = 0; i < nsteps; i++) {
     struct step *a = steps[i];
-    if (a->done || a->busy) continue;
+    if (a->done || a->busy)
+      continue;
 
     int ready = 1;
-    for (int r = 0; r < a->nprereqs; r++) {
+    for (size_t r = 0; r < a->nprereqs; r++) {
       if (a->prereqs[r]->done == 0) {
         ready = 0;
         break;
@@ -53,34 +55,36 @@ int step_compare(const void *p1, const void *p2) {
   return a->name - b->name;
 }
 
-void pt1(char *buf, struct step **steps, int nsteps) {
+void pt1(char *buf, struct step **steps, size_t nsteps) {
   char *o = buf;
   while (1) {
     struct step *cur = step_next(steps, nsteps);
-    if (cur == NULL) break;
+    if (cur == NULL)
+      break;
     *o++ = cur->name;
     cur->done = 1;
   }
   *o = 0x0;
 
   // clean-up: mark all tasks as unfinished again
-  for (int i = 0; i < nsteps; i++) steps[i]->done = 0;
+  for (size_t i = 0; i < nsteps; i++)
+    steps[i]->done = 0;
 }
 
-int pt2(struct step **steps, int nsteps) {
-  int nworkers = 5;
+int pt2(struct step **steps, size_t nsteps) {
+  size_t nworkers = 5;
   int delay_s = 60;
   int worker_finish_times[nworkers];
   struct step *worker_tasks[nworkers];
   memset(worker_finish_times, 0, sizeof(*worker_finish_times) * nworkers);
   memset(worker_tasks, 0, sizeof(struct step *) * nworkers);
-  int ndone = 0;
+  size_t ndone = 0;
 
   // loop over seconds
   for (int s = 0;; s++) {
 
     // first loop, mark steps as done
-    for (int w = 0; w < nworkers; w++) {
+    for (size_t w = 0; w < nworkers; w++) {
       if (worker_finish_times[w] != s) {
         continue;
       }
@@ -100,7 +104,7 @@ int pt2(struct step **steps, int nsteps) {
     }
 
     // second loop: assign new tasks
-    for (int w = 0; w < nworkers; w++) {
+    for (size_t w = 0; w < nworkers; w++) {
       if (worker_tasks[w] != NULL) {
         continue;
       }
@@ -119,14 +123,14 @@ int pt2(struct step **steps, int nsteps) {
 }
 
 int main() {
-  clock_t t = timer_start();
+  clock_t t = clock_time();
   char input[1024 * 64] = "";
   read_input_file(input, 1024 * 64, "input.txt");
 
   struct step steps[64];
-  int nsteps = 0;
+  size_t nsteps = 0;
 
-  char *s = input;
+  const char *s = input;
   char name;
   char name_prereq;
   while (*s != 0x0) {
@@ -134,8 +138,10 @@ int main() {
     name_prereq = *s++;
     s = skip(" must be finished before step ", s);
     name = *s++;
-    while (*s != '\n' && *s != 0x0) s++;
-    if (*s == '\n') s++;
+    while (*s != '\n' && *s != 0x0)
+      s++;
+    if (*s == '\n')
+      s++;
 
     struct step *step = step_byname(steps, nsteps, name);
     if (step == NULL) {
@@ -159,11 +165,10 @@ int main() {
   }
 
   struct step *steps_sorted[64];
-  for (int i = 0; i < nsteps; i++) {
+  for (size_t i = 0; i < nsteps; i++) {
     steps_sorted[i] = &steps[i];
   }
-  qsort(steps_sorted, nsteps, sizeof (struct step *), step_compare);
-
+  qsort(steps_sorted, nsteps, sizeof(struct step *), step_compare);
 
   // solve for pt 1
   char a1[64];
@@ -174,6 +179,6 @@ int main() {
   printf("--- %s ---\n", PUZZLE_NAME);
   printf("Part 1: %s\n", a1);
   printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", timer_stop(t));
+  printf("Time: %.2fms\n", clock_time_since(t));
   return EXIT_SUCCESS;
 }

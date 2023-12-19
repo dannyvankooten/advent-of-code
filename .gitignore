@@ -10,3 +10,5 @@ aoc2020debug
 .vscode
 input.txt
 *.sublime-*
+perf.data
+perf.data.old

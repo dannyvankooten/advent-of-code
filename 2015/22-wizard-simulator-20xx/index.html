@@ -1,0 +1,32 @@
+<input type="password" id="password" />
+<div id="hints">
+    <div>Minimaal 7 tekens</div>
+    <div>1 hoofdletter</div>
+</div>
+<script>
+let constraints = [
+    pw => pw.length > 7,
+    pw => /[A-Z]/.test(pw)
+];
+let hints = document.querySelector('#hints');
+for (let i = 1; i < constraints.length; i++) {
+    hints.children[i].style.display = 'none';
+}
+
+document.querySelector('#password').addEventListener('input', function(evt) {
+    let value = evt.target.value;
+
+    for (let i = 0; i < constraints.length; i++) {
+        hints.children[i].style.display = '';
+
+        if (constraints[i](value)) {
+            // constraint matched, turn it green
+            hints.children[i].style.color = 'green';
+        } else {
+            // constraint failed, turn it red and stop processing further constraints
+            hints.children[i].style.color = 'red';
+            break;
+        }
+    }
+});
+</script>

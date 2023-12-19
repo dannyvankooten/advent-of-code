@@ -65,6 +65,12 @@ func parse(input []byte) (map[string]Workflow, []Part) {
 }
 
 func applyWorkflow(workflows map[string]Workflow, workflow string, part Part) bool {
+	if workflow == "R" {
+		return false
+	} else if workflow == "A" {
+		return true
+	}
+
 	for _, r := range workflows[workflow] {
 		var result bool
 
@@ -85,13 +91,7 @@ func applyWorkflow(workflows map[string]Workflow, workflow string, part Part) bo
 			continue
 		}
 
-		if r.consequence == "R" {
-			return false
-		} else if r.consequence == "A" {
-			return true
-		} else {
-			return applyWorkflow(workflows, r.consequence, part)
-		}
+		return applyWorkflow(workflows, r.consequence, part)
 	}
 
 	return false
@@ -109,6 +109,67 @@ func p1(workflows map[string]Workflow, parts []Part) int {
 	return sum
 }
 
+func cloneMap(original map[rune][2]int) map[rune][2]int {
+	c := make(map[rune][2]int, 4)
+	for k, v := range original {
+		c[k] = v
+	}
+	return c
+}
+
+func count(workflows map[string]Workflow, workflow string, values map[rune][2]int) int {
+	if workflow == "R" {
+		return 0
+	} else if workflow == "A" {
+		product := 1
+		for _, v := range values {
+			product *= (v[1] - v[0] + 1)
+		}
+		return product
+	}
+
+	total := 0
+	for _, r := range workflows[workflow] {
+		// low high for this category
+		v := values[r.category]
+
+		// for every rule, the category this rule applies to splits
+		// in a true and a false range
+		// one below and one above the condition
+		var tv [2]int
+		var fv [2]int
+		if r.operator == '<' {
+			tv = [2]int{v[0], r.right - 1}
+			fv = [2]int{r.right, v[1]}
+		} else if r.operator == '>' {
+			tv = [2]int{r.right + 1, v[1]}
+			fv = [2]int{v[0], r.right}
+		} else {
+			total += count(workflows, r.consequence, values)
+			continue
+		}
+
+		// for true range, create a clone and keep counting
+		// but start at consequence instead
+		if tv[0] <= tv[1] {
+			v2 := cloneMap(values)
+			v2[r.category] = tv
+			total += count(workflows, r.consequence, v2)
+		}
+
+		// for false range, keep processing rest of rules
+		// unless low is already higher than high
+		// then we can just break
+		if fv[0] > fv[1] {
+			break
+		}
+
+		values[r.category] = fv
+	}
+
+	return total
+}
+
 func main() {
 	timeStart := time.Now()
 
@@ -119,7 +180,13 @@ func main() {
 	workflows, parts := parse(input)
 
 	pt1 := p1(workflows, parts)
-	pt2 := 0
+	pt2 := count(workflows, "in", map[rune][2]int{
+		'x': {1, 4000},
+		'm': {1, 4000},
+		'a': {1, 4000},
+		's': {1, 4000},
+	})
+
 	fmt.Printf("--- Day 19: Aplenty ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)
 	fmt.Printf("Part 2: %d\n", pt2)

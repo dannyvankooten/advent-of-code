@@ -106,6 +106,16 @@ Part 1: 36807
 Part 2: 48797603984357
 Time: 0.24ms
 
+--- Day 19: Aplenty ---
+Part 1: 323625
+Part 2: 127447746739409
+Time: 1.75ms
+
+--- Day 20: Pulse Propagation ---
+Part 1: 834323022
+Part 2: 225386464601017
+Time: 71.45ms
+
 Total time: 4071.58ms
 ```
 

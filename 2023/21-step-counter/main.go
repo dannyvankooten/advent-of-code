@@ -8,15 +8,36 @@ import (
 	"time"
 )
 
-var seen = make(map[[3]int]bool)
-var options []int = make([]int, 65+131*2)
+var seen map[[3]int]bool
+var options []int
 
-func countStepsInfinite(grid []string, x int, y int, depth int, maxDepth int) {
-	if depth == maxDepth {
+func lookup(grid []string, x int, y int) byte {
+	x = x % len(grid)
+	if x < 0 {
+		x += len(grid)
+	}
+
+	y = y % len(grid)
+	if y < 0 {
+		y += len(grid)
+	}
+
+	return grid[y][x]
+}
+
+func mod(a int, m int) int {
+	a %= m
+	if a < 0 {
+		a += m
+	}
+	return a
+}
+
+func countSteps(grid []string, x int, y int, depth int, maxDepth int) {
+	if depth > maxDepth {
 		return
 	}
 
-	n := len(grid)
 	for _, d := range [][]int{
 		{0, -1}, // N
 		{1, 0},  // E
@@ -25,9 +46,7 @@ func countStepsInfinite(grid []string, x int, y int, depth int, maxDepth int) {
 	} {
 		x2 := x + d[0]
 		y2 := y + d[1]
-
-		// modulo like Python
-		if grid[((y2%n)+n)%n][((x2%n)+n)%n] == '#' {
+		if lookup(grid, x2, y2) == '#' {
 			continue
 		}
 
@@ -38,7 +57,7 @@ func countStepsInfinite(grid []string, x int, y int, depth int, maxDepth int) {
 		seen[key] = true
 
 		options[depth] += 1
-		countStepsInfinite(grid, x2, y2, depth+1, maxDepth)
+		countSteps(grid, x2, y2, depth+1, maxDepth)
 	}
 
 }
@@ -55,7 +74,8 @@ func findStart(grid []string) (int, int) {
 	return -1, -1
 }
 
-func f(x int, a [3]int) int {
+// see https://en.wikipedia.org/wiki/Newton_polynomial
+func newtonForwardDivDiff(x int, a [3]int) int {
 	b0 := a[0]
 	b1 := a[1] - a[0]
 	b2 := a[2] - a[1]
@@ -71,11 +91,58 @@ func main() {
 		log.Fatal(err)
 	}
 	grid := strings.Split(strings.TrimSpace(string(input)), "\n")
-
+	n := len(grid)
+	rem := 26501365 % n
 	x, y := findStart(grid)
-	countStepsInfinite(grid, x, y, 0, 65+131*2)
-	pt1 := options[63]
-	pt2 := f(26501365/131, [3]int{options[64], options[64+131], options[64+131*2]})
+
+	visited := map[[2]int]bool{
+		{x, y}: true,
+	}
+	new := map[[2]int]bool{
+		{x, y}: true,
+	}
+
+	options = make([]int, rem+n*2+1)
+	options[0] = 1
+
+	for i := 1; i < rem+2*n+1; i++ {
+		toVisit := new
+		new = make(map[[2]int]bool)
+		for k := range toVisit {
+			// visit every neighbor
+			for _, d := range [][]int{
+				{0, -1}, // N
+				{1, 0},  // E
+				{0, 1},  // S
+				{-1, 0}, // W
+			} {
+				x2 := k[0] + d[0]
+				y2 := k[1] + d[1]
+				k2 := [2]int{x2, y2}
+
+				if _, ok := visited[k2]; ok {
+					continue
+				}
+
+				if lookup(grid, x2, y2) == '#' {
+					continue
+				}
+
+				new[k2] = true
+			}
+		}
+
+		visited = toVisit
+
+		prev := 0
+		if i > 1 {
+			prev = options[i-2]
+		}
+		options[i] = len(new) + prev
+	}
+
+	pt1 := options[64]
+	pt2 := newtonForwardDivDiff(26501365/n, [3]int{options[rem+n*0], options[rem+n*1], options[rem+n*2]})
 
 	fmt.Printf("--- Day 21: Step Counter ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)

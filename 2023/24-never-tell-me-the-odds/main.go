@@ -9,8 +9,8 @@ import (
 )
 
 type Hailstone struct {
-	px, py, pz float64
-	dx, dy, dz float64
+	px, py, pz int
+	dx, dy, dz int
 }
 
 func parse(input []byte) []Hailstone {
@@ -18,7 +18,7 @@ func parse(input []byte) []Hailstone {
 	for _, line := range strings.Split(strings.TrimSpace(string(input)), "\n") {
 		h := Hailstone{}
 
-		fmt.Sscanf(line, "%f, %f, %f @ %f, %f, %f", &h.px, &h.py, &h.pz, &h.dx, &h.dy, &h.dz)
+		fmt.Sscanf(line, "%d, %d, %d @ %d, %d, %d", &h.px, &h.py, &h.pz, &h.dx, &h.dy, &h.dz)
 		r = append(r, h)
 	}
 
@@ -27,8 +27,8 @@ func parse(input []byte) []Hailstone {
 
 // generate y=ax+b formula for hailstone
 func f(h Hailstone) (float64, float64) {
-	a := (h.dy) / (h.dx)
-	b := (h.py) + -(a * (h.px))
+	a := float64(h.dy) / float64(h.dx)
+	b := float64(h.py) + -(a * float64(h.px))
 	return a, b
 }
 
@@ -45,10 +45,10 @@ func intersection(ha Hailstone, hb Hailstone) (float64, float64) {
 	x := (b2 - b1) / (a1 - a2)
 
 	// determine whether intersection is in future
-	if (ha.dx > 0 && x < ha.px) || (hb.dx > 0 && x < hb.px) {
+	if (ha.dx > 0 && x < float64(ha.px)) || (hb.dx > 0 && x < float64(hb.px)) {
 		return -1, -1
 	}
-	if (ha.dx < 0 && x > ha.px) || (hb.dx < 0 && x > hb.px) {
+	if (ha.dx < 0 && x > float64(ha.px)) || (hb.dx < 0 && x > float64(hb.px)) {
 		return -1, -1
 	}
 
@@ -59,22 +59,16 @@ func intersection(ha Hailstone, hb Hailstone) (float64, float64) {
 	// a1*x - a2*x = b2 - b1
 	// (a1-a2)*x = b2 - b1
 	// x = (b2-b1)/(a1-a2)
-
-	// x + 1 = -0.5x + 22.5
-	// x + 0.5x = 21.5
-	// 1.5x = 21.5
-	// x = (21.5 / 1.5)
 }
 
+// count all hailstone pairs that intersect at x,y coords inside 2e14 & 4e14
 func pt1(hailstones []Hailstone) int {
 	count := 0
 	for i := range hailstones {
 		for j := i + 1; j < len(hailstones); j++ {
 			x, y := intersection(hailstones[i], hailstones[j])
-			// fmt.Printf("%v & %v = %.2f, %.2f\n", hailstones[i], hailstones[j], x, y)
-			if x >= 200000000000000 && x <= 400000000000000 && y >= 200000000000000 && y <= 400000000000000 {
+			if x >= 2e14 && x <= 4e14 && y >= 2e14 && y <= 4e14 {
 				count += 1
-
 			}
 		}
 	}
@@ -91,14 +85,12 @@ func main() {
 
 	hailstones := parse(input)
 	pt1 := pt1(hailstones)
-	pt2 := 0
+
+	// pt2, see python...
+	// didn't want to deal with z3 in go
+
 	fmt.Printf("--- Day 24: Never Tell Me The Odds ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)
-	fmt.Printf("Part 2: %d\n", pt2)
+	fmt.Printf("Part 2: %d\n", 0)
 	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
 }
-
-// 13368 too low
-// 13396 too low
-// 22815 too high
-// 19523

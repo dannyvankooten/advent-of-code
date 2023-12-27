@@ -1,0 +1,8 @@
+github.com/edwingeng/deque v1.0.3 h1:gx+5OnQK8qMcYNUxcD/M76BT/LujVNVAZEP/MGF8WNw=
+github.com/edwingeng/deque v1.0.3/go.mod h1:3Ys1pJhyVaB6iWigv4o2r6Ug1GZmfDWqvqmO6bjojg0=
+github.com/edwingeng/deque/v2 v2.1.1 h1:+xjC3TnaeMPLZMi7QQf9jN2K00MZmTwruApqplbL9IY=
+github.com/edwingeng/deque/v2 v2.1.1/go.mod h1:HukI8CQe9KDmZCcURPZRYVYjH79Zy2tIjTF9sN3Bgb0=
+github.com/gammazero/deque v0.2.1 h1:qSdsbG6pgp6nL7A0+K/B7s12mcCY/5l5SIUpMOl+dC0=
+github.com/gammazero/deque v0.2.1/go.mod h1:LFroj8x4cMYCukHJDbxFCkT+r9AndaJnFMuZDV34tuU=
+github.com/mitchellh/go-z3 v0.0.0-20191228203228-4cbedeba863f h1:I2Rx8N5cDzVL4amj76w9F+fRS5zvZdmMyphvPMA+HJQ=
+github.com/mitchellh/go-z3 v0.0.0-20191228203228-4cbedeba863f/go.mod h1:SCzzTuqNJ1cVcftwEustt+uZcgDQhp0lJnWQPU3a3Lw=

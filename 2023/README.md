@@ -19,104 +19,129 @@ Results:
 --- Day 1: Trebuchet?! ---
 Part 1: 53080
 Part 2: 53268
-Time: 1.50ms
+Time: 2.85ms
 
 --- Day 2: Cube Conundrum ---
 Part 1: 2156
 Part 2: 66909
-Time: 0.30ms
+Time: 0.23ms
 
 --- Day 3: Gear Ratios ---
 Part 1: 537832
 Part 2: 81939900
-Time: 0.94ms
+Time: 1.20ms
 
 --- Day 4: Scratchcards ---
 Part 1: 25174
 Part 2: 6420979
-Time: 0.56ms
+Time: 1.01ms
 
 --- Day 5: If You Give A Seed A Fertilizer ---
 Part 1: 313045984
 Part 2: 20283860
-Time: 2464.94ms
+Time: 3786.40ms
 
 ---- Day 6: Wait For It ---
 Part 1: 293046
 Part 2: 35150181
-Time: 0.03ms
+Time: 0.07ms
 
 --- Day 7: Camel Cards ---
 Part 1: 251545216
 Part 2: 250384185
-Time: 1.73ms
+Time: 3.60ms
 
 --- Day 8: Haunted Wasteland ---
 Part 1: 19099
 Part 2: 17099847107071
-Time: 3.67ms
+Time: 5.39ms
 
 --- Day 9: Mirage Maintenance ---
 Part 1: 1479011877
 Part 2: 973
-Time: 0.42ms
+Time: 1.53ms
 
 --- Day 10: Pipe Maze ---
 Part 1: 6838
 Part 2: 451
-Time: 2.75ms
+Time: 8.40ms
 
 --- Day 11: Cosmic Expansion ---
 Part 1: 9686930
 Part 2: 630728425490
-Time: 0.59ms
+Time: 1.14ms
 
 --- Day 12: Hot Springs ---
 Part 1: 21
 Part 2: 525152
-Time: 1440.65ms
+Time: 1613.41ms
 
 --- Day 13: Point of Incidence ---
 Part 1: 31265
 Part 2: 39359
-Time: 0.60ms
+Time: 1.53ms
 
 --- Day 14: Parabolic Reflector Dish ---
 Part 1: 106378
 Part 2: 90795
-Time: 94.85ms
+Time: 161.51ms
 
 --- Day 15: Lens Library ---
 Part 1: 507666
 Part 2: 233537
-Time: 0.62ms
+Time: 1.60ms
 
 --- Day 16: The Floor Will Be Lava ---
 Part 1: 8034
 Part 2: 8225
-Time: 17.07ms
+Time: 50.48ms
 
 --- Day 17: Clumsy Crucible ---
 Part 1: 1155
 Part 2: 1283
-Time: 40.12ms
+Time: 98.07ms
 
 --- Day 18: Lavaduct Lagoon ---
 Part 1: 36807
 Part 2: 48797603984357
-Time: 0.24ms
+Time: 0.93ms
 
 --- Day 19: Aplenty ---
 Part 1: 323625
 Part 2: 127447746739409
-Time: 1.75ms
+Time: 1.93ms
 
 --- Day 20: Pulse Propagation ---
 Part 1: 834323022
 Part 2: 225386464601017
-Time: 71.45ms
+Time: 156.99ms
 
-Total time: 4071.58ms
+--- Day 21: Step Counter ---
+Part 1: 3658
+Part 2: 608193767979991
+Time: 108.16ms
+
+--- Day 22: Sand Slabs ---
+Part 1: 463
+Part 2: 89727
+Time: 432.42ms
+
+--- Day 23: A Long Walk ---
+Part 1: 106
+Part 2: 0
+Time: 0.92ms
+
+--- Day 24: Never Tell Me The Odds ---
+Part 1: 19523
+Part 2: 0
+Time: 3.56ms
+
+--- Day 25: Snowverload ---
+Part 1: 559143
+Part 2: 559143
+Time: 71.72ms
+
+Total time: 6441.85ms
 ```
 
 ## License

@@ -39,39 +39,34 @@ func parse(input []byte) Graph {
 	return g
 }
 
-func recurse(g Graph, seen map[string]bool, key string) int {
-	if _, ok := seen[key]; ok {
-		return 0
-	}
-
-	seen[key] = true
-	size := 1
-
-	// visit every vertex that src points at
-	// or vice versa
-	for _, r := range g[key] {
-		size += recurse(g, seen, r)
-	}
-
-	return size
-}
-
-func groups(g Graph) (int, int) {
+func calculateGroups(g Graph) int {
 	// recursively add each component
 	// + all its connection to a group
-	count := 0
-	seen := make(map[string]bool)
-	prod := 1
+	seen := make(map[string]bool, len(g))
+	size := 0
+	q := deque.New[string](128)
 
 	for left := range g {
-		if _, ok := seen[left]; !ok {
-			size := recurse(g, seen, left)
-			count += 1
-			prod *= size
+		q.PushBack(left)
+		seen[left] = true
+		size += 1
+		break
+	}
+
+	for q.Len() != 0 {
+		u := q.PopBack()
+		for _, v := range g[u] {
+			if _, ok := seen[v]; ok {
+				continue
+			}
+
+			q.PushBack(v)
+			seen[v] = true
+			size += 1
 		}
 	}
 
-	return count, prod
+	return size * (len(g) - size)
 }
 
 func add_weights(seen map[[2]string]int, path []string) {
@@ -94,13 +89,12 @@ func add_weights(seen map[[2]string]int, path []string) {
 }
 
 func bfs(g Graph, seen map[[2]string]int, from, to string) {
-	var q deque.Deque[[]string]
+	q := deque.New[[]string](1024)
+	visited := make(map[string]bool)
 
 	// add initial node
 	q.PushBack([]string{from})
-	visited := map[string]bool{
-		from: true,
-	}
+	visited[from] = true
 
 	// bfs other nodes
 	for q.Len() != 0 {
@@ -113,7 +107,7 @@ func bfs(g Graph, seen map[[2]string]int, from, to string) {
 		}
 
 		for _, v := range g[u] {
-			if _, ok := visited[v]; ok {
+			if visited[v] {
 				continue
 			}
 
@@ -151,23 +145,26 @@ func (g Graph) removeEdge(u string, v string) {
 }
 
 func getRandomNodePairs(g Graph, n int) [][2]string {
-	edges := make([]string, 0, len(g))
+	nodes := make([]string, len(g))
+	i := 0
 	for k := range g {
-		edges = append(edges, k)
+		nodes[i] = k
+		i += 1
 	}
 
-	r := rand.New(rand.NewSource(time.Now().UnixNano()))
-
-	pairs := make([][2]string, 0, n)
+	intmap := make(map[int]bool, n)
+	pairs := make([][2]string, n)
 	for i := 0; i < n; i += 1 {
 		var a, b int
-		for a == b {
-			a = r.Intn(len(edges))
-			b = r.Intn(len(edges))
+		for a == b || intmap[(a<<16)+b] == true {
+			a = rand.Intn(len(nodes))
+			b = rand.Intn(len(nodes))
 		}
 
-		pairs = append(pairs, [2]string{edges[a], edges[b]})
+		intmap[(a<<16)+b] = true
+		pairs[i] = [2]string{nodes[a], nodes[b]}
 	}
+
 	return pairs
 }
 
@@ -184,9 +181,8 @@ func solve(g Graph) int {
 	for _, edge := range getHottestN(seen, 3) {
 		g.removeEdge(edge[0], edge[1])
 	}
-
-	cnt, prod := groups(g)
-	if cnt == 1 {
+	prod := calculateGroups(g)
+	if prod == 0 {
 		return solve(g)
 	}
 

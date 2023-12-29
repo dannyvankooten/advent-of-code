@@ -8,173 +8,143 @@ import (
 	"time"
 )
 
-var directions = [][2]int{
-	{1, 0},  // EAST
-	{0, 1},  // SOUTH
-	{-1, 0}, // WEST
-	{0, -1}, // NORTH
+type Point [2]int
+
+var start Point
+var end Point
+var seen = map[Point]bool{}
+
+var directions map[byte][]Point = map[byte][]Point{
+	'.': {{-1, 0}, {1, 0}, {0, -1}, {0, 1}},
+	'^': {{-1, 0}},
+	'>': {{0, 1}},
+	'v': {{1, 0}},
+	'<': {{0, -1}},
 }
 
-type Node struct {
-	children []int
-	steps    []int
-	end      bool
-	x, y     int
+func parse(input []byte) []string {
+	grid := strings.Split(strings.TrimSpace(string(input)), "\n")
+	start = Point{0, 1}
+	end = Point{len(grid) - 1, len(grid) - 2}
+	return grid
 }
 
-func copyGrid(grid [][]rune) [][]rune {
-	c := make([][]rune, len(grid))
-	for i := range grid {
-		c[i] = make([]rune, len(grid[i]))
-		copy(c[i], grid[i])
-	}
-	return c
-}
+func solve(grid []string, slopes bool) int {
+	// parse all points of interest
 
-func key(x int, y int) int {
-	return y*150 + x
-}
+	points := []Point{start, end}
 
-func createGraph(grid [][]rune, nodes map[int]Node, x int, y int) bool {
-	availableDirections := directions
-	steps := 0
-
-	parentKey := key(x, y)
-	parent, _ := nodes[parentKey]
-
-	prevX, prevY := 0, 0
-
-	for {
-		// if at end node
-		if y == len(grid)-1 && x == len(grid[y])-2 {
-			k := key(x, y)
-			if _, seen := nodes[k]; !seen {
-				nodes[k] = Node{end: true, x: x, y: y}
-			}
-			parent.children = append(parent.children, k)
-			parent.steps = append(parent.steps, steps)
-			nodes[parentKey] = parent
-			return true
-		}
-
-		switch grid[y][x] {
-		case '.':
-			availableDirections = directions
-			break
-		case '>':
-			availableDirections = directions[0:1]
-			break
-		case 'v':
-			availableDirections = directions[1:2]
-			break
-		case '<':
-			availableDirections = directions[2:3]
-			break
-		case '^':
-			availableDirections = directions[3:4]
-			break
-		}
-
-		options := make([][2]int, 0, 4)
-		for _, d := range availableDirections {
-			x2 := x + d[0]
-			y2 := y + d[1]
-			if x2 < 0 || y2 < 0 || y2 >= len(grid) || x2 >= len(grid[y2]) {
+	for r, row := range grid {
+		for c, ch := range row {
+			if ch == '#' {
 				continue
 			}
 
-			// don't walk back in direction we came from
-			if x2 == prevX && y2 == prevY {
-				continue
-			}
-
-			if grid[y2][x2] == '#' {
-				continue
-			}
-
-			options = append(options, [2]int{x2, y2})
-		}
-
-		if len(options) == 0 {
-			return false
-		} else if len(options) > 1 {
-			// at junction, parse recursively
-			for _, c := range options {
-				k := key(c[0], c[1])
-				if _, seen := nodes[k]; !seen {
-					nodes[k] = Node{x: c[0], y: c[1]}
-					createGraph(grid, nodes, c[0], c[1])
+			neighbors := 0
+			for _, d := range []Point{{-1, 0}, {1, 0}, {0, 1}, {0, -1}} {
+				nr := r + d[0]
+				nc := c + d[1]
+				if nr < 0 || nc < 0 || nr >= len(grid) || nc >= len(grid[0]) || grid[nr][nc] == '#' {
+					continue
 				}
-				parent.children = append(parent.children, k)
-				parent.steps = append(parent.steps, steps+1)
-				nodes[parentKey] = parent
+
+				neighbors += 1
 			}
 
-			return len(parent.children) > 0
-		} else {
-			prevX = x
-			prevY = y
-			x = options[0][0]
-			y = options[0][1]
-			steps += 1
+			// if this rc has 3 or more neighbors, it's a junction
+			if neighbors >= 3 {
+				points = append(points, Point{r, c})
+			}
 		}
 	}
 
-}
-
-func pt1(nodes map[int]Node, n Node, steps int, visited map[int]bool) int {
-	if n.end {
-		return steps
+	// create adjacency graph
+	graph := make(map[Point]map[Point]int)
+	for _, p := range points {
+		graph[p] = make(map[Point]int, 0)
 	}
 
-	// mark node as visited
-	visited[key(n.x, n.y)] = true
+	// for every point in pt,  walk until wall or oob
+	for _, p := range points {
+		stack := make([][]int, 1, 64)
+		stack[0] = []int{0, p[0], p[1]}
+		seen := map[Point]bool{
+			p: true,
+		}
 
-	longest := 0
-	for i := range n.children {
-		k := n.children[i]
-		child := nodes[k]
-		if v, ok := visited[k]; ok && v {
+		for len(stack) > 0 {
+			item := stack[len(stack)-1]
+			stack = stack[:len(stack)-1]
+			n := item[0]
+			r := item[1]
+			c := item[2]
+
+			// if we ended on a point, add it to our graph
+			_, isPoint := graph[Point{r, c}]
+			if n != 0 && isPoint {
+				graph[p][Point{r, c}] = n
+				continue
+			}
+
+			// For part 2, consider all directions
+			dirs := directions['.']
+
+			// For part 1, only consider directions given current tile
+			// Ie, a sloped tile will steer us in a single direction
+			if slopes {
+				dirs = directions[grid[r][c]]
+			}
+			for _, d := range dirs {
+				nr := r + d[0]
+				nc := c + d[1]
+				if nr < 0 || nc < 0 || nr >= len(grid) || nc >= len(grid[0]) || grid[nr][nc] == '#' || seen[[2]int{nr, nc}] {
+					continue
+				}
+
+				stack = append(stack, []int{n + 1, nr, nc})
+				seen[Point{nr, nc}] = true
+			}
+		}
+	}
+
+	return dfs(graph, start)
+}
+
+func dfs(graph map[Point]map[Point]int, u Point) int {
+	if u == end {
+		return 0
+	}
+
+	longest := -(1 << 32)
+
+	seen[u] = true
+	for n, steps := range graph[u] {
+		if seen[n] {
 			continue
 		}
 
-		s := pt1(nodes, child, steps+n.steps[i], visited)
-		if s > longest {
-			longest = s
+		dist := dfs(graph, n) + steps
+		if dist > longest {
+			longest = dist
 		}
-
-		visited[k] = false
 	}
+	delete(seen, u)
 
 	return longest
-}
-
-func parse(input []byte) [][]rune {
-	grid := make([][]rune, 0, 141)
-	for _, l := range strings.Split(strings.TrimSpace(string(input)), "\n") {
-		grid = append(grid, []rune(l))
-	}
-	return grid
 }
 
 func main() {
 	timeStart := time.Now()
 
-	input, err := os.ReadFile("input_test.txt")
+	input, err := os.ReadFile("input.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	grid := parse(input)
-	nodes := map[int]Node{
-		key(1, 0): {x: 1, y: 0},
-	}
-	createGraph(grid, nodes, 1, 0)
-	fmt.Printf("%#v\n", nodes)
-	fmt.Printf("Start: %#v\n", nodes[key(1, 0)])
 
-	pt1 := pt1(nodes, nodes[key(1, 0)], 0, make(map[int]bool))
-	pt2 := 0
+	pt1 := solve(grid, true)
+	pt2 := solve(grid, false)
 
 	fmt.Printf("--- Day 23: A Long Walk ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)

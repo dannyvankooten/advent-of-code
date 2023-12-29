@@ -127,9 +127,9 @@ Part 2: 89727
 Time: 432.42ms
 
 --- Day 23: A Long Walk ---
-Part 1: 106
-Part 2: 0
-Time: 0.92ms
+Part 1: 2502
+Part 2: 6726
+Time: 5868.01ms
 
 --- Day 24: Never Tell Me The Odds ---
 Part 1: 19523

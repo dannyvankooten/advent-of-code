@@ -94,7 +94,8 @@ func transformRange(ranges []Range, rules [][]int) []Range {
 	// for every range, check if it's inside mapping
 	out := make([]Range, 0, len(ranges))
 
-	for _, r := range ranges {
+	for i := 0; i < len(ranges); i++ {
+		r := ranges[i]
 		mapped := false
 
 		for _, rule := range rules {
@@ -114,7 +115,7 @@ func transformRange(ranges []Range, rules [][]int) []Range {
 
 			if r[0] < ruleStart {
 				before := Range{r[0], ruleStart - 1}
-				out = append(out, before)
+				ranges = append(ranges, before)
 			}
 			inside := Range{
 				max(r[0], ruleStart) + ruleOffset,
@@ -124,7 +125,7 @@ func transformRange(ranges []Range, rules [][]int) []Range {
 
 			if r[1] > ruleEnd {
 				after := Range{ruleEnd + 1, r[1]}
-				out = append(out, after)
+				ranges = append(ranges, after)
 			}
 
 			// range was mapped, do not process further rules... right?
@@ -151,7 +152,6 @@ func pt2Ranges(seeds []int, translators [][][]int) int {
 			r = transformRange(r, t)
 		}
 
-		fmt.Printf("%v\n", r)
 		for _, r := range r {
 			if r[0] < lowest {
 				lowest = r[0]

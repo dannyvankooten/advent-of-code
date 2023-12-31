@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"hash/fnv"
 	"log"
 	"os"
 	"strconv"
@@ -10,97 +11,80 @@ import (
 	"time"
 )
 
-func isValid2(line []rune, to int, blueprint []int) bool {
-	g := -1
-	i := 0
-	//fmt.Printf("%#v %#v\n", string(line[0:to]), blueprint)
-	for i < to {
-		if line[i] == '.' {
-			i++
-			continue
-		}
+func hash(cfg []byte, nums []int) uint64 {
+	h := fnv.New64a()
+	h.Write(cfg)
 
-		if line[i] != '#' {
-			panic("Unexpected character")
-		}
-
-		// new group
-		g++
-
-		// No additional groups allowed in blueprint: invalid permutation
-		if g >= len(blueprint) {
-			return false
-		}
-
-		// count contiguous '#' chars
-		count := 0
-		for i < to && line[i] == '#' {
-			i++
-			count++
-		}
-		//fmt.Printf("counted %d in group %d\n", count, g+1)
-
-		// if we have chars left, count should match blueprint exactly
-		if (i < to || len(line) == to) && count != blueprint[g] {
-			return false
-		}
-
-		if count > blueprint[g] {
-			return false
-		}
+	for n := range nums {
+		h.Write([]byte{byte(nums[n])})
 	}
 
-	// did we count all groups?
-	if to >= len(line) {
-		return g == len(blueprint)-1
-	}
-
-	return true
+	return h.Sum64()
 }
 
-func permute(line []rune, from int, blueprint []int) int {
-	if !isValid2(line, from, blueprint) {
-		return 0
+var cache map[uint64]int = make(map[uint64]int, 512)
+
+func count(cfg []byte, nums []int) int {
+	if len(cfg) == 0 {
+		if len(nums) == 0 {
+			return 1
+		} else {
+			return 0
+		}
 	}
 
-	if from == len(line) {
-		return 1
+	if len(nums) == 0 {
+		if bytes.ContainsRune(cfg, '#') {
+			return 0
+		} else {
+			return 1
+		}
 	}
 
-	if line[from] != '?' {
-		return permute(line, from+1, blueprint)
+	key := hash(cfg, nums)
+	if v, ok := cache[key]; ok {
+		return v
 	}
 
-	// create partial copy of everything to the right of current position
-	lineCopy := make([]rune, len(line))
-	copy(lineCopy, line)
+	result := 0
 
-	line[from] = '.'
-	left := permute(line, from+1, blueprint)
+	if cfg[0] == '.' || cfg[0] == '?' {
+		result += count(cfg[1:], nums)
+	}
+	if cfg[0] == '#' || cfg[0] == '?' {
+		if nums[0] <= len(cfg) &&
+			!bytes.ContainsRune(cfg[:nums[0]], '.') &&
+			(nums[0] == len(cfg) || cfg[nums[0]] != '#') {
 
-	lineCopy[from] = '#'
-	right := permute(lineCopy, from+1, blueprint)
+			e := nums[0]
+			if nums[0] < len(cfg) {
+				e += 1
+			}
+			result += count(cfg[e:], nums[1:])
+		}
+	}
 
-	return left + right
+	cache[key] = result
+
+	return result
 }
 
 func main() {
 	timeStart := time.Now()
-	//b, err := os.ReadFile("input.txt")
-	b, err := os.ReadFile("input_test.txt")
+	b, err := os.ReadFile("input.txt")
+	// b, err := os.ReadFile("input_test.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	lines := strings.Split(string(bytes.TrimSpace(b)), "\n")
-	blueprint := make([]int, 0, 512)
-	//blueprint2 := make([]int, 0, 512)
+	blueprint := make([]int, 0, 256)
 
 	pt1 := 0
 	pt2 := 0
 	for _, l := range lines {
 		spacePos := strings.Index(l, " ")
-		a := l[:spacePos]
+		a := []byte(l[:spacePos])
 		b := l[spacePos+1:]
 
 		blueprint = blueprint[:0]
@@ -113,16 +97,16 @@ func main() {
 		}
 
 		// part 1
-		f1 := permute([]rune(a), 0, blueprint)
+		f1 := count(a, blueprint)
 		pt1 += f1
 
-		// part 2
-		a2 := strings.Join([]string{a, a, a, a, a}, "?")
-		b2 := make([]int, 0, len(blueprint)*5)
-		for i := 0; i < 5; i++ {
-			b2 = append(b2, blueprint...)
+		// // part 2
+		a2 := bytes.Join([][]byte{a, a, a, a, a}, []byte("?"))
+		b1 := blueprint
+		for i := 0; i < 4; i++ {
+			blueprint = append(blueprint, b1...)
 		}
-		f2 := permute([]rune(a2), 0, b2)
+		f2 := count(a2, blueprint)
 		pt2 += f2
 		// fmt.Printf("%03d / %03d: %d arrangements \n", lineno, len(lines)-1, f2)
 	}

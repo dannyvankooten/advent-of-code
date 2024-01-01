@@ -8,21 +8,21 @@ import (
 	"time"
 )
 
-var seen map[[3]int]bool
+var seen map[[2]int]bool
 var options []int
 
-func lookup(grid []string, x int, y int) byte {
-	x = x % len(grid)
-	if x < 0 {
-		x += len(grid)
+func lookup(grid []string, v [2]int) byte {
+	v[0] = v[0] % len(grid)
+	if v[0] < 0 {
+		v[0] += len(grid)
 	}
 
-	y = y % len(grid)
-	if y < 0 {
-		y += len(grid)
+	v[1] = v[1] % len(grid)
+	if v[1] < 0 {
+		v[1] += len(grid)
 	}
 
-	return grid[y][x]
+	return grid[v[1]][v[0]]
 }
 
 func mod(a int, m int) int {
@@ -31,35 +31,6 @@ func mod(a int, m int) int {
 		a += m
 	}
 	return a
-}
-
-func countSteps(grid []string, x int, y int, depth int, maxDepth int) {
-	if depth > maxDepth {
-		return
-	}
-
-	for _, d := range [][]int{
-		{0, -1}, // N
-		{1, 0},  // E
-		{0, 1},  // S
-		{-1, 0}, // W
-	} {
-		x2 := x + d[0]
-		y2 := y + d[1]
-		if lookup(grid, x2, y2) == '#' {
-			continue
-		}
-
-		key := [3]int{x2, y2, depth}
-		if _, ok := seen[key]; ok {
-			continue
-		}
-		seen[key] = true
-
-		options[depth] += 1
-		countSteps(grid, x2, y2, depth+1, maxDepth)
-	}
-
 }
 
 func findStart(grid []string) (int, int) {
@@ -75,10 +46,10 @@ func findStart(grid []string) (int, int) {
 }
 
 // see https://en.wikipedia.org/wiki/Newton_polynomial
-func newtonForwardDivDiff(x int, a [3]int) int {
-	b0 := a[0]
-	b1 := a[1] - a[0]
-	b2 := a[2] - a[1]
+func newtonForwardDivDiff(x int, a0, a1, a2 int) int {
+	b0 := a0
+	b1 := a1 - a0
+	b2 := a2 - a1
 
 	return b0 + (b1 * x) + (x*(x-1)/2)*(b2-b1)
 }
@@ -98,17 +69,16 @@ func main() {
 	visited := map[[2]int]bool{
 		{x, y}: true,
 	}
-	new := map[[2]int]bool{
-		{x, y}: true,
-	}
+	new := make([][2]int, 0)
+	new = append(new, [2]int{x, y})
 
 	options = make([]int, rem+n*2+1)
 	options[0] = 1
 
 	for i := 1; i < rem+2*n+1; i++ {
 		toVisit := new
-		new = make(map[[2]int]bool)
-		for k := range toVisit {
+		new = make([][2]int, 0)
+		for _, k := range toVisit {
 			// visit every neighbor
 			for _, d := range [][]int{
 				{0, -1}, // N
@@ -116,23 +86,22 @@ func main() {
 				{0, 1},  // S
 				{-1, 0}, // W
 			} {
-				x2 := k[0] + d[0]
-				y2 := k[1] + d[1]
-				k2 := [2]int{x2, y2}
-
-				if _, ok := visited[k2]; ok {
+				v := [2]int{
+					k[0] + d[0],
+					k[1] + d[1],
+				}
+				if visited[v] {
 					continue
 				}
 
-				if lookup(grid, x2, y2) == '#' {
+				if lookup(grid, v) == '#' {
 					continue
 				}
 
-				new[k2] = true
+				new = append(new, v)
+				visited[v] = true
 			}
 		}
-
-		visited = toVisit
 
 		prev := 0
 		if i > 1 {
@@ -142,7 +111,7 @@ func main() {
 	}
 
 	pt1 := options[64]
-	pt2 := newtonForwardDivDiff(26501365/n, [3]int{options[rem+n*0], options[rem+n*1], options[rem+n*2]})
+	pt2 := newtonForwardDivDiff(26501365/n, options[rem+n*0], options[rem+n*1], options[rem+n*2])
 
 	fmt.Printf("--- Day 21: Step Counter ---\n")
 	fmt.Printf("Part 1: %d\n", pt1)

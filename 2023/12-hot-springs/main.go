@@ -65,54 +65,57 @@ func count(cfg []byte, nums []int) int {
 	}
 
 	cache[key] = result
-
 	return result
+}
+
+func parseLine(l string) ([]byte, []int) {
+	spacePos := strings.Index(l, " ")
+	cfg := []byte(l[:spacePos])
+
+	// parse comma separated list of ints without allocating
+	b := l[spacePos+1:]
+	nums := make([]int, 0, 16)
+	s, after, _ := strings.Cut(b, ",")
+	for len(s) > 0 {
+		n, err := strconv.Atoi(s)
+		if err != nil {
+			panic(err)
+		}
+		nums = append(nums, n)
+		s, after, _ = strings.Cut(after, ",")
+	}
+
+	return cfg, nums
+}
+
+func pt2(cfg []byte, nums []int) int {
+	cfg = bytes.Join([][]byte{cfg, cfg, cfg, cfg, cfg}, []byte("?"))
+	n := nums
+	for i := 0; i < 4; i++ {
+		nums = append(nums, n...)
+	}
+	return count(cfg, nums)
 }
 
 func main() {
 	timeStart := time.Now()
 	b, err := os.ReadFile("input.txt")
-	// b, err := os.ReadFile("input_test.txt")
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	lines := strings.Split(string(bytes.TrimSpace(b)), "\n")
-	blueprint := make([]int, 0, 256)
 
-	pt1 := 0
-	pt2 := 0
+	ans1 := 0
+	ans2 := 0
 	for _, l := range lines {
-		spacePos := strings.Index(l, " ")
-		a := []byte(l[:spacePos])
-		b := l[spacePos+1:]
-
-		blueprint = blueprint[:0]
-		for _, d := range strings.Split(b, ",") {
-			n, err := strconv.Atoi(d)
-			if err != nil {
-				panic(err)
-			}
-			blueprint = append(blueprint, n)
-		}
-
-		// part 1
-		f1 := count(a, blueprint)
-		pt1 += f1
-
-		// // part 2
-		a2 := bytes.Join([][]byte{a, a, a, a, a}, []byte("?"))
-		b1 := blueprint
-		for i := 0; i < 4; i++ {
-			blueprint = append(blueprint, b1...)
-		}
-		f2 := count(a2, blueprint)
-		pt2 += f2
-		// fmt.Printf("%03d / %03d: %d arrangements \n", lineno, len(lines)-1, f2)
+		cfg, blueprint := parseLine(l)
+		ans1 += count(cfg, blueprint)
+		ans2 += pt2(cfg, blueprint)
 	}
 
 	fmt.Printf("--- Day 12: Hot Springs ---\n")
-	fmt.Printf("Part 1: %d\n", pt1)
-	fmt.Printf("Part 2: %d\n", pt2)
+	fmt.Printf("Part 1: %d\n", ans1)
+	fmt.Printf("Part 2: %d\n", ans2)
 	fmt.Printf("Time: %.2fms\n", float64(time.Since(timeStart).Microseconds())/1000)
 }

@@ -3,11 +3,12 @@
 My solutions for [Advent of Code](https://adventofcode.com) over the years.
 
 - [2015](2015/): C
-- [2019](https://github.com/dannyvankooten/advent-of-code/tree/main/2019): Rust
-- [2020](https://github.com/dannyvankooten/advent-of-code/tree/main/2020): C (all 25 days in [0.5s total runtime](https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second/)!)
-- [2021](https://github.com/dannyvankooten/advent-of-code/tree/main/2021): Python
-- [2022](https://github.com/dannyvankooten/advent-of-code/tree/main/2022): Python / Rust
-- [2023](https://github.com/dannyvankooten/advent-of-code/tree/main/2023): Golang
+- [2016](2016/): C++
+- [2019](2019/): Rust
+- [2020](2020/): C ([all days, < 500 ms total runtime](https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second/)!)
+- [2021](2021/): Python
+- [2022](2022/): Python / Rust
+- [2023](2023/): Golang (all days, < 1000 ms total runtime)
 
 ## License
 

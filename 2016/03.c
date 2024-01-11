@@ -1,7 +1,7 @@
-#include <stdlib.h>
 #include <stdio.h>
-#include <time.h>
+#include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 char *parse_int(int *dest, char *s) {
     int n = 0;
@@ -15,7 +15,7 @@ char *parse_int(int *dest, char *s) {
 }
 
 void read_input(char *dst) {
-    FILE *fp = fopen("input.txt", "r");
+    FILE *fp = fopen("03.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
@@ -30,14 +30,19 @@ int pt1(char *s) {
     int a, b, c;
 
     while (*s != '\0') {
-        while (*s == ' ') s++;
+        while (*s == ' ')
+            s++;
         s = parse_int(&a, s);
-        while (*s == ' ') s++;
+        while (*s == ' ')
+            s++;
         s = parse_int(&b, s);
-        while (*s == ' ') s++;
+        while (*s == ' ')
+            s++;
         s = parse_int(&c, s);
-        while (*s != '\n' && *s != '\0') s++;
-        if (*s == '\n') s++;
+        while (*s != '\n' && *s != '\0')
+            s++;
+        if (*s == '\n')
+            s++;
 
         if (a + b > c && a + c > b && b + c > a) {
             n++;
@@ -47,27 +52,31 @@ int pt1(char *s) {
     return n;
 }
 
-
 int pt2(char *s) {
     int n = 0;
     int sides[9] = {0, 0, 0, 0, 0, 0, 0, 0, 0};
 
     int i = 0;
     while (*s != '\0') {
-        while (*s == ' ') s++;
+        while (*s == ' ')
+            s++;
         s = parse_int(&sides[i], s);
-        while (*s == ' ') s++;
-        s = parse_int(&sides[i+3], s);
-        while (*s == ' ') s++;
-        s = parse_int(&sides[i+6], s);
-        while (*s != '\n' && *s != '\0') s++;
-        if (*s == '\n') s++;
+        while (*s == ' ')
+            s++;
+        s = parse_int(&sides[i + 3], s);
+        while (*s == ' ')
+            s++;
+        s = parse_int(&sides[i + 6], s);
+        while (*s != '\n' && *s != '\0')
+            s++;
+        if (*s == '\n')
+            s++;
 
         if (i == 2) {
-            for (;i >= 0; i--) {
-                if(sides[0 + i*3] + sides[1+ i*3] > sides[2+ i*3]
-                    && sides[0+ i*3] + sides[2+ i*3] > sides[1+ i*3]
-                    && sides[1+ i*3] + sides[2+ i*3] > sides[0+ i*3]) {
+            for (; i >= 0; i--) {
+                if (sides[0 + i * 3] + sides[1 + i * 3] > sides[2 + i * 3] &&
+                    sides[0 + i * 3] + sides[2 + i * 3] > sides[1 + i * 3] &&
+                    sides[1 + i * 3] + sides[2 + i * 3] > sides[0 + i * 3]) {
                     n++;
                 }
             }

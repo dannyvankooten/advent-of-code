@@ -1,46 +1,15 @@
 #!/bin/bash
 
-set -e
+make all
 
-CC="${CC:=gcc}"
-CFLAGS="$CFLAGS -fanalyzer -Wlarger-than-524288 -Wundef -Winline
--O2
--Wall
--Wextra
--Wpedantic
--std=c11
--Wformat=2
--Wconversion
--Wtrampolines
--Wimplicit-fallthrough
--U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
--D_GLIBCXX_ASSERTIONS
--fstrict-flex-arrays=3
--fstack-clash-protection
--fstack-protector-strong
--Wl,-z,nodlopen -Wl,-z,noexecstack
--Wl,-z,relro -Wl,-z,now
--fPIE -pie"
+TIME_LINES=""
 
-DAY=$1
-if [ -d "$DAY" ]; then
-  cd $DAY
-  $CC $CFLAGS main.c
-  ./a.out
-  cd ..
-  exit 0
-fi
-
-TIME="0.0"
-for d in */; do
-    cd "$d"
-    $CC $CFLAGS main.c -lcrypto
-    OUT=$(./a.out)
-    TIME_DAY=$(awk 'NR%4==0 { gsub(/ms$/,"", $2); print $2; }' <<< $OUT)
-    TIME=$(echo "$TIME + $TIME_DAY" | bc)
+for DAY in {01..10}; do
+    OUT=$(cat $DAY.txt | ./$DAY)
+    TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
+    TIME_LINES+="\n"
     echo -e "$OUT\n"
-    cd ..
 done
 
-printf "Total time: %.2fms\n", $TIME
-
+# Print sum of runtimes
+echo -e "$TIME_LINES" | awk 'BEGIN {sum=0.0} { gsub(/(Time: | μs)/,"", $2); sum += $2; } END { printf "Total time: %.2f μs\n", sum }'

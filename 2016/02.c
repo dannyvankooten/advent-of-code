@@ -1,9 +1,9 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 
 void read_input(char *dst) {
-    FILE *fp = fopen("input.txt", "r");
+    FILE *fp = fopen("02.txt", "r");
     if (fp == NULL) {
         fprintf(stderr, "error reading input.txt");
         exit(EXIT_FAILURE);
@@ -19,33 +19,33 @@ void solve(char *b, char *s, char *const *grid, int gridsize) {
 
     while (*s != '\0') {
         switch (*s) {
-            case '\n':
-                *b++ = grid[y][x];
-                break;
+        case '\n':
+            *b++ = grid[y][x];
+            break;
 
-            case 'U':
-                if (y > 0 && grid[y - 1][x] != ' ') {
-                    y--;
-                }
-                break;
+        case 'U':
+            if (y > 0 && grid[y - 1][x] != ' ') {
+                y--;
+            }
+            break;
 
-            case 'L':
-                if (x > 0 && grid[y][x - 1] != ' ') {
-                    x--;
-                }
-                break;
+        case 'L':
+            if (x > 0 && grid[y][x - 1] != ' ') {
+                x--;
+            }
+            break;
 
-            case 'R':
-                if (x < (gridsize - 1) && grid[y][x + 1] != ' ') {
-                    x++;
-                }
-                break;
+        case 'R':
+            if (x < (gridsize - 1) && grid[y][x + 1] != ' ') {
+                x++;
+            }
+            break;
 
-            case 'D':
-                if (y < (gridsize - 1) && grid[y + 1][x] != ' ') {
-                    y++;
-                }
-                break;
+        case 'D':
+            if (y < (gridsize - 1) && grid[y + 1][x] != ' ') {
+                y++;
+            }
+            break;
         }
 
         s++;
@@ -73,11 +73,7 @@ int main() {
     printf("Part 1: %s\n", buf);
 
     char *grid2[] = {
-            "  1  ",
-            " 234 ",
-            "56789",
-            " ABC ",
-            "  D  ",
+        "  1  ", " 234 ", "56789", " ABC ", "  D  ",
     };
     solve(buf, input, grid2, 5);
     printf("Part 1: %s\n", buf);

@@ -3,8 +3,7 @@
 make all
 
 TIME_LINES=""
-
-for DAY in {01..10}; do
+for DAY in {01..15}; do
     OUT=$(cat $DAY.txt | ./$DAY)
     TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
     TIME_LINES+="\n"

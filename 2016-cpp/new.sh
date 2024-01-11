@@ -1,5 +1,10 @@
 #!/usr/bin/env bash
 
+if [[ "$AOCSESSION" == "" ]]; then
+    echo "\$AOCSESSION environment variable not set."
+    exit 1
+fi;
+
 DAY=$1
 DAYNAME=$(printf "%02d\n" $DAY)
 cp template.cpp $DAYNAME.cpp

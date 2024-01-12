@@ -4,6 +4,9 @@
 #include <iostream>
 #include <vector>
 
+// Josephus Problem
+// https://www.youtube.com/watch?v=uCsD3ZGzMgE
+
 // Elf is a singly-linked list
 // so we can remove elves from the table in O(1)
 struct Elf {
@@ -35,6 +38,19 @@ int white_elephant_party(int nplayers) {
     return e->number;
 }
 
+int winner(int n) {
+    int w = 1;
+    int i;
+
+    for (i = 1; i < n; i++) {
+        w = w % i + 1;
+        if (w > (i + 1) / 2) {
+            w++;
+        }
+    }
+    return w;
+}
+
 int white_elephant_party_2(int nplayers) {
     std::deque<int> left;
     std::deque<int> right;
@@ -48,6 +64,7 @@ int white_elephant_party_2(int nplayers) {
         }
     }
 
+    // alternate smallest side and then rotate table
     while (left.empty() == false && right.empty() == false) {
         if (left.size() > right.size()) {
             left.pop_back();
@@ -62,7 +79,7 @@ int white_elephant_party_2(int nplayers) {
         right.pop_back();
     }
 
-    return left.size() > 0 ? left.front() : right.front();
+    return left.front();
 }
 
 int main() {
@@ -77,7 +94,8 @@ int main() {
     // number_of_elves = 5;
 
     pt1 = white_elephant_party(number_of_elves);
-    pt2 = white_elephant_party_2(number_of_elves);
+    // pt2 = white_elephant_party_2(number_of_elves);
+    pt2 = winner(number_of_elves);
 
     std::cout << "--- Day 19: An Elephant Named Joseph ---\n";
     std::cout << "Part 1: " << pt1 << "\n";

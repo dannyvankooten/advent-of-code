@@ -4,8 +4,9 @@
 #include <openssl/md5.h>
 #include <queue>
 
-using std::priority_queue, std::vector;
+using std::priority_queue;
 using std::string;
+using std::vector;
 
 struct Point {
     int col;
@@ -37,7 +38,15 @@ struct Vertex {
     }
 };
 
-std::string md5(const std::string &str) {
+char dirnames[4] = {'U', 'D', 'L', 'R'};
+Point directions[4] = {
+    {-1, 0}, // U
+    {1, 0},  // D
+    {0, -1}, // L
+    {0, 1},  // R
+};
+
+string md5(const string &str) {
     unsigned char hash[MD5_DIGEST_LENGTH];
 
     MD5_CTX md5;
@@ -54,14 +63,6 @@ std::string md5(const std::string &str) {
 
     return ss.str();
 }
-
-char dirnames[4] = {'U', 'D', 'L', 'R'};
-Point directions[4] = {
-    {-1, 0}, // U
-    {1, 0},  // D
-    {0, -1}, // L
-    {0, 1},  // R
-};
 
 string dijkstra(string passcode) {
     Point start = Point{0, 0};

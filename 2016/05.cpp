@@ -1,24 +1,29 @@
 #include <chrono>
-#include <iomanip>
 #include <iostream>
 
 #include <openssl/md5.h>
 
 std::string md5(const std::string &str) {
-    unsigned char hash[MD5_DIGEST_LENGTH];
+    static unsigned char hash[MD5_DIGEST_LENGTH];
+    static const char characters[] = "0123456789abcdef";
 
     MD5_CTX md5;
     MD5_Init(&md5);
     MD5_Update(&md5, str.c_str(), str.size());
     MD5_Final(hash, &md5);
 
-    std::stringstream ss;
+    // faster method of converting to hexadecimal
+    std::string ret;
+    ret.reserve(4 * 2);
+    auto buf = std::back_inserter(ret);
 
-    for (int i = 0; i < MD5_DIGEST_LENGTH; i++) {
-        ss << std::hex << std::setw(2) << std::setfill('0')
-           << static_cast<int>(hash[i]);
+    for (int i = 0; i < 4; i++) {
+        auto byte = hash[i];
+        *buf++ = characters[byte >> 4];
+        *buf++ = characters[byte & 0x0F];
     }
-    return ss.str();
+
+    return ret;
 }
 
 int main() {
@@ -34,8 +39,7 @@ int main() {
     int pl = 0;
 
     for (int i = 0;; i++) {
-        std::string s = input + std::to_string(i);
-        std::string r = md5(s);
+        std::string r = md5(input + std::to_string(i));
 
         if (r.compare(0, 5, "00000") == 0) {
             if (pi < 8) {

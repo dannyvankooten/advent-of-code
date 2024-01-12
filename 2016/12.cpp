@@ -1,61 +1,119 @@
 #include <chrono>
 #include <iostream>
-#include <unordered_map>
 #include <vector>
 
-int run_vm(std::unordered_map<char, int> registers,
-           std::vector<std::string> instructions) {
-    for (int ip = 0; ip < instructions.size();) {
-        std::string ins = instructions[ip];
+using std::string;
+using std::vector;
 
-        switch (ins[0]) {
-        case 'c': {
-            size_t pos = ins.find(' ') + 1;
+enum OpCode {
+    INC,
+    DEC,
+    COPY,
+    JNZ,
+};
+
+struct Instruction {
+    OpCode op;
+    int a;
+    int b;
+};
+
+int run_vm(int registers[4], vector<Instruction> instructions) {
+    for (size_t ip = 0; ip < instructions.size();) {
+        auto ins = instructions.at(ip);
+
+        switch (ins.op) {
+        case OpCode::COPY: {
             int value;
-            if (ins[pos] >= 'a' && ins[pos] <= 'd') {
-                value = registers[ins[pos]];
+            if (ins.a & (1 << 31)) {
+                value = registers[ins.a & 0xFF];
             } else {
-                value = std::stoi(&ins[pos]);
+                value = ins.a;
             }
-            pos = ins.find(' ', pos) + 1;
-            char r = ins[pos];
-            registers[r] = value;
+            registers[ins.b] = value;
             break;
         }
-        case 'i': {
-            size_t pos = ins.find(' ') + 1;
-            char r = ins[pos];
-            registers[r] += 1;
+        case OpCode::INC: {
+            registers[ins.a] += 1;
             break;
         }
-        case 'd': {
-            size_t pos = ins.find(' ') + 1;
-            char r = ins[pos];
-            registers[r] -= 1;
+        case OpCode::DEC: {
+            registers[ins.a] -= 1;
             break;
         }
-        case 'j':
-            size_t pos = ins.find(' ') + 1;
+        case OpCode::JNZ: {
             int value;
-            if (ins[pos] >= 'a' && ins[pos] <= 'd') {
-                value = registers[ins[pos]];
+
+            if (ins.a & (1 << 31)) {
+                value = registers[ins.a & 0xFF];
             } else {
-                value = std::stoi(&ins[pos]);
+                value = ins.a;
             }
 
-            if (value > 0) {
-                pos = ins.find(' ', pos) + 1;
-                value = std::stoi(&ins[pos]);
-                ip += value;
+            if (value != 0) {
+                ip += ins.b;
                 continue;
             }
             break;
+        }
         }
 
         ip += 1;
     }
 
-    return registers['a'];
+    return registers[0];
+}
+
+vector<Instruction> parse_input() {
+    vector<Instruction> instructions;
+
+    string line;
+    while (std::getline(std::cin, line)) {
+        switch (line[0]) {
+        case 'c': {
+            size_t pos = line.find(' ') + 1;
+            int value;
+
+            // if this refers to a register address
+            // set the first bit to 1
+            if (line[pos] >= 'a' && line[pos] <= 'd') {
+                value = (line[pos] - 'a') | (1 << 31);
+            } else {
+                value = std::stoi(&line[pos]);
+            }
+            pos = line.find(' ', pos) + 1;
+            instructions.push_back(
+                Instruction{OpCode::COPY, value, line[pos] - 'a'});
+            break;
+        }
+        case 'i': {
+            size_t pos = line.find(' ') + 1;
+            instructions.push_back(
+                Instruction{OpCode::INC, line[pos] - 'a', 0});
+            break;
+        }
+        case 'd': {
+            size_t pos = line.find(' ') + 1;
+            instructions.push_back(
+                Instruction{OpCode::DEC, line[pos] - 'a', 0});
+            break;
+        }
+        case 'j':
+            size_t pos = line.find(' ') + 1;
+            int v1;
+            if (line[pos] >= 'a' && line[pos] <= 'd') {
+                v1 = (line[pos] - 'a') | (1 << 31);
+            } else {
+                v1 = std::stoi(&line[pos]);
+            }
+
+            pos = line.find(' ', pos) + 1;
+            int v2 = std::stoi(&line[pos]);
+            instructions.push_back(Instruction{OpCode::JNZ, v1, v2});
+            break;
+        }
+    }
+    return instructions;
 }
 
 int main() {
@@ -63,28 +121,13 @@ int main() {
     int pt1 = 0;
     int pt2 = 0;
 
-    std::unordered_map<char, int> registers;
-    std::vector<std::string> instructions;
-    std::string line;
-    while (std::getline(std::cin, line)) {
-        instructions.push_back(line);
-    }
+    vector<Instruction> instructions = parse_input();
 
-    registers = {
-        {'a', 0},
-        {'b', 0},
-        {'c', 0},
-        {'d', 0},
-    };
-    pt1 = run_vm(registers, instructions);
+    int registers_pt1[4] = {0, 0, 0, 0};
+    pt1 = run_vm(registers_pt1, instructions);
 
-    registers = {
-        {'a', 0},
-        {'b', 0},
-        {'c', 1},
-        {'d', 0},
-    };
-    pt2 = run_vm(registers, instructions);
+    int registers_pt2[4] = {0, 0, 1, 0};
+    pt2 = run_vm(registers_pt2, instructions);
 
     std::cout << "--- Day 12: Leonardo's Monorail ---\n";
     std::cout << "Part 1: " << pt1 << "\n";

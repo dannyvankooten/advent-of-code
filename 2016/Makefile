@@ -1,20 +1,20 @@
 CXXFLAGS+=-g -std=c++20 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
 SHELL=bash
 
-# ignore .C files for implicit targets
+# Only consider C++ for implicit Make targets
 .SUFFIXES:
-.SUFFIXES: .cpp
+.SUFFIXES: .cpp .cc
 
 .PHONY: all
 all:
 	make {01..25}
 
-# Day 5 needs -lcrypto
+# Some dats needs to be linked with OpenSSL (-lcrypto) for MD5
 05: 05.cpp
 	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
-
-# Day 14 needs -lcrypto
 14: 14.cpp
+	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
+17: 17.cpp
 	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
 
 .PHONY: clean

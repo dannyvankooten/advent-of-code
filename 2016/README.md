@@ -14,7 +14,7 @@ Results:
 --- Day 1: No Time for a Taxicab ---
 Part 1: 209
 Part 2: 136
-Time: 192 μs
+Time: 97 μs
 
 --- Day 2: Bathroom Security ---
 Part 1: 82958
@@ -24,27 +24,27 @@ Time: 188 μs
 --- Day 3: Squares With Three Sides ---
 Part 1: 983
 Part 2: 1836
-Time: 629 μs
+Time: 612 μs
 
 --- Day 4: Security Through Obscurity ---
 Part 1: 278221
 Part 2: 267
-Time: 1665 μs
+Time: 4890 μs
 
 --- Day 5: How About a Nice Game of Chess? ---
 Part 1: 801b56a7
 Part 2: 424a0197
-Time: 19915024 μs
+Time: 19138954 μs
 
 --- Day 6: Signals and Noise ---
 Part 1: dzqckwsd
 Part 2: lragovly
-Time: 425 μs
+Time: 411 μs
 
 --- Day 7: Internet Protocol Version 7 ---
 Part 1: 115
 Part 2: 231
-Time: 7356 μs
+Time: 8922 μs
 
 --- Day 8: Two-Factor Authentication ---
 Part 1: 110
@@ -55,44 +55,69 @@ Part 2:
  #      # #  # ###  # #  #    ###  #      #     #
 #    #  # #  # # #  # #  #  # #    #      #  #  #
 ####  ##  #  # #  # #  #  ##  #    ####   #   ##
-Time: 190 μs
+Time: 246 μs
 
 --- Day 9: Explosives in Cyberspace ---
 Part 1: 102239
 Part 2: 10780403063
-Time: 927 μs
+Time: 1675 μs
 
 --- Day 10: Balance Bots ---
 Part 1: 47
 Part 2: 2666
-Time: 1549 μs
+Time: 1111 μs
 
 --- Day 11: Radioisotope Thermoelectric Generators ---
 Part 1: 0
 Part 2: 0
-Time: 39 μs
+Time: 61 μs
 
 --- Day 12: Leonardo's Monorail ---
 Part 1: 318007
 Part 2: 9227661
-Time: 766899 μs
+Time: 756993 μs
 
 --- Day 13: A Maze of Twisty Little Cubicles ---
 Part 1: 90
 Part 2: 135
-Time: 204 μs
+Time: 417 μs
 
 --- Day 14: One-Time Pad ---
 Part 1: 15168
 Part 2: 20864
-Time: 31755713 μs
+Time: 30806766 μs
 
 --- Day 15: Timing is Everything ---
 Part 1: 317371
 Part 2: 2080951
-Time: 39898 μs
+Time: 39746 μs
 
-Total time: 52490898.00 μs
+--- Day 16: Dragon Checksum ---
+Part 1: 10010100110011100
+Part 2: 01100100101101100
+Time: 90335 μs
+
+--- Day 17: Two Steps Forward ---
+Part 1: DUDRDLRRRD
+Part 2: 502
+Time: 71874 μs
+
+--- Day 18: Like a Rogue ---
+Part 1: 2016
+Part 2: 19998750
+Time: 276843 μs
+
+--- Day 19: An Elephant Named Joseph ---
+Part 1: 1816277
+Part 2: 1410967
+Time: 68007 μs
+
+--- Day 20: Firewall Rules ---
+Part 1: 4793564
+Part 2: 146
+Time: 3184 μs
+
+Total time: 51271332.00 μs
 ```
 
 ## License

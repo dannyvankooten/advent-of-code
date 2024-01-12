@@ -70,8 +70,6 @@ unsigned int count_accepted_values(std::vector<Range> ranges) {
     return count;
 }
 
-// 190 too high
-
 int main() {
     auto tstart = std::chrono::high_resolution_clock::now();
     int pt1 = 0;
@@ -80,7 +78,7 @@ int main() {
     std::vector<Range> ranges = parse_input();
     pt1 = first_accepted_value(ranges);
     pt2 = count_accepted_values(ranges);
-    std::cout << "--- Day 1: No Time for a Taxicab ---\n";
+    std::cout << "--- Day 20: Firewall Rules ---\n";
     std::cout << "Part 1: " << pt1 << "\n";
     std::cout << "Part 2: " << pt2 << "\n";
 

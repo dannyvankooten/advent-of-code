@@ -1,4 +1,3 @@
-#include <bit>
 #include <cctype>
 #include <chrono>
 #include <deque>
@@ -9,23 +8,28 @@
 #include <vector>
 
 using std::deque;
+using std::greater;
 using std::make_tuple;
+using std::priority_queue;
 using std::string;
 using std::tuple;
 using std::unordered_map;
 using std::vector;
 
 typedef vector<vector<char>> grid_t;
+typedef tuple<unsigned int, unsigned int, unsigned int> state_t;
 
 struct Point {
   int col;
   int row;
   int nr;
 
-  Point operator+(const Point& o) { return Point{col + o.col, row + o.row}; }
+  Point operator+(const Point& o) {
+    return Point{col + o.col, row + o.row, -1};
+  }
 };
 
-Point directions[4] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
+Point directions[4] = {{-1, 0, -1}, {0, 1, -1}, {1, 0, -1}, {0, -1, -1}};
 
 vector<vector<char>> parse_input() {
   std::string line;
@@ -42,12 +46,12 @@ vector<vector<char>> parse_input() {
   return grid;
 }
 
-vector<Point> find_poi(grid_t& grid) {
+vector<Point> find_poi(const grid_t& grid) {
   vector<Point> pois;
   pois.resize(8);
 
-  for (int r = 0; r < grid.size(); r++) {
-    for (int c = 0; c < grid[r].size(); c++) {
+  for (int r = 0; r < (int)grid.size(); r++) {
+    for (int c = 0; c < (int)grid[r].size(); c++) {
       if (std::isdigit(grid[r][c])) {
         pois[grid[r][c] - '0'] = Point{c, r, grid[r][c] - '0'};
       }
@@ -57,12 +61,15 @@ vector<Point> find_poi(grid_t& grid) {
 }
 
 vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
-    grid_t& grid, vector<Point>& pois) {
+    const grid_t& grid, const vector<Point>& pois) {
   vector<vector<tuple<Point, unsigned int>>> graph;
   unordered_map<int, bool> visited;
   deque<tuple<Point, unsigned int>> q;
 
-  for (auto poi : pois) {
+  // for every point of interest
+  // find shortest path to every other point of interest
+  // breadth-first
+  for (const auto& poi : pois) {
     q.clear();
     visited.clear();
 
@@ -83,10 +90,10 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
       }
 
       // visit neighbors
-      for (auto d : directions) {
+      for (const auto& d : directions) {
         Point v = u + d;
-        if (v.row < 0 || v.col < 0 || v.row >= grid.size() ||
-            v.col >= grid[0].size() || grid[v.row][v.col] == '#' ||
+        if (v.row < 0 || v.col < 0 || v.row >= (int)grid.size() ||
+            v.col >= (int)grid[0].size() || grid[v.row][v.col] == '#' ||
             visited[(v.row << 8) + v.col]) {
           continue;
         }
@@ -99,31 +106,31 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
     graph.push_back(adj);
   }
 
-  // for every point of interest
-  // find shortest path to every other point of interest
-  // breadth-first
-
   return graph;
 }
 
-int dijkstra(vector<vector<tuple<Point, unsigned int>>> const& graph) {
-  std::priority_queue<
-      tuple<unsigned int, unsigned int, unsigned int>,
-      vector<tuple<unsigned int, unsigned int, unsigned int>>,
-      std::greater<tuple<unsigned int, unsigned int, unsigned int>>>
-      q;
+int dijkstra(const vector<vector<tuple<Point, unsigned int>>>& graph,
+             bool return_to_start) {
+  priority_queue<state_t, vector<state_t>, greater<state_t>> q;
+
   q.push(make_tuple(0, 0, 0));
+
+  uint done = 0;
+  for (uint i = 0; i < graph.size(); i++) {
+    done |= (1 << i);
+  }
 
   while (!q.empty()) {
     auto [dist, u, visited] = q.top();
     q.pop();
 
+    // mark poi as visited
     visited |= ((unsigned int)1 << u);
-    if (visited == 0b11111111) {
+    if (visited == done && (!return_to_start || u == 0)) {
       return dist;
     }
 
-    for (auto el : graph[u]) {
+    for (const auto& el : graph[u]) {
       auto [v, d] = el;
       q.push(make_tuple(dist + d, v.nr, visited));
     }
@@ -131,8 +138,6 @@ int dijkstra(vector<vector<tuple<Point, unsigned int>>> const& graph) {
 
   return 0;
 }
-
-// 2147483494 too high
 
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
@@ -144,9 +149,8 @@ int main() {
   vector<vector<tuple<Point, unsigned int>>> graph =
       create_adjacency_graph(grid, pois);
 
-  pt1 = dijkstra(graph);
-
-  std::cout << "Found " << pois.size() << " points of interest." << std::endl;
+  pt1 = dijkstra(graph, false);
+  pt2 = dijkstra(graph, true);
 
   std::cout << "--- Day 24: Air Duct Spelunking ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

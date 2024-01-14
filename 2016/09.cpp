@@ -1,8 +1,11 @@
 #include <chrono>
 #include <iostream>
 
-size_t decompress(std::string::iterator s, size_t size, bool recurse) {
-  size_t length = 0;
+using iterator = std::string::iterator;
+using size_type = std::string::size_type;
+
+size_t decompress(iterator s, size_type size, bool recurse) {
+  size_type length = 0;
 
   auto end = s + size;
   while (s != end) {
@@ -40,8 +43,8 @@ size_t decompress(std::string::iterator s, size_t size, bool recurse) {
 
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
-  size_t pt1 = 0;
-  size_t pt2 = 0;
+  size_type pt1 = 0;
+  size_type pt2 = 0;
 
   std::string input;
   std::getline(std::cin, input);

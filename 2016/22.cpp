@@ -18,7 +18,7 @@ struct Node {
   }
 };
 
-int solve_pt1(vector<Node>& nodes) {
+int solve_pt1(const vector<Node>& nodes) {
   int count = 0;
 
   for (const Node& a : nodes) {

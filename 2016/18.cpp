@@ -2,7 +2,7 @@
 #include <chrono>
 #include <iostream>
 
-int count_traps(std::string input, int nrows) {
+int count_traps(const std::string& input, int nrows) {
   int trapcount = 0;
 
   // store row in bitset that's larger than row width

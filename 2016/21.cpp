@@ -14,6 +14,7 @@ struct Instruction {
 
 using std::string, std::string_view;
 using std::vector;
+using size_type = string::size_type;
 
 string scramble(string s, const vector<Instruction>& instructions) {
   char tmp;
@@ -36,7 +37,7 @@ string scramble(string s, const vector<Instruction>& instructions) {
       }
       case ROTATE: {
         string c = s;
-        for (size_t i = 0; i < s.length(); i++) {
+        for (size_type i = 0; i < s.length(); i++) {
           int pos = (int)i + (int)ins.a;
           while (pos < 0) {
             pos += (int)s.length();
@@ -74,12 +75,12 @@ string scramble(string s, const vector<Instruction>& instructions) {
       case MOVE: {
         char c = s.at(ins.a);
         // shift everything to the right of ins.a to the left
-        for (size_t i = ins.a; i < s.length(); i++) {
+        for (size_type i = ins.a; i < s.length(); i++) {
           s[i] = s[i + 1];
         }
 
         // insert c at ins.b
-        for (size_t i = s.length() - 1; i > ins.b; i--) {
+        for (size_type i = s.length() - 1; i > ins.b; i--) {
           s[i] = s[i - 1];
         }
         s[ins.b] = c;

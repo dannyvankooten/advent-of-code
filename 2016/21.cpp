@@ -7,17 +7,17 @@ enum OpCode { SWAP_POS, SWAP_CHAR, ROTATE, ROTATE_ON_CHAR_POS, REVERSE, MOVE };
 
 struct Instruction {
   OpCode op;
-  int a;
-  int b;
+  unsigned char a;
+  unsigned char b;
 };
 
 using std::string, std::string_view;
 using std::vector;
 
-string scramble(string s, vector<Instruction> instructions) {
+string scramble(string s, const vector<Instruction>& instructions) {
   char tmp;
 
-  for (Instruction& ins : instructions) {
+  for (const Instruction& ins : instructions) {
     switch (ins.op) {
       case SWAP_POS: {
         tmp = s[ins.a];
@@ -27,35 +27,35 @@ string scramble(string s, vector<Instruction> instructions) {
       }
 
       case SWAP_CHAR: {
-        int a = s.find(ins.a);
-        int b = s.find(ins.b);
-        s[a] = (char)ins.b;
-        s[b] = (char)ins.a;
+        std::string::size_type a = s.find(ins.a);
+        std::string::size_type b = s.find(ins.b);
+        s[a] = ins.b;
+        s[b] = ins.a;
         break;
       }
       case ROTATE: {
         string c = s;
         for (size_t i = 0; i < s.length(); i++) {
-          int pos = i + ins.a;
+          int pos = (int)i + (int)ins.a;
           while (pos < 0) {
-            pos += s.length();
+            pos += (int)s.length();
           }
-          while (pos >= s.length()) {
-            pos -= s.length();
+          while (pos >= (int)s.length()) {
+            pos -= (int)s.length();
           }
           s[i] = c[pos];
         }
         break;
       }
       case ROTATE_ON_CHAR_POS: {
-        size_t n = s.find(ins.a);
+        int n = (int)s.find(ins.a);
         n += (n >= 4) ? 2 : 1;
         n *= -1;
         string c = s;
-        for (size_t i = 0; i < s.length(); i++) {
+        for (int i = 0; i < (int)s.length(); i++) {
           int pos = i + n;
           while (pos < 0) {
-            pos += s.length();
+            pos += (int)s.length();
           }
 
           s[i] = c[pos];
@@ -65,7 +65,7 @@ string scramble(string s, vector<Instruction> instructions) {
       }
       case REVERSE: {
         string c = s;
-        for (int i = ins.a, j = ins.b; i <= ins.b; i++, j--) {
+        for (unsigned int i = ins.a, j = ins.b; i <= ins.b; i++, j--) {
           s[i] = c[j];
         }
         break;
@@ -91,7 +91,8 @@ string scramble(string s, vector<Instruction> instructions) {
   return s;
 }
 
-string permute(string& a, int l, int r, vector<Instruction> instructions) {
+string permute(string& a, int l, int r,
+               const vector<Instruction>& instructions) {
   if (l == r) {
     return (scramble(a, instructions) == "fbgdceah") ? a : "";
   }
@@ -115,18 +116,30 @@ vector<Instruction> parse_input() {
   vector<Instruction> ins;
   while (std::getline(std::cin, input)) {
     if (input.starts_with("swap position")) {
-      ins.push_back(Instruction{SWAP_POS, input[14] - '0', input[30] - '0'});
+      ins.push_back(Instruction{SWAP_POS,
+                                static_cast<unsigned char>(input[14] - '0'),
+                                static_cast<unsigned char>(input[30] - '0')});
     } else if (input.starts_with("swap letter")) {
-      ins.push_back(Instruction{SWAP_CHAR, input[12], input[26]});
+      ins.push_back(Instruction{SWAP_CHAR,
+                                static_cast<unsigned char>(input[12]),
+                                static_cast<unsigned char>(input[26])});
     } else if (input.starts_with("rotate based")) {
-      ins.push_back(Instruction{ROTATE_ON_CHAR_POS, input[35], 0});
+      ins.push_back(Instruction{ROTATE_ON_CHAR_POS,
+                                static_cast<unsigned char>(input[35]), 0});
     } else if (input.starts_with("rotate")) {
       ins.push_back(Instruction{
-          ROTATE, input[7] == 'r' ? -(input[13] - '0') : input[12] - '0', 0});
+          ROTATE,
+          static_cast<unsigned char>(input[7] == 'r' ? -(input[13] - '0')
+                                                     : input[12] - '0'),
+          0});
     } else if (input.starts_with("reverse")) {
-      ins.push_back(Instruction{REVERSE, input[18] - '0', input[28] - '0'});
+      ins.push_back(Instruction{REVERSE,
+                                static_cast<unsigned char>(input[18] - '0'),
+                                static_cast<unsigned char>(input[28] - '0')});
     } else {
-      ins.push_back(Instruction{MOVE, input[14] - '0', input[28] - '0'});
+      ins.push_back(Instruction{MOVE,
+                                static_cast<unsigned char>(input[14] - '0'),
+                                static_cast<unsigned char>(input[28] - '0')});
     }
   }
   return ins;

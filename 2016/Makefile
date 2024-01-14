@@ -1,5 +1,6 @@
 CXXFLAGS+=-g -std=c++20 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
 SHELL=bash
+LDLIBS=-lstdc++
 
 # Only consider C++ for implicit Make targets
 .SUFFIXES:
@@ -11,11 +12,11 @@ all:
 
 # Some dats needs to be linked with OpenSSL (-lcrypto) for MD5
 05: 05.cpp
-	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDLIBS) -lcrypto -o $@
 14: 14.cpp
-	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDLIBS) -lcrypto -o $@
 17: 17.cpp
-	$(CXX) $(CXXFLAGS) $^ -lcrypto -o $@
+	$(CXX) $(CXXFLAGS) $^ $(LDLIBS) -lcrypto -o $@
 
 .PHONY: clean
 clean:

@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <chrono>
 #include <iostream>
 #include <string>
@@ -91,26 +92,6 @@ string scramble(string s, const vector<Instruction>& instructions) {
   return s;
 }
 
-string permute(string& a, int l, int r,
-               const vector<Instruction>& instructions) {
-  if (l == r) {
-    return (scramble(a, instructions) == "fbgdceah") ? a : "";
-  }
-
-  // recurse into all possible permutations
-  for (int i = l; i < r; i++) {
-    std::swap(a[l], a[i]);
-    string answer = permute(a, l + 1, r, instructions);
-    if (answer != "") {
-      return answer;
-    }
-    std::swap(a[l], a[i]);
-  }
-
-  // unreachable
-  return "";
-}
-
 vector<Instruction> parse_input() {
   string input;
   vector<Instruction> ins;
@@ -152,8 +133,12 @@ int main() {
   string pt1 = scramble("abcdefgh", ins);
 
   // lazy pt2, just permute all 8**8 options
-  string pw = "abcdefgh";
-  string pt2 = permute(pw, 0, 8, ins);
+  string pt2 = "abcdefgh";
+  while (std::next_permutation(pt2.begin(), pt2.end()) != false) {
+    if (scramble(pt2, ins) == "fbgdceah") {
+      break;
+    }
+  }
 
   std::cout << "--- Day 21: Scrambled Letters and Hash ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

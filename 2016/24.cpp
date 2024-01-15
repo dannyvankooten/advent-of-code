@@ -24,7 +24,7 @@ struct Point {
   int row;
   int nr;
 
-  Point operator+(const Point& o) {
+  Point operator+(const Point& o) const {
     return Point{col + o.col, row + o.row, -1};
   }
 };
@@ -37,6 +37,8 @@ vector<vector<char>> parse_input() {
 
   while (std::getline(std::cin, line)) {
     vector<char> row;
+    row.reserve(line.size());
+
     for (const auto ch : line) {
       row.push_back(ch);
     }
@@ -63,8 +65,10 @@ vector<Point> find_poi(const grid_t& grid) {
 vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
     const grid_t& grid, const vector<Point>& pois) {
   vector<vector<tuple<Point, unsigned int>>> graph;
-  unordered_map<int, bool> visited;
+  // unordered_map<int, bool> visited;
   deque<tuple<Point, unsigned int>> q;
+
+  vector<bool> visited;
 
   // for every point of interest
   // find shortest path to every other point of interest
@@ -72,6 +76,7 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
   for (const auto& poi : pois) {
     q.clear();
     visited.clear();
+    visited.resize((1 << 8) * grid.size());
 
     vector<tuple<Point, unsigned int>> adj;
     q.push_back(make_tuple(poi, 0));

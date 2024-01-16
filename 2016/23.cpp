@@ -3,7 +3,7 @@
 
 using std::string;
 
-unsigned int factorial(unsigned int n) {
+int factorial(int n) {
   int p = n--;
 
   while (n > 0) {

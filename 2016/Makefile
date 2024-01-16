@@ -1,4 +1,4 @@
-CXXFLAGS+=-g -std=c++17 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
+CXXFLAGS+=-g -std=c++17 -march=native -O3 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
 SHELL=bash
 
 # Only consider C++ for implicit Make targets

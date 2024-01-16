@@ -1,4 +1,4 @@
-# Advent of Code 2016
+# Advent of Code 2016 🎄
 
 Solutions implemented in C++ (`-std=c++17`).
 

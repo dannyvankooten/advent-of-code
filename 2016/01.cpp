@@ -18,7 +18,7 @@ struct Point {
     y += other.y;
   };
 
-  int hash() const { return (x << 16) + y; }
+  inline int hash() const { return (x << 16) + y; }
 };
 
 Point directions[4]{
@@ -61,7 +61,7 @@ int main() {
       pos += directions[dir];
 
       // check if we've been at this x, y before
-      if (pt2 == -1 && visited[pos.hash()]) {
+      if (pt2 == -1 && visited[pos.hash()] == true) {
         pt2 = manhattan_distance(pos, start);
       }
 

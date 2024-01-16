@@ -29,38 +29,39 @@ string scramble(string s, const vector<Instruction>& instructions) {
       }
 
       case SWAP_CHAR: {
-        std::string::size_type a = s.find(ins.a);
-        std::string::size_type b = s.find(ins.b);
-        s[a] = ins.b;
-        s[b] = ins.a;
+        size_type a = s.find(static_cast<char>(ins.a));
+        size_type b = s.find(static_cast<char>(ins.b));
+        s[a] = static_cast<char>(ins.b);
+        s[b] = static_cast<char>(ins.a);
         break;
       }
       case ROTATE: {
         string c = s;
         for (size_type i = 0; i < s.length(); i++) {
-          int pos = (int)i + (int)ins.a;
+          size_type pos = i + static_cast<size_type>(ins.a);
           while (pos < 0) {
-            pos += (int)s.length();
+            pos += s.length();
           }
-          while (pos >= (int)s.length()) {
-            pos -= (int)s.length();
+          while (pos >= s.length()) {
+            pos -= s.length();
           }
           s[i] = c[pos];
         }
         break;
       }
       case ROTATE_ON_CHAR_POS: {
-        int n = (int)s.find(ins.a);
+        int n = static_cast<int>(s.find(static_cast<char>(ins.a)));
         n += (n >= 4) ? 2 : 1;
         n *= -1;
         string c = s;
-        for (int i = 0; i < (int)s.length(); i++) {
+        int len = static_cast<int>(s.length());
+        for (int i = 0; i < len; i++) {
           int pos = i + n;
           while (pos < 0) {
-            pos += (int)s.length();
+            pos += len;
           }
 
-          s[i] = c[pos];
+          s[static_cast<size_type>(i)] = c.at(static_cast<size_type>(pos));
         }
 
         break;

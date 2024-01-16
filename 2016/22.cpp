@@ -14,11 +14,9 @@ struct Node {
 
   bool operator==(const Node& other) const {
     return other.x == x && other.y == y;
-  }
+  };
+  bool operator!=(const Node& other) const { return !(*this == other); };
 };
-
-inline bool operator!=(const Node& lhs, const Node& rhs) { return !(lhs == rhs); }
-
 
 int solve_pt1(const vector<Node>& nodes) {
   int count = 0;
@@ -39,7 +37,7 @@ int main() {
   int pt1 = 0;
   int pt2 = 0;
 
-  std::string input;
+  string input;
 
   // skip command and header line
   std::getline(std::cin, input);
@@ -50,7 +48,7 @@ int main() {
       "+(\\d+)%$");
   std::smatch matches;
 
-  std::vector<Node> nodes;
+  vector<Node> nodes;
 
   while (std::getline(std::cin, input)) {
     std::regex_match(input, matches, rx);

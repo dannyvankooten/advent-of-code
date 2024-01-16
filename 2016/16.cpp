@@ -20,14 +20,28 @@ void step(vector<bool>& a) {
 
 // create odd-length checksum for input string
 void checksum(vector<bool>& a) {
-  for (size_type i = 0, j = 0; i < a.size() - 1; i += 2, j += 1) {
-    a[j] = a[i] == a[i + 1];
+  size_type sz = a.size();
+  unsigned int n = 1;
+
+  // find number of halvings to reach odd number
+  do {
+    sz /= 2;
+    n *= 2;
+  } while ((sz & 1) == 0);
+
+  // create checksum bit for each position
+  for (unsigned int i = 0; i < sz; i++) {
+    bool bit = true;
+    unsigned int start = i * n;
+    unsigned int end = (i + 1) * n;
+    for (unsigned int j = start; j < end; j += 2) {
+      bit ^= ~(a[j] ^ a[j + 1]) & 1;
+    }
+
+    a[i] = bit;
   }
 
-  a.resize(a.size() / 2);
-  if (a.size() % 2 == 0) {
-    checksum(a);
-  }
+  a.resize(sz);
 }
 
 vector<bool> fill_disk_of_size(vector<bool>& in, size_type sz) {
@@ -48,17 +62,17 @@ int main() {
   std::getline(std::cin, input);
 
   std::vector<bool> bits;
-  for (auto ch : input) {
+  for (char ch : input) {
     bits.push_back(ch == '1');
   }
 
   string pt1;
-  for (auto b : fill_disk_of_size(bits, 272)) {
+  for (bool b : fill_disk_of_size(bits, 272)) {
     pt1.push_back(b ? '1' : '0');
   }
 
   string pt2;
-  for (auto b : fill_disk_of_size(bits, 35651584)) {
+  for (bool b : fill_disk_of_size(bits, 35651584)) {
     pt2.push_back(b ? '1' : '0');
   }
 

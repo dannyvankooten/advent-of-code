@@ -69,7 +69,9 @@ int main() {
 
     // rotate name & check for north pole room
     for (char& c : name) {
-      c = ((c - 'a' + sector_id) % 26) + 'a';
+      c = (static_cast<char>(
+               (static_cast<int>(c) - static_cast<int>('a') + sector_id) % 26) +
+           'a');
     }
     if (pt2 == 0 && name.compare("northpoleobjectstorage") == 0) {
       pt2 = sector_id;

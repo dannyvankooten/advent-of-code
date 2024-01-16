@@ -54,9 +54,9 @@ unsigned long first_accepted_value(const vector<Range>& ranges) {
   return ULONG_MAX;
 }
 
-unsigned int count_accepted_values(const vector<Range>& ranges) {
+unsigned long count_accepted_values(const vector<Range>& ranges) {
   unsigned long min = 0;
-  unsigned int count = 0;
+  unsigned long count = 0;
 
   for (auto const& r : ranges) {
     // if current minimum falls inside range
@@ -77,8 +77,8 @@ unsigned int count_accepted_values(const vector<Range>& ranges) {
 
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
-  int pt1 = 0;
-  int pt2 = 0;
+  unsigned long pt1 = 0;
+  unsigned long pt2 = 0;
 
   vector<Range> ranges = parse_input();
   pt1 = first_accepted_value(ranges);

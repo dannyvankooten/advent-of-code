@@ -36,6 +36,7 @@ unsigned int count_bits_on(unsigned int n) {
     count += n & 1;
     n >>= 1;
   }
+
   return count;
 }
 

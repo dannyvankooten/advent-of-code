@@ -13,9 +13,12 @@ struct Node {
   int available;
 
   bool operator==(const Node& other) const {
-    return other.x == this->x && other.y == this->y;
+    return other.x == x && other.y == y;
   }
 };
+
+inline bool operator!=(const Node& lhs, const Node& rhs) { return !(lhs == rhs); }
+
 
 int solve_pt1(const vector<Node>& nodes) {
   int count = 0;

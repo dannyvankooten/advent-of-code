@@ -1,6 +1,5 @@
-CXXFLAGS+=-g -std=c++20 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
+CXXFLAGS+=-g -std=c++17 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
 SHELL=bash
-LDLIBS=-lstdc++
 
 # Only consider C++ for implicit Make targets
 .SUFFIXES:

@@ -3,7 +3,7 @@
 #include <string.h>
 #include <time.h>
 
-void solve(char *doorid, char *password, char *password2) {
+void solve(char* doorid, char* password, char* password2) {
   int p1 = 0;
   int p2 = 0;
   int pos;
@@ -13,11 +13,11 @@ void solve(char *doorid, char *password, char *password2) {
   char digest[MD5_DIGEST_LENGTH];
 
   char buf[64];
-  char *dst = input + keylen;
+  char* dst = input + keylen;
   int i = 1;
   for (;; i++) {
     sprintf(dst, "%d", i);
-    MD5((unsigned char *)input, keylen + strlen(dst), (unsigned char *)digest);
+    MD5((unsigned char*)input, keylen + strlen(dst), (unsigned char*)digest);
 
     unsigned char skip =
         (unsigned char)(digest[0] | digest[1] | (digest[2] & 0xf0));

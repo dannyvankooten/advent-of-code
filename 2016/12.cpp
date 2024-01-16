@@ -3,6 +3,7 @@
 #include <vector>
 
 using std::string;
+using size_type = std::string::size_type;
 using std::vector;
 
 enum OpCode {
@@ -18,7 +19,7 @@ struct Instruction {
   int b;
 };
 
-int run_vm(int registers[4], const vector<Instruction> instructions) {
+int run_vm(int registers[4], const vector<Instruction>& instructions) {
 
   auto ip = instructions.begin();
   auto end = instructions.end();
@@ -74,7 +75,7 @@ vector<Instruction> parse_input() {
   while (std::getline(std::cin, line)) {
     switch (line[0]) {
       case 'c': {
-        size_t pos = line.find(' ') + 1;
+        size_type pos = line.find(' ') + 1;
         int value;
 
         // if this refers to a register address
@@ -90,17 +91,17 @@ vector<Instruction> parse_input() {
         break;
       }
       case 'i': {
-        size_t pos = line.find(' ') + 1;
+        size_type pos = line.find(' ') + 1;
         instructions.push_back(Instruction{OpCode::INC, line[pos] - 'a', 0});
         break;
       }
       case 'd': {
-        size_t pos = line.find(' ') + 1;
+        size_type pos = line.find(' ') + 1;
         instructions.push_back(Instruction{OpCode::DEC, line[pos] - 'a', 0});
         break;
       }
       case 'j':
-        size_t pos = line.find(' ') + 1;
+        size_type pos = line.find(' ') + 1;
         int v1;
         if (line[pos] >= 'a' && line[pos] <= 'd') {
           v1 = (line[pos] - 'a') | (1 << 31);

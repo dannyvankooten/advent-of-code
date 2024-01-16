@@ -97,24 +97,24 @@ vector<Instruction> parse_input() {
   string input;
   vector<Instruction> ins;
   while (std::getline(std::cin, input)) {
-    if (input.starts_with("swap position")) {
+    if (input.find("swap position") != std::string::npos) {
       ins.push_back(Instruction{SWAP_POS,
                                 static_cast<unsigned char>(input[14] - '0'),
                                 static_cast<unsigned char>(input[30] - '0')});
-    } else if (input.starts_with("swap letter")) {
+    } else if (input.find("swap letter") != std::string::npos) {
       ins.push_back(Instruction{SWAP_CHAR,
                                 static_cast<unsigned char>(input[12]),
                                 static_cast<unsigned char>(input[26])});
-    } else if (input.starts_with("rotate based")) {
+    } else if (input.find("rotate based") != std::string::npos) {
       ins.push_back(Instruction{ROTATE_ON_CHAR_POS,
                                 static_cast<unsigned char>(input[35]), 0});
-    } else if (input.starts_with("rotate")) {
+    } else if (input.find("rotate") != std::string::npos) {
       ins.push_back(Instruction{
           ROTATE,
           static_cast<unsigned char>(input[7] == 'r' ? -(input[13] - '0')
                                                      : input[12] - '0'),
           0});
-    } else if (input.starts_with("reverse")) {
+    } else if (input.find("reverse") != std::string::npos) {
       ins.push_back(Instruction{REVERSE,
                                 static_cast<unsigned char>(input[18] - '0'),
                                 static_cast<unsigned char>(input[28] - '0')});

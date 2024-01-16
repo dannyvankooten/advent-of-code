@@ -6,33 +6,34 @@
 using std::priority_queue;
 using std::string;
 using std::vector;
+using size_type = string ::size_type;
 
 struct Point {
   int col;
   int row;
 
-  bool oob() {
-    return this->col < 0 || this->row < 0 || this->col >= 4 || this->row >= 4;
-  }
+  inline bool oob() const {
+    return col < 0 || row < 0 || col >= 4 || row >= 4;
+  };
 
   inline bool operator==(const Point& other) const {
-    return this->col == other.col && this->row == other.row;
-  }
+    return col == other.col && row == other.row;
+  };
 
   Point operator+(const Point& other) const {
     return Point{
-        this->col + other.col,
-        this->row + other.row,
+        col + other.col,
+        row + other.row,
     };
-  }
+  };
 };
 
 struct Vertex {
   Point pos;
   string path;
 
-  constexpr bool operator()(Vertex const& a, Vertex const& b) const noexcept {
-    return a.path.length() > b.path.length();
+  inline bool operator()(Vertex const& a, Vertex const& b) const {
+    return a.path.size() > b.path.size();
   }
 };
 
@@ -103,12 +104,12 @@ string dijkstra(const string& passcode) {
 
 // longest path is NP-hard
 // so we just brute force our way through
-size_t longest_path(const string& passcode, Vertex v) {
+size_type longest_path(const string& passcode, const Vertex v) {
   if (v.pos == Point{3, 3}) {
-    return v.path.length();
+    return v.path.size();
   }
 
-  std::string::size_type longest = 0;
+  size_type longest = 0;
   string h = md5(passcode + v.path);
 
   for (int i = 0; i < 4; i++) {
@@ -123,8 +124,7 @@ size_t longest_path(const string& passcode, Vertex v) {
       continue;
     }
 
-    std::string::size_type length =
-        longest_path(passcode, Vertex{n, v.path + dirnames[i]});
+    size_type length = longest_path(passcode, Vertex{n, v.path + dirnames[i]});
     if (length > longest) {
       longest = length;
     }
@@ -136,11 +136,11 @@ size_t longest_path(const string& passcode, Vertex v) {
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
 
-  std::string input;
+  string input;
   std::getline(std::cin, input);
 
   string pt1 = dijkstra(input);
-  int pt2 = longest_path(input, Vertex{Point{0, 0}, ""});
+  int pt2 = (int)longest_path(input, Vertex{Point{0, 0}, ""});
 
   std::cout << "--- Day 17: Two Steps Forward ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

@@ -1,6 +1,7 @@
 #include <chrono>
 #include <iostream>
 
+using std::string;
 using iterator = std::string::iterator;
 using size_type = std::string::size_type;
 
@@ -46,12 +47,14 @@ int main() {
   size_type pt1 = 0;
   size_type pt2 = 0;
 
-  std::string input;
+  string input;
   std::getline(std::cin, input);
 
   // start at original size
-  pt1 = decompress(input.begin(), input.length(), false);
-  pt2 = decompress(input.begin(), input.length(), true);
+  auto start = input.begin();
+  auto length = input.length();
+  pt1 = decompress(start, length, false);
+  pt2 = decompress(start, length, true);
 
   std::cout << "--- Day 9: Explosives in Cyberspace ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

@@ -1,6 +1,6 @@
 # Advent of Code 2016
 
-Solutions implemented in C++.
+Solutions implemented in C++ (`-std=c++17`).
 
 Execute [run.sh](run.sh) to run all days. Puzzle inputs are read from `stdin` .
 
@@ -14,37 +14,37 @@ Results:
 --- Day 1: No Time for a Taxicab ---
 Part 1: 209
 Part 2: 136
-Time: 259 μs
+Time: 125 μs
 
 --- Day 2: Bathroom Security ---
 Part 1: 82958
 Part 2: B3DB8
-Time: 205 μs
+Time: 110 μs
 
 --- Day 3: Squares With Three Sides ---
 Part 1: 983
 Part 2: 1836
-Time: 1768 μs
+Time: 627 μs
 
 --- Day 4: Security Through Obscurity ---
 Part 1: 278221
 Part 2: 267
-Time: 8020 μs
+Time: 4780 μs
 
 --- Day 5: How About a Nice Game of Chess? ---
 Part 1: 801b56a7
 Part 2: 424a0197
-Time: 3524078 μs
+Time: 3840951 μs
 
 --- Day 6: Signals and Noise ---
 Part 1: dzqckwsd
 Part 2: lragovly
-Time: 147 μs
+Time: 162 μs
 
 --- Day 7: Internet Protocol Version 7 ---
 Part 1: 115
 Part 2: 231
-Time: 8923 μs
+Time: 8253 μs
 
 --- Day 8: Two-Factor Authentication ---
 Part 1: 110
@@ -55,69 +55,94 @@ Part 2:
  #      # #  # ###  # #  #    ###  #      #     #
 #    #  # #  # # #  # #  #  # #    #      #  #  #
 ####  ##  #  # #  # #  #  ##  #    ####   #   ##
-Time: 246 μs
+Time: 229 μs
 
 --- Day 9: Explosives in Cyberspace ---
 Part 1: 102239
 Part 2: 10780403063
-Time: 2212 μs
+Time: 1060 μs
 
 --- Day 10: Balance Bots ---
 Part 1: 47
 Part 2: 2666
-Time: 1119 μs
+Time: 1130 μs
 
 --- Day 11: Radioisotope Thermoelectric Generators ---
-Part 1: 0
+Part 1: 31
 Part 2: 0
-Time: 32 μs
+Time: 141372 μs
 
 --- Day 12: Leonardo's Monorail ---
 Part 1: 318007
 Part 2: 9227661
-Time: 71465 μs
+Time: 30644 μs
 
 --- Day 13: A Maze of Twisty Little Cubicles ---
 Part 1: 90
 Part 2: 135
-Time: 416 μs
+Time: 194 μs
 
 --- Day 14: One-Time Pad ---
 Part 1: 15168
 Part 2: 20864
-Time: 6971234 μs
+Time: 6023884 μs
 
 --- Day 15: Timing is Everything ---
 Part 1: 317371
 Part 2: 2080951
-Time: 36700 μs
+Time: 13294 μs
 
 --- Day 16: Dragon Checksum ---
 Part 1: 10010100110011100
 Part 2: 01100100101101100
-Time: 73618 μs
+Time: 209480 μs
 
 --- Day 17: Two Steps Forward ---
 Part 1: DUDRDLRRRD
 Part 2: 502
-Time: 50746 μs
+Time: 34310 μs
 
 --- Day 18: Like a Rogue ---
 Part 1: 2016
 Part 2: 19998750
-Time: 243363 μs
+Time: 121614 μs
 
 --- Day 19: An Elephant Named Joseph ---
 Part 1: 1816277
 Part 2: 1410967
-Time: 76898 μs
+Time: 23237 μs
 
 --- Day 20: Firewall Rules ---
 Part 1: 4793564
 Part 2: 146
-Time: 2761 μs
+Time: 1106 μs
 
-Total time: 11074210.00 μs
+--- Day 21: Scrambled Letters and Hash ---
+Part 1: baecdfgh
+Part 2: cegdahbf
+Time: 16873 μs
+
+--- Day 22: Grid Computing ---
+Part 1: 990
+Part 2: 0
+Time: 7645 μs
+
+--- Day 23: Safe Cracking ---
+Part 1: 12860
+Part 2: 479009420
+Time: 35 μs
+
+--- Day 24: Air Duct Spelunking ---
+Part 1: 412
+Part 2: 664
+Time: 220181 μs
+
+--- Day 25: Clock Signal ---
+Part 1: 198
+Part 2: 0
+Time: 21997 μs
+
+Total time: 10723293.00 μs
 ```
 
 ## License

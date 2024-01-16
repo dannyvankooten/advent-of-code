@@ -45,7 +45,7 @@ static inline uint64_t set_floor(uint64_t layout, uint64_t i, uint64_t floor) {
 };
 
 static inline uint64_t object_id(object_type t, atom_type a) {
-  return a + NATOMS * (uint64_t)t;
+  return (uint64_t)a + (uint64_t)NATOMS * (uint64_t)t;
 }
 
 static uint64_t add_object(uint64_t layout, object_type t, atom_type a,
@@ -103,7 +103,8 @@ int dijkstra(uint64_t _layout) {
 
   unordered_map<uint64_t, bool> seen;
   priority_queue<State> q;
-  q.push(State{.steps = 0, .el = 1, .layout = _layout});
+  q.push(State{0, 1, _layout});
+
 
   // hash of initial state:
   while (!q.empty()) {
@@ -120,6 +121,7 @@ int dijkstra(uint64_t _layout) {
     }
 
     // mark elevator level + layout as seen
+    // TODO: We can prune MUCH more aggressively here since pairs are interchangable
     seen[hash_state(u.el, u.layout)] = true;
 
     // generate valid next states
@@ -180,7 +182,6 @@ int dijkstra(uint64_t _layout) {
       }
     }
 
-    // break;
   }
 
   return -1;

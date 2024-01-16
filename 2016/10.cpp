@@ -1,3 +1,4 @@
+#include <cctype>
 #include <chrono>
 #include <iostream>
 #include <regex>
@@ -21,7 +22,7 @@ vector<int> parse_ints_in_line(const string& line) {
   vector<int> r;
 
   for (size_t i = 0; i < line.length(); i++) {
-    if (line[i] < '0' || line[i] > '9') {
+    if (!std::isdigit(line[i])) {
       continue;
     }
 

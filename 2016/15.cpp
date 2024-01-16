@@ -15,7 +15,7 @@ class Disc {
   int npositions;
 };
 
-int drop_capsule(const std::vector<Disc>& discs) {
+int drop_capsule(const vector<Disc>& discs) {
   // brute-force every start time until we were able to pass all disks
   // an alternative approach may be to use LCM?
 

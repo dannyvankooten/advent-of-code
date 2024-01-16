@@ -3,36 +3,30 @@
 #include <deque>
 #include <iostream>
 #include <queue>
-#include <tuple>
-#include <unordered_map>
 #include <vector>
 
 using std::deque;
 using std::greater;
-using std::make_tuple;
 using std::priority_queue;
 using std::string;
-using std::tuple;
-using std::unordered_map;
 using std::vector;
 
 typedef vector<vector<char>> grid_t;
-typedef tuple<unsigned int, unsigned int, unsigned int> state_t;
 
 struct Point {
   int col;
   int row;
-  int nr;
+  unsigned int nr;
 
   Point operator+(const Point& o) const {
-    return Point{col + o.col, row + o.row, -1};
+    return Point{col + o.col, row + o.row, 0};
   }
 };
 
-Point directions[4] = {{-1, 0, -1}, {0, 1, -1}, {1, 0, -1}, {0, -1, -1}};
+Point directions[4] = {{-1, 0, 0}, {0, 1, 0}, {1, 0, 0}, {0, -1, 0}};
 
 vector<vector<char>> parse_input() {
-  std::string line;
+  string line;
   vector<vector<char>> grid;
 
   while (std::getline(std::cin, line)) {
@@ -55,19 +49,22 @@ vector<Point> find_poi(const grid_t& grid) {
   for (int r = 0; r < (int)grid.size(); r++) {
     for (int c = 0; c < (int)grid[r].size(); c++) {
       if (std::isdigit(grid[r][c])) {
-        pois[grid[r][c] - '0'] = Point{c, r, grid[r][c] - '0'};
+        pois[grid[r][c] - '0'] =
+            Point{c, r, static_cast<unsigned int>(grid[r][c] - '0')};
       }
     }
   }
   return pois;
 }
+struct Edge {
+  Point position;
+  unsigned int dist;
+};
 
-vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
-    const grid_t& grid, const vector<Point>& pois) {
-  vector<vector<tuple<Point, unsigned int>>> graph;
-  // unordered_map<int, bool> visited;
-  deque<tuple<Point, unsigned int>> q;
-
+vector<vector<Edge>> create_adjacency_graph(const grid_t& grid,
+                                            const vector<Point>& pois) {
+  vector<vector<Edge>> graph;
+  deque<Edge> q;
   vector<bool> visited;
 
   // for every point of interest
@@ -78,8 +75,8 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
     visited.clear();
     visited.resize((1 << 8) * grid.size());
 
-    vector<tuple<Point, unsigned int>> adj;
-    q.push_back(make_tuple(poi, 0));
+    vector<Edge> adj;
+    q.push_back(Edge{poi, 0});
 
     while (!q.empty()) {
       auto [u, dist] = q.front();
@@ -90,7 +87,7 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
       // add it to adj graph
       if (dist > 0 && isdigit(grid[u.row][u.col])) {
         u.nr = grid[u.row][u.col] - '0';
-        adj.push_back(make_tuple(u, dist));
+        adj.push_back(Edge{u, dist});
         continue;
       }
 
@@ -103,7 +100,7 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
           continue;
         }
 
-        q.push_back(make_tuple(v, dist + 1));
+        q.push_back(Edge{v, dist + 1});
         visited[(v.row << 8) + v.col] = true;
       }
     }
@@ -114,14 +111,23 @@ vector<vector<tuple<Point, unsigned int>>> create_adjacency_graph(
   return graph;
 }
 
-int dijkstra(const vector<vector<tuple<Point, unsigned int>>>& graph,
-             bool return_to_start) {
-  priority_queue<state_t, vector<state_t>, greater<state_t>> q;
+int dijkstra(const vector<vector<Edge>>& graph, bool return_to_start) {
 
-  q.push(make_tuple(0, 0, 0));
+  struct State {
+    unsigned int dist;
+    unsigned int nr;
+    unsigned int visited;
 
-  uint done = 0;
-  for (uint i = 0; i < graph.size(); i++) {
+    inline bool operator>(const State& o) const noexcept {
+      return dist > o.dist;
+    };
+  };
+
+  priority_queue<State, vector<State>, greater<State>> q;
+  q.push(State{0u, 0u, 0u});
+
+  unsigned int done = 0u;
+  for (unsigned int i = 0; i < graph.size(); i++) {
     done |= (1 << i);
   }
 
@@ -130,14 +136,14 @@ int dijkstra(const vector<vector<tuple<Point, unsigned int>>>& graph,
     q.pop();
 
     // mark poi as visited
-    visited |= ((unsigned int)1 << u);
+    visited |= (1u << u);
     if (visited == done && (!return_to_start || u == 0)) {
       return dist;
     }
 
     for (const auto& el : graph[u]) {
       auto [v, d] = el;
-      q.push(make_tuple(dist + d, v.nr, visited));
+      q.push(State{dist + d, v.nr, visited});
     }
   }
 
@@ -151,8 +157,7 @@ int main() {
 
   vector<vector<char>> grid = parse_input();
   vector<Point> pois = find_poi(grid);
-  vector<vector<tuple<Point, unsigned int>>> graph =
-      create_adjacency_graph(grid, pois);
+  vector<vector<Edge>> graph = create_adjacency_graph(grid, pois);
 
   pt1 = dijkstra(graph, false);
   pt2 = dijkstra(graph, true);

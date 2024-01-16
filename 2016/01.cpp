@@ -18,7 +18,7 @@ struct Point {
     y += other.y;
   };
 
-  int hash() { return (x << 16) + y; }
+  int hash() const { return (x << 16) + y; }
 };
 
 Point directions[4]{
@@ -43,37 +43,35 @@ int main() {
   std::string input;
   std::getline(std::cin, input);
 
-  std::unordered_map<int, bool> m = {};
+  std::unordered_map<int, bool> visited = {};
 
-  int i = 0;
-  while (true) {
-    if (input[i++] == 'R') {
+  for (auto s = input.begin(); s != input.end();) {
+    if (*s++ == 'R') {
       dir = (dir == 3) ? 0 : dir + 1;
     } else {
       dir = (dir == 0) ? 3 : dir - 1;
     }
 
-    int amount = std::stoi(&input[i]);
+    int amount = std::stoi(&*s);
+    while (std::isdigit(*s)) {
+      s++;
+    }
 
     while (amount > 0) {
       pos += directions[dir];
 
       // check if we've been at this x, y before
-      if (pt2 == -1 && m.count(pos.hash()) > 0) {
+      if (pt2 == -1 && visited[pos.hash()]) {
         pt2 = manhattan_distance(pos, start);
       }
 
-      m.insert({pos.hash(), true});
-
+      visited[pos.hash()] = true;
       amount--;
     }
 
     // skip forward to next number
-    i = input.find(',', i + 1);
-    if (i == std::string::npos) {
-      break;
-    } else {
-      i += 2;
+    if (*s == ',') {
+      s += 2;
     }
   }
 

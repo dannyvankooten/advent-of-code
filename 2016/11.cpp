@@ -1,173 +1,181 @@
-#include <algorithm>
+#include <cassert>
 #include <chrono>
+#include <cstdint>
 #include <iostream>
 #include <queue>
 #include <unordered_map>
-#include <vector>
 
-using std::find;
 using std::priority_queue;
-using std::vector;
+using std::unordered_map;
 
 enum atom_type {
+  // part 1
   THULIUM,
   PLUTONIUM,
   STRONTIUM,
   PROMETHIUM,
   RUTHENIUM,
 
-  // from test case
-  HYDROGEN,
-  LITHIUM,
+  // part 2
+  // ELERIUM,
+  // DILITHIUM,
+
+  // needs to be last enumeration element
+  NATOMS,
 };
 
 enum object_type {
   MICROCHIP,
   GENERATOR,
+  NTYPES,
 };
 
-struct Object {
-  object_type type;
-  atom_type atom;
+static const uint64_t NOBJECTS = (uint64_t)NATOMS * (uint64_t)NTYPES;
 
-  bool operator==(const Object& rhs) const {
-    return type == rhs.type && atom == rhs.atom;
-  };
+static inline uint64_t hash_state(uint64_t el, uint64_t layout) {
+  return ((el << (NOBJECTS * 3)) | layout);
+}
+
+static inline uint64_t get_floor(uint64_t layout, uint64_t i) {
+  return (layout >> (i * 3)) & 0b111;
 };
 
-struct State {
-  int steps;
-  int el;
-  vector<vector<Object>> floors;
+static inline uint64_t set_floor(uint64_t layout, uint64_t i, uint64_t floor) {
+  return (layout & ~(0b111 << (i * 3))) | (floor << (i * 3));
+};
 
-  bool is_valid() {
-    bool valid = true;
+static inline uint64_t object_id(object_type t, atom_type a) {
+  return a + NATOMS * (uint64_t)t;
+}
 
-    // check floor below, current and above
-    // TODO: we can improve this by only checking previous and current floor
-    for (int fl = std::max(el - 1, 0); fl < std::min(4, el + 1); fl++) {
-      // no microchip should be on same floor as generator
-      // unless connected to its own generator
-      for (const auto& a : floors[fl]) {
-        if (a.type != MICROCHIP) {
-          continue;
-        }
+static uint64_t add_object(uint64_t layout, object_type t, atom_type a,
+                           uint64_t floor) {
+  return set_floor(layout, object_id(t, a), floor);
+}
 
-        // if generator is here too, we're good
-        for (const auto& b : floors[fl]) {
-          if (b.type != GENERATOR) {
-            continue;
-          }
+static uint64_t get_object(uint64_t layout, object_type t, atom_type a) {
+  return get_floor(layout, object_id(t, a));
+}
 
-          // generator of same type, good
-          if (b.atom == a.atom) {
-            valid = true;
-            break;
-          }
+bool is_valid_layout(uint64_t layout) {
+  // microchips are at index 0 - NATOMS
+  for (uint64_t i = 0; i < NATOMS; i++) {
+    uint64_t floor = get_floor(layout, i);
 
-          // don't return yet because
-          // floor may still contain a generator of same atom as microchip
-          valid = false;
-        }
-      }
+    // ignore everything on floor 0
+    if (floor == 0) {
+      continue;
+    }
 
-      if (!valid) {
+    // always safe if microchip is coupled to generator of same atom
+    if (get_floor(layout, i + NATOMS) == floor) {
+      continue;
+    }
+
+    // unsafe if any other generator on same floor
+    for (uint64_t j = NATOMS; j < NOBJECTS; j++) {
+      if (get_floor(layout, j) == floor) {
         return false;
       }
     }
+  }
 
-    return valid;
-  };
-
-  unsigned long long hash() const {
-    unsigned long long hash = 0;
-    // position is irrelevant
-    // floor level + object combo's is
-    // 14 objects, 4 floors
-    // so can represent in 4*14 bits
-    for (unsigned long long i = 0; i < 4; i++) {
-
-      for (const auto& obj : floors[i]) {
-        unsigned long long oi = (obj.type * 7) + obj.atom;
-        // flip bit at i * oi
-        hash |= (1 << (i * 14 + oi));
-      }
-    }
-
-    return hash;
-  };
-
-  bool operator<(const State& rhs) const { return steps > rhs.steps; };
+  return true;
 };
 
-vector<vector<Object>> create_pairs(const vector<Object>& in) {
-  vector<vector<Object>> out;
+struct State {
+  uint64_t steps;
+  uint64_t el;
+  uint64_t layout;
 
-  for (auto i = in.begin(); i != in.end(); i++) {
-    // one object
-    out.push_back(vector<Object>{*i});
+  bool operator<(const State& rhs) const {
+    return steps > rhs.steps || (steps == rhs.steps && el < rhs.el);
+  };
+};
 
-    for (auto j = i + 1; j != in.end(); j++) {
-      out.push_back(vector<Object>{*i, *j});
+int dijkstra(uint64_t _layout) {
+  uint64_t ready = 0;
+  for (uint64_t i = 0; i < NOBJECTS; i++) {
+    if (get_floor(_layout, i) > 0) {
+      ready = set_floor(ready, i, 4);
     }
   }
 
-  return out;
-}
-
-// 589 too high
-// 1317 too high
-
-int dijkstra(const vector<vector<Object>>& floors) {
-  auto endsize =
-      floors[0].size() + floors[1].size() + floors[2].size() + floors[3].size();
-
-  std::cout << "upper floor should contain " << endsize << " objects"
-            << std::endl;
-
-  std::unordered_map<unsigned long long, bool> seen;
+  unordered_map<uint64_t, bool> seen;
   priority_queue<State> q;
-  q.push({0, 0, floors});
+  q.push(State{.steps = 0, .el = 1, .layout = _layout});
 
   // hash of initial state:
-
   while (!q.empty()) {
     auto u = q.top();
     q.pop();
 
-    // mark as seen
-    seen[u.hash()] = true;
-
-    if (u.steps > 589) {
-      std::cout << "At 589 steps without an answer... :(" << std::endl;
-      return -1;
-    }
-
     // check if done
-    if (u.floors[3].size() == endsize) {
-      return u.steps;
+    if (u.layout == ready) {
+      return (int)u.steps;
     }
 
-    // for every object, move it down AND up
-    vector<vector<Object>> pairs = create_pairs(u.floors[u.el]);
-    // std::cout << "generated " << pairs.size() << " object pairs" << std::endl;
-    for (const auto& pair : pairs) {
-      for (int t = u.el - 1; t <= u.el + 1; t += 2) {
-        if (t < 0 || t > 3) {
+    if (seen[hash_state(u.el, u.layout)]) {
+      continue;
+    }
+
+    // mark elevator level + layout as seen
+    seen[hash_state(u.el, u.layout)] = true;
+
+    // generate valid next states
+    for (uint64_t i = 0; i < NOBJECTS; i++) {
+
+      // only consider objects on same floor as elevator
+      if (get_floor(u.layout, i) != u.el) {
+        continue;
+      }
+
+      // move (single) object down
+      if (u.el > 1) {
+        uint64_t el = u.el - 1;
+        uint64_t layout = set_floor(u.layout, i, el);
+        if (is_valid_layout(layout)) {
+          q.push(State{u.steps + 1, el, layout});
+        }
+      }
+
+      // move single object up
+      if (u.el < 4) {
+        uint64_t el = u.el + 1;
+        uint64_t layout = set_floor(u.layout, i, el);
+        if (is_valid_layout(layout)) {
+          q.push(State{u.steps + 1, el, layout});
+        }
+      }
+
+      // pair with every other object on this floor
+      for (uint64_t j = i + 1; j < NOBJECTS; j++) {
+        if (get_floor(u.layout, j) != u.el) {
           continue;
         }
 
-        State v = u;
-        for (const Object& obj : pair) {
-          auto old = find(v.floors[v.el].begin(), v.floors[v.el].end(), obj);
-          // std::cout << "removing object at position" << std::endl;
-          v.floors[t].push_back(obj);
-          v.floors[v.el].erase(old);
+        // move objects down
+        if (u.el > 1) {
+          uint64_t el = u.el - 1;
+          uint64_t layout = u.layout;
+          layout = set_floor(layout, i, el);
+          layout = set_floor(layout, j, el);
+
+          if (is_valid_layout(layout)) {
+            q.push(State{u.steps + 1, el, layout});
+          }
         }
-        v.steps += 1;
-        v.el = t;
-        if (v.is_valid() && !seen.contains(v.hash())) {
-          q.push(v);
+
+        // move objects up
+        if (u.el < 4) {
+          uint64_t el = u.el + 1;
+          uint64_t layout = u.layout;
+          layout = set_floor(layout, i, el);
+          layout = set_floor(layout, j, el);
+
+          if (is_valid_layout(layout)) {
+            q.push(State{u.steps + 1, el, layout});
+          }
         }
       }
     }
@@ -178,31 +186,33 @@ int dijkstra(const vector<vector<Object>>& floors) {
   return -1;
 }
 
+void run_tests();
+
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
   int pt1 = 0;
   int pt2 = 0;
 
-  vector<vector<Object>> floors(4);
-  // floors[0].push_back(Object{MICROCHIP, HYDROGEN});
-  // floors[0].push_back(Object{MICROCHIP, LITHIUM});
-  // floors[1].push_back(Object{GENERATOR, HYDROGEN});
-  // floors[2].push_back(Object{GENERATOR, LITHIUM});
+  run_tests();
 
-  floors[0].push_back({GENERATOR, THULIUM});
-  floors[0].push_back({MICROCHIP, THULIUM});
-  floors[0].push_back({GENERATOR, PLUTONIUM});
-  floors[0].push_back({GENERATOR, STRONTIUM});
+  uint64_t layout = 0;
+  layout = add_object(layout, GENERATOR, THULIUM, 1);
+  layout = add_object(layout, MICROCHIP, THULIUM, 1);
+  layout = add_object(layout, GENERATOR, PLUTONIUM, 1);
+  layout = add_object(layout, GENERATOR, STRONTIUM, 1);
+  layout = add_object(layout, MICROCHIP, PLUTONIUM, 2);
+  layout = add_object(layout, MICROCHIP, STRONTIUM, 2);
+  layout = add_object(layout, GENERATOR, PROMETHIUM, 3);
+  layout = add_object(layout, MICROCHIP, PROMETHIUM, 3);
+  layout = add_object(layout, GENERATOR, RUTHENIUM, 3);
+  layout = add_object(layout, MICROCHIP, RUTHENIUM, 3);
+  pt1 = dijkstra(layout);
 
-  floors[1].push_back({MICROCHIP, PLUTONIUM});
-  floors[1].push_back({MICROCHIP, STRONTIUM});
-
-  floors[2].push_back({GENERATOR, PROMETHIUM});
-  floors[2].push_back({MICROCHIP, PROMETHIUM});
-  floors[2].push_back({GENERATOR, RUTHENIUM});
-  floors[2].push_back({MICROCHIP, RUTHENIUM});
-
-  pt1 = dijkstra(floors);
+  // layout = add_object(layout, GENERATOR, ELERIUM, 1);
+  // layout = add_object(layout, MICROCHIP, ELERIUM, 1);
+  // layout = add_object(layout, GENERATOR, DILITHIUM, 1);
+  // layout = add_object(layout, MICROCHIP, DILITHIUM, 1);
+  // pt2 = dijkstra(layout);
 
   std::cout << "--- Day 11: Radioisotope Thermoelectric Generators ---\n";
   std::cout << "Part 1: " << pt1 << "\n";
@@ -214,4 +224,106 @@ int main() {
   std::cout << "Time: " << duration.count() << " μs"
             << "\n";
   return EXIT_SUCCESS;
+}
+
+void run_tests() {
+  uint64_t layout = 0;
+  layout = add_object(layout, MICROCHIP, THULIUM, 1);    // HM, idx: 0
+  layout = add_object(layout, MICROCHIP, STRONTIUM, 1);  // LM, idx: 1
+  layout = add_object(layout, GENERATOR, THULIUM, 2);    // HG, idx: 2
+  layout = add_object(layout, GENERATOR, STRONTIUM, 3);  // LG, idx: 3
+  assert(is_valid_layout(layout) == true);
+
+  const auto HM = object_id(MICROCHIP, THULIUM);
+  const auto LM = object_id(MICROCHIP, STRONTIUM);
+  const auto HG = object_id(GENERATOR, THULIUM);
+  const auto LG = object_id(GENERATOR, STRONTIUM);
+
+  assert(get_object(layout, MICROCHIP, THULIUM) == 1);
+  assert(get_object(layout, MICROCHIP, STRONTIUM) == 1);
+  assert(get_object(layout, GENERATOR, THULIUM) == 2);
+  assert(get_object(layout, GENERATOR, STRONTIUM) == 3);
+  assert(get_floor(layout, HM) == 1);
+  assert(get_floor(layout, LM) == 1);
+  assert(get_floor(layout, HG) == 2);
+  assert(get_floor(layout, LG) == 3);
+
+  // 1: move HM to floor 2
+  layout = set_floor(layout, HM, 2);
+  assert(get_floor(layout, HM) == 2);
+  assert(is_valid_layout(layout) == true);
+
+  // 2: move HM and HG to floor 3
+  layout = set_floor(layout, HM, 3);
+  layout = set_floor(layout, HG, 3);
+  assert(get_floor(layout, HM) == 3);
+  assert(get_floor(layout, HG) == 3);
+  assert(is_valid_layout(layout) == true);
+
+  // 3: move HM back to floor 2
+  layout = set_floor(layout, HM, 2);
+  assert(get_floor(layout, HM) == 2);
+  assert(is_valid_layout(layout) == true);
+
+  // 4: move HM back to floor 1
+  layout = set_floor(layout, HM, 1);
+  assert(get_floor(layout, HM) == 1);
+  assert(is_valid_layout(layout) == true);
+
+  // 5: move HM and LM to floor 2
+  layout = set_floor(layout, HM, 2);
+  layout = set_floor(layout, LM, 2);
+  assert(get_floor(layout, HM) == 2);
+  assert(get_floor(layout, LM) == 2);
+  assert(is_valid_layout(layout) == true);
+
+  // 6: move HM and LM to floor 3
+  layout = set_floor(layout, HM, 3);
+  layout = set_floor(layout, LM, 3);
+  assert(get_floor(layout, HM) == 3);
+  assert(get_floor(layout, LM) == 3);
+  assert(is_valid_layout(layout) == true);
+
+  // 7: move HM and LM to floor 4
+  layout = set_floor(layout, HM, 4);
+  layout = set_floor(layout, LM, 4);
+  assert(is_valid_layout(layout) == true);
+
+  // 8: move HM to floor 3
+  layout = set_floor(layout, HM, 3);
+  assert(get_floor(layout, HM) == 3);
+
+  assert(is_valid_layout(layout) == true);
+
+  // 9: move both generators to floor 4
+  layout = set_floor(layout, HG, 4);
+  assert(get_floor(layout, HG) == 4);
+
+  layout = set_floor(layout, LG, 4);
+  assert(get_floor(layout, LG) == 4);
+
+  assert(is_valid_layout(layout) == true);
+
+  // 10: move LM to floor 3
+  layout = set_floor(layout, LM, 3);
+  assert(is_valid_layout(layout) == true);
+
+  // 11: HM and LM to floor 4
+  layout = set_floor(layout, HM, 4);
+  layout = set_floor(layout, LM, 4);
+  assert(is_valid_layout(layout) == true);
+
+  uint64_t ready = 0;
+  ready = set_floor(ready, HM, 4);
+  ready = set_floor(ready, LM, 4);
+  ready = set_floor(ready, HG, 4);
+  ready = set_floor(ready, LG, 4);
+  assert(layout == ready);
+
+  layout = 0;
+  layout = add_object(layout, MICROCHIP, THULIUM, 1);
+  layout = add_object(layout, MICROCHIP, STRONTIUM, 1);
+  layout = add_object(layout, GENERATOR, THULIUM, 2);
+  layout = add_object(layout, GENERATOR, STRONTIUM, 3);
+  assert(dijkstra(layout) == 11);
 }

@@ -1,4 +1,4 @@
-CXXFLAGS+=-g -std=c++17 -O2 -Wundef -Winline  -Wall -Wextra -Wpedantic -Wimplicit-fallthrough -Wformat=2 -Wconversion
+CXXFLAGS+=-g -std=c++17 -O2 -Wall -Wextra -Wpedantic -Wundef -Winline -Wimplicit-fallthrough -Wformat=2 -Wconversion
 SHELL=bash
 
 # Only consider C++ for implicit Make targets
@@ -9,7 +9,7 @@ SHELL=bash
 all:
 	make {01..25}
 
-# Some dats needs to be linked with OpenSSL (-lcrypto) for MD5
+# Some days needs to be linked with OpenSSL (-lcrypto) for MD5 hashing
 05: 05.cpp
 	$(CXX) $(CXXFLAGS) $^ $(LDLIBS) -lcrypto -o $@
 14: 14.cpp

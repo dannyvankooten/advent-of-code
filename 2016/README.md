@@ -1,16 +1,25 @@
-# Advent of Code 2016 🎄
+# Advent of Code 2016 in C++ 🎄
 
 Solutions implemented in C++ (`-std=c++17`).
 
-Execute [run.sh](run.sh) to run all days. Puzzle inputs are read from `stdin` .
+## Running all days
 
-```sh 
-./run.sh 
+Execute [run.sh](run.sh) to run all days while reading puzzle inputs from `01.txt` through `25.txt`.
+
+```sh
+./run.sh
 ```
 
-Results:
+## Running a specific day
 
+```sh
+make 01
+./01 < 01.txt
 ```
+
+## Runtimes
+
+```txt
 --- Day 1: No Time for a Taxicab ---
 Part 1: 209
 Part 2: 136

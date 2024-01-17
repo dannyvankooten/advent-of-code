@@ -3,10 +3,10 @@
 #include <cstdint>
 #include <iostream>
 #include <queue>
-#include <unordered_map>
+#include <unordered_set>
 
 using std::priority_queue;
-using std::unordered_map;
+using std::unordered_set;
 
 enum atom_type {
   // part 1
@@ -101,7 +101,7 @@ int dijkstra(uint64_t _layout) {
     }
   }
 
-  unordered_map<uint64_t, bool> seen;
+  unordered_set<uint64_t> seen;
   priority_queue<State> q;
   q.push(State{0, 1, _layout});
 
@@ -115,13 +115,13 @@ int dijkstra(uint64_t _layout) {
       return static_cast<int>(u.steps);
     }
 
-    if (seen[hash_state(u.el, u.layout)]) {
+    if (seen.contains(hash_state(u.el, u.layout))) {
       continue;
     }
 
     // mark elevator level + layout as seen
     // TODO: We can prune MUCH more aggressively here since pairs are interchangable
-    seen[hash_state(u.el, u.layout)] = true;
+    seen.insert(hash_state(u.el, u.layout));
 
     // generate valid next states
     for (uint64_t i = 0; i < NOBJECTS; i++) {
@@ -131,25 +131,9 @@ int dijkstra(uint64_t _layout) {
         continue;
       }
 
-      // move (single) object down
-      if (u.el > 1) {
-        uint64_t el = u.el - 1;
-        uint64_t layout = set_floor(u.layout, i, el);
-        if (is_valid_layout(layout)) {
-          q.push(State{u.steps + 1, el, layout});
-        }
-      }
-
-      // move single object up
-      if (u.el < 4) {
-        uint64_t el = u.el + 1;
-        uint64_t layout = set_floor(u.layout, i, el);
-        if (is_valid_layout(layout)) {
-          q.push(State{u.steps + 1, el, layout});
-        }
-      }
-
       // pair with every other object on this floor
+      bool movedup = false;
+      bool moveddown = false;
       for (uint64_t j = i + 1; j < NOBJECTS; j++) {
         if (get_floor(u.layout, j) != u.el) {
           continue;
@@ -164,6 +148,7 @@ int dijkstra(uint64_t _layout) {
 
           if (is_valid_layout(layout)) {
             q.push(State{u.steps + 1, el, layout});
+            moveddown = true;
           }
         }
 
@@ -176,7 +161,26 @@ int dijkstra(uint64_t _layout) {
 
           if (is_valid_layout(layout)) {
             q.push(State{u.steps + 1, el, layout});
+            movedup = true;
           }
+        }
+      }
+
+      // move (single) object down
+      if (!moveddown && u.el > 1) {
+        uint64_t el = u.el - 1;
+        uint64_t layout = set_floor(u.layout, i, el);
+        if (is_valid_layout(layout)) {
+          q.push(State{u.steps + 1, el, layout});
+        }
+      }
+
+      // move single object up
+      if (!movedup && u.el < 4) {
+        uint64_t el = u.el + 1;
+        uint64_t layout = set_floor(u.layout, i, el);
+        if (is_valid_layout(layout)) {
+          q.push(State{u.steps + 1, el, layout});
         }
       }
     }

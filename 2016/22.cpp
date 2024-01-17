@@ -3,10 +3,9 @@
 #include <queue>
 #include <regex>
 #include <string>
-#include <unordered_map>
+#include <unordered_set>
 
 using std::priority_queue;
-using std::unordered_map;
 using std::vector, std::string;
 
 struct Node {
@@ -15,12 +14,14 @@ struct Node {
   int size;
   int used;
 
-  int available() const { return size - used; };
+  int available() const noexcept { return size - used; };
 
-  bool operator==(const Node& other) const {
+  bool operator==(const Node& other) const noexcept {
     return other.x == x && other.y == y;
   };
-  bool operator!=(const Node& other) const { return !(*this == other); };
+  bool operator!=(const Node& other) const noexcept {
+    return !(*this == other);
+  };
 };
 
 unsigned int solve_pt1(const vector<Node>& nodes) {
@@ -65,8 +66,9 @@ vector<Node> parse_input() {
 struct Coords {
   int x;
   int y;
-
-  bool operator==(const Coords& o) const { return x == o.x && y == o.y; }
+  bool operator==(const Coords& o) const noexcept {
+    return x == o.x && y == o.y;
+  }
 };
 
 Coords find_src_node(const vector<Node>& nodes) {
@@ -102,7 +104,10 @@ struct State {
 };
 
 int dijkstra(Coords src, Coords dest, const vector<Node>& nodes) {
-  unordered_map<int, bool> visited;
+  auto hash = [](const Coords& p) {
+    return p.x * 40 + p.y;
+  };
+  std::unordered_set<Coords, decltype(hash)> visited(0, hash);
   priority_queue<State, vector<State>, std::greater<State>> q;
   q.push({0, src});
 
@@ -118,9 +123,9 @@ int dijkstra(Coords src, Coords dest, const vector<Node>& nodes) {
     // We should use an adjacency graph of some sort here
     for (const Node& n : nodes) {
       if (n.size <= 100 && manhattan({n.x, n.y}, u) == 1 &&
-          !visited[(n.x * 40) + n.y]) {
+          visited.contains({n.x, n.y})) {
         q.push({steps + 1, {n.x, n.y}});
-        visited[(n.x * 40) + n.y] = true;
+        visited.insert({n.x, n.y});
       }
     }
   }

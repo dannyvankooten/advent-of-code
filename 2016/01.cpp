@@ -1,6 +1,8 @@
 #include <chrono>
 #include <iostream>
-#include <unordered_map>
+#include <unordered_set>
+
+using std::unordered_set;
 
 enum {
   NORTH = 0,
@@ -13,9 +15,13 @@ struct Point {
   int x;
   int y;
 
-  void operator+=(const Point& other) {
+  void operator+=(const Point& other) noexcept {
     x += other.x;
     y += other.y;
+  };
+
+  bool operator==(const Point& other) const noexcept {
+    return x == other.x && y == other.y;
   };
 
   inline int hash() const { return (x << 16) + y; }
@@ -36,14 +42,17 @@ int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
   int pt2 = -1;
 
-  Point start = {0, 0};
-  Point pos = {0, 0};
+  Point start = {500, 500};
+  Point pos = start;
   int dir = NORTH;
 
   std::string input;
   std::getline(std::cin, input);
 
-  std::unordered_map<int, bool> visited = {};
+  auto hash = [](const Point& o) {
+    return (o.x << 16) + o.y;
+  };
+  std::unordered_set<Point, decltype(hash)> visited(0, hash);
 
   for (auto s = input.begin(); s != input.end();) {
     if (*s++ == 'R') {
@@ -61,11 +70,11 @@ int main() {
       pos += directions[dir];
 
       // check if we've been at this x, y before
-      if (pt2 == -1 && visited[pos.hash()] == true) {
+      if (pt2 == -1 && visited.contains(pos)) {
         pt2 = manhattan_distance(pos, start);
       }
 
-      visited[pos.hash()] = true;
+      visited.insert(pos);
       amount--;
     }
 

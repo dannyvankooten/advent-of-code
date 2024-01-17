@@ -37,15 +37,16 @@ string scramble(string s, const vector<Instruction>& instructions) {
       }
       case ROTATE: {
         string c = s;
-        for (size_type i = 0; i < s.length(); i++) {
-          size_type pos = i + static_cast<size_type>(ins.a);
+        int len = static_cast<int>(s.length());
+        for (int i = 0; i < len; i++) {
+          int pos = i + static_cast<int>(ins.a);
           while (pos < 0) {
-            pos += s.length();
+            pos += len;
           }
-          while (pos >= s.length()) {
-            pos -= s.length();
+          while (pos >= len) {
+            pos -= len;
           }
-          s[i] = c[pos];
+          s[static_cast<unsigned int>(i)] = c[static_cast<unsigned int>(pos)];
         }
         break;
       }

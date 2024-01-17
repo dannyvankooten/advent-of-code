@@ -1,6 +1,7 @@
 #!/bin/bash
 
-make all
+make clean
+CXXFLAGS="-O2 -flto -march=native -mtune=native" make all
 
 TIME_LINES=""
 for DAY in {01..25}; do

@@ -1,7 +1,6 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-#include <unordered_map>
 
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
@@ -12,10 +11,9 @@ int main() {
 
   while (std::getline(std::cin, input)) {
 
-    // TODO: We could use a plain array here
-    std::unordered_map<char, int> m = {};
+    int histogram[26] = {0};
     for (char c = 'a'; c <= 'z'; c++) {
-      m[c] = 0;
+      histogram[c - 'a'] = 0;
     }
 
     std::string name;
@@ -28,7 +26,7 @@ int main() {
         continue;
       }
 
-      m[input[i]] += 1;
+      histogram[input[i] - 'a'] += 1;
       name.push_back(input[i]);
     }
 
@@ -48,14 +46,15 @@ int main() {
     for (unsigned int ci = 0; ci < 5; ci++) {
       char mc = 0;
       int mv = 0;
-      for (const auto& [key, value] : m) {
 
-        if (value > mv || (value == mv && key < mc)) {
-          mv = value;
-          mc = key;
+      for (char ch = 'a'; ch <= 'z'; ch++) {
+        auto count = histogram[ch - 'a'];
+        if (count > mv || (count == mv && ch < mc)) {
+          mv = count;
+          mc = ch;
         }
       }
-      m[mc] = 0;
+      histogram[mc - 'a'] = 0;
 
       if (input[i + ci] != mc) {
         valid = false;

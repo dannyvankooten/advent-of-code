@@ -42,8 +42,8 @@ unsigned int count_bits_on(unsigned int n) {
 
 bool is_open_space(Point p, int favnum) {
   unsigned int n =
-      p.col * p.col + 3 * p.col + 2 * p.col * p.row + p.row + p.row * p.row;
-  n += favnum;
+      static_cast<unsigned int>(p.col * p.col + 3 * p.col + 2 * p.col * p.row +
+                                p.row + p.row * p.row + favnum);
   return (count_bits_on(n) % 2) == 0;
 }
 

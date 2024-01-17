@@ -14,7 +14,7 @@ void md5(string& str, int n) {
   str.reserve(MD5_DIGEST_LENGTH * 2);
 
   for (int i = 0; i < n; i++) {
-    MD5((const unsigned char*)str.c_str(), str.size(), hash);
+    MD5(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), hash);
 
     // write directly to input string
     str.clear();

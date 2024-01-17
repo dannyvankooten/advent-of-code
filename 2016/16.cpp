@@ -35,7 +35,7 @@ void checksum(vector<bool>& a) {
     unsigned int start = i * n;
     unsigned int end = (i + 1) * n;
     for (unsigned int j = start; j < end; j += 2) {
-      bit ^= ~(a[j] ^ a[j + 1]) & 1;
+      bit ^= !(a[j] ^ a[j + 1]) & 1;
     }
 
     a[i] = bit;

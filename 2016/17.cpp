@@ -83,7 +83,7 @@ string dijkstra(const string& passcode) {
 
     string h = md5(passcode + v.path);
 
-    for (int i = 0; i < 4; i++) {
+    for (size_t i = 0; i < 4; i++) {
       // door is not open
       if (!(h[i] >= 'b' && h[i] <= 'f')) {
         continue;
@@ -112,7 +112,7 @@ size_type longest_path(const string& passcode, const Vertex v) {
   size_type longest = 0;
   string h = md5(passcode + v.path);
 
-  for (int i = 0; i < 4; i++) {
+  for (size_t i = 0; i < 4; i++) {
     // door is not open
     if (!(h[i] >= 'b' && h[i] <= 'f')) {
       continue;
@@ -140,7 +140,7 @@ int main() {
   std::getline(std::cin, input);
 
   string pt1 = dijkstra(input);
-  int pt2 = (int)longest_path(input, Vertex{Point{0, 0}, ""});
+  size_type pt2 = longest_path(input, Vertex{Point{0, 0}, ""});
 
   std::cout << "--- Day 17: Two Steps Forward ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

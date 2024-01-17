@@ -3,7 +3,7 @@
 
 void shift_row(char grid[6][50], int r, int n) {
   char copy[50];
-  for (int c = 0; c < 50; c++) {
+  for (unsigned long c = 0; c < 50; c++) {
     copy[c] = grid[r][c];
   }
 
@@ -37,15 +37,15 @@ int main() {
 
   std::string line;
   char grid[6][50] = {{0}};
-  for (int r = 0; r < 6; r++) {
-    for (int c = 0; c < 50; c++) {
+  for (unsigned int r = 0; r < 6; r++) {
+    for (unsigned int c = 0; c < 50; c++) {
       grid[r][c] = 0;
     }
   }
 
   while (std::getline(std::cin, line)) {
     if (line.compare(0, 4, "rect") == 0) {
-      int i = 5;
+      unsigned int i = 5;
       int width = std::stoi(&line[i]);
       while (line[i - 1] != 'x') {
         i++;
@@ -58,7 +58,7 @@ int main() {
       }
     } else {
       char orientation = line[7];
-      int i = 7;
+      unsigned int i = 7;
       while (line[i] < '0' || line[i] > '9') {
         i++;
       }
@@ -77,8 +77,8 @@ int main() {
     }
   }
 
-  for (int r = 0; r < 6; r++) {
-    for (int c = 0; c < 50; c++) {
+  for (unsigned int r = 0; r < 6; r++) {
+    for (unsigned int c = 0; c < 50; c++) {
       pt1 += grid[r][c];
     }
   }

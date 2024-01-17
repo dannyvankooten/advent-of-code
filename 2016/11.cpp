@@ -17,8 +17,8 @@ enum atom_type {
   RUTHENIUM,
 
   // part 2
-  // ELERIUM,
-  // DILITHIUM,
+  ELERIUM,
+  DILITHIUM,
 
   // needs to be last enumeration element
   NATOMS,
@@ -33,15 +33,15 @@ enum object_type {
 static const uint64_t NOBJECTS = (uint64_t)NATOMS * (uint64_t)NTYPES;
 
 static inline uint64_t hash_state(uint64_t el, uint64_t layout) {
-  return ((el << (NOBJECTS * 3)) | layout);
+  return ((el << (NOBJECTS * 3ul)) | layout);
 }
 
 static inline uint64_t get_floor(uint64_t layout, uint64_t i) {
-  return (layout >> (i * 3)) & 0b111;
+  return (layout >> (i * 3ul)) & 0b111;
 };
 
 static inline uint64_t set_floor(uint64_t layout, uint64_t i, uint64_t floor) {
-  return (layout & ~(0b111 << (i * 3))) | (floor << (i * 3));
+  return (layout & ~(0b111ul << (i * 3ul))) | (floor << (i * 3ul));
 };
 
 static inline uint64_t object_id(object_type t, atom_type a) {
@@ -105,7 +105,6 @@ int dijkstra(uint64_t _layout) {
   priority_queue<State> q;
   q.push(State{0, 1, _layout});
 
-
   // hash of initial state:
   while (!q.empty()) {
     auto u = q.top();
@@ -113,7 +112,7 @@ int dijkstra(uint64_t _layout) {
 
     // check if done
     if (u.layout == ready) {
-      return (int)u.steps;
+      return static_cast<int>(u.steps);
     }
 
     if (seen[hash_state(u.el, u.layout)]) {
@@ -181,7 +180,6 @@ int dijkstra(uint64_t _layout) {
         }
       }
     }
-
   }
 
   return -1;
@@ -209,11 +207,11 @@ int main() {
   layout = add_object(layout, MICROCHIP, RUTHENIUM, 3);
   pt1 = dijkstra(layout);
 
-  // layout = add_object(layout, GENERATOR, ELERIUM, 1);
-  // layout = add_object(layout, MICROCHIP, ELERIUM, 1);
-  // layout = add_object(layout, GENERATOR, DILITHIUM, 1);
-  // layout = add_object(layout, MICROCHIP, DILITHIUM, 1);
-  // pt2 = dijkstra(layout);
+  layout = add_object(layout, GENERATOR, ELERIUM, 1);
+  layout = add_object(layout, MICROCHIP, ELERIUM, 1);
+  layout = add_object(layout, GENERATOR, DILITHIUM, 1);
+  layout = add_object(layout, MICROCHIP, DILITHIUM, 1);
+  pt2 = dijkstra(layout);
 
   std::cout << "--- Day 11: Radioisotope Thermoelectric Generators ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

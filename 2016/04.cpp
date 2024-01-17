@@ -21,7 +21,7 @@ int main() {
     std::string name;
 
     // count chars
-    int i = 0;
+    unsigned int i = 0;
     for (; (input[i] >= 'a' && input[i] <= 'z') || input[i] == '-'; i++) {
       // don't count dashes
       if (input[i] == '-') {
@@ -45,7 +45,7 @@ int main() {
     // each char should have higher count than char that follows
     // or same count but be alphetically lower
     bool valid = true;
-    for (int ci = 0; ci < 5; ci++) {
+    for (unsigned int ci = 0; ci < 5; ci++) {
       char mc = 0;
       int mv = 0;
       for (const auto& [key, value] : m) {

@@ -9,10 +9,7 @@ string md5(const string& str) {
   static unsigned char hash[MD5_DIGEST_LENGTH];
   static const char characters[] = "0123456789abcdef";
 
-  MD5_CTX md5;
-  MD5_Init(&md5);
-  MD5_Update(&md5, str.c_str(), str.size());
-  MD5_Final(hash, &md5);
+  MD5(reinterpret_cast<const unsigned char*>(str.c_str()), str.size(), hash);
 
   // faster method of converting to hexadecimal
   string ret;

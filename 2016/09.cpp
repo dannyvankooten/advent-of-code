@@ -8,7 +8,7 @@ using size_type = std::string::size_type;
 size_t decompress(iterator s, size_type size, bool recurse) {
   size_type length = 0;
 
-  auto end = s + size;
+  std::string::iterator end = s + static_cast<long>(size);
   while (s != end) {
     if (*s != '(') {
       length += 1;
@@ -17,13 +17,13 @@ size_t decompress(iterator s, size_type size, bool recurse) {
     }
 
     // at (, parse encoding
-    int pattern_length = std::stoi(&*(s + 1));
+    size_type pattern_length = static_cast<size_type>(std::stoi(&*(s + 1)));
 
     while (*(s - 1) != 'x') {
       s++;
     }
 
-    int pattern_repeats = std::stoi(&(*s));
+    size_type pattern_repeats = static_cast<size_type>(std::stoi(&(*s)));
     while (*(s - 1) != ')') {
       s++;
     }
@@ -36,7 +36,7 @@ size_t decompress(iterator s, size_type size, bool recurse) {
     }
 
     // skip decompressed block
-    s += pattern_length;
+    s += static_cast<long>(pattern_length);
   }
 
   return length;

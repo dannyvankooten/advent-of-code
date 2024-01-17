@@ -8,14 +8,14 @@ int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
 
   std::unordered_map<char, int> maps[8];
-  for (int col = 0; col < 8; col++) {
+  for (unsigned int col = 0; col < 8; col++) {
     for (char ch = 'a'; ch <= 'z'; ch++) {
       maps[col][ch] = 0;
     }
   }
   string input;
   while (std::getline(std::cin, input)) {
-    for (int col = 0; col < 8; col++) {
+    for (unsigned int col = 0; col < 8; col++) {
       maps[col][input[col]]++;
     }
   }
@@ -23,7 +23,7 @@ int main() {
   string pt1(8, 'a');
   string pt2(8, 'a');
 
-  for (int col = 0; col < 8; col++) {
+  for (unsigned int col = 0; col < 8; col++) {
     for (char ch = 'b'; ch <= 'z'; ch++) {
       if (maps[col][ch] > maps[col][pt1[col]]) {
         pt1[col] = ch;

@@ -14,16 +14,22 @@ using std::vector;
 typedef vector<vector<char>> grid_t;
 
 struct Point {
-  int col;
-  int row;
+  size_t col;
+  size_t row;
   unsigned int nr;
-
-  Point operator+(const Point& o) const {
-    return Point{col + o.col, row + o.row, 0};
-  }
 };
 
-Point directions[4] = {{-1, 0, 0}, {0, 1, 0}, {1, 0, 0}, {0, -1, 0}};
+struct Edge {
+  Point position;
+  unsigned int dist;
+};
+
+struct Delta {
+  int col;
+  int row;
+};
+
+Delta directions[4] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
 
 vector<vector<char>> parse_input() {
   string line;
@@ -33,7 +39,7 @@ vector<vector<char>> parse_input() {
     vector<char> row;
     row.reserve(line.size());
 
-    for (const auto ch : line) {
+    for (const char ch : line) {
       row.push_back(ch);
     }
     grid.push_back(row);
@@ -46,20 +52,16 @@ vector<Point> find_poi(const grid_t& grid) {
   vector<Point> pois;
   pois.resize(8);
 
-  for (int r = 0; r < (int)grid.size(); r++) {
-    for (int c = 0; c < (int)grid[r].size(); c++) {
+  for (size_t r = 0; r < grid.size(); r++) {
+    for (size_t c = 0; c < grid[r].size(); c++) {
       if (std::isdigit(grid[r][c])) {
-        pois[grid[r][c] - '0'] =
-            Point{c, r, static_cast<unsigned int>(grid[r][c] - '0')};
+        unsigned int idx = static_cast<unsigned int>(grid[r][c] - '0');
+        pois[idx] = Point{c, r, idx};
       }
     }
   }
   return pois;
 }
-struct Edge {
-  Point position;
-  unsigned int dist;
-};
 
 vector<vector<Edge>> create_adjacency_graph(const grid_t& grid,
                                             const vector<Point>& pois) {
@@ -86,17 +88,17 @@ vector<vector<Edge>> create_adjacency_graph(const grid_t& grid,
       // if this is a point of interest
       // add it to adj graph
       if (dist > 0 && isdigit(grid[u.row][u.col])) {
-        u.nr = grid[u.row][u.col] - '0';
+        u.nr = static_cast<unsigned int>(grid[u.row][u.col] - '0');
         adj.push_back(Edge{u, dist});
         continue;
       }
 
       // visit neighbors
-      for (const auto& d : directions) {
-        Point v = u + d;
-        if (v.row < 0 || v.col < 0 || v.row >= (int)grid.size() ||
-            v.col >= (int)grid[0].size() || grid[v.row][v.col] == '#' ||
-            visited[(v.row << 8) + v.col]) {
+      for (const Delta& d : directions) {
+        Point v{static_cast<unsigned int>(static_cast<int>(u.col) + d.col),
+                static_cast<unsigned int>(static_cast<int>(u.row) + d.row), 0};
+        if (v.row >= grid.size() || v.col >= grid[0].size() ||
+            grid[v.row][v.col] == '#' || visited[(v.row << 8) + v.col]) {
           continue;
         }
 
@@ -112,7 +114,6 @@ vector<vector<Edge>> create_adjacency_graph(const grid_t& grid,
 }
 
 int dijkstra(const vector<vector<Edge>>& graph, bool return_to_start) {
-
   struct State {
     unsigned int dist;
     unsigned int nr;
@@ -138,7 +139,7 @@ int dijkstra(const vector<vector<Edge>>& graph, bool return_to_start) {
     // mark poi as visited
     visited |= (1u << u);
     if (visited == done && (!return_to_start || u == 0)) {
-      return dist;
+      return static_cast<int>(dist);
     }
 
     for (const auto& el : graph[u]) {

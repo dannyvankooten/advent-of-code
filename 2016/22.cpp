@@ -1,8 +1,12 @@
 #include <chrono>
 #include <iostream>
+#include <queue>
 #include <regex>
 #include <string>
+#include <unordered_map>
 
+using std::priority_queue;
+using std::unordered_map;
 using std::vector, std::string;
 
 struct Node {
@@ -58,28 +62,92 @@ vector<Node> parse_input() {
   return nodes;
 }
 
+struct Coords {
+  int x;
+  int y;
+
+  bool operator==(const Coords& o) const { return x == o.x && y == o.y; }
+};
+
+Coords find_src_node(const vector<Node>& nodes) {
+  Coords dest = {0, 0};
+  for (const Node& n : nodes) {
+    if (n.x > dest.x) {
+      dest = {n.x, n.y};
+    }
+  }
+  return dest;
+}
+
+Coords find_empty_node(const vector<Node>& nodes) {
+  for (const Node& n : nodes) {
+    if (n.used == 0) {
+      return Coords{n.x, n.y};
+    }
+  }
+
+  // invalid state
+  return Coords{-1, -1};
+}
+
+int manhattan(Coords a, Coords b) {
+  return abs(a.x - b.x) + abs(a.y - b.y);
+}
+
+struct State {
+  int steps;
+  Coords u;
+
+  bool operator>(const State& o) const { return steps > o.steps; }
+};
+
+int dijkstra(Coords src, Coords dest, const vector<Node>& nodes) {
+  unordered_map<int, bool> visited;
+  priority_queue<State, vector<State>, std::greater<State>> q;
+  q.push({0, src});
+
+  while (!q.empty()) {
+    const auto [steps, u] = q.top();
+    q.pop();
+
+    if (u == dest) {
+      return steps;
+    }
+
+    // TODO: This has O(n) complexity
+    // We should use an adjacency graph of some sort here
+    for (const Node& n : nodes) {
+      if (n.size <= 100 && manhattan({n.x, n.y}, u) == 1 &&
+          !visited[(n.x * 40) + n.y]) {
+        q.push({steps + 1, {n.x, n.y}});
+        visited[(n.x * 40) + n.y] = true;
+      }
+    }
+  }
+
+  return 0;
+}
+
+int solve_pt2(const vector<Node>& nodes) {
+  Coords src = find_src_node(nodes);
+  Coords dest = {0, 0};
+
+  // first, dijkstra to find shortest path from empty node to src node
+  Coords empty = find_empty_node(nodes);
+  int steps = dijkstra(empty, src, nodes);
+
+  // then, just shuffle way to source using that empty spot
+  return steps + ((src.x - 1) - dest.x) * 5;
+}
+
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
   unsigned int pt1 = 0;
-  unsigned int pt2 = 0;
+  int pt2 = 0;
 
   vector<Node> nodes = parse_input();
   pt1 = solve_pt1(nodes);
-
-  auto prev = nodes[0].x;
-  for (const Node& n : nodes) {
-    if (prev != n.x) {
-      std::cout << std::endl;
-    }
-    prev = n.x;
-
-    if (n.used > 0) {
-      std::cout << n.used << "/" << n.size << "\t";
-    } else {
-      std::cout << "__/" << n.size << "\t";
-    }
-  }
-  std::cout << std::endl;
+  pt2 = solve_pt2(nodes);
 
   std::cout << "--- Day 22: Grid Computing ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

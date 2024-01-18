@@ -1,18 +1,15 @@
 #!/bin/bash
 
-CC="${CC:=gcc}"
-CFLAGS="$CFLAGS -Wall -Wextra -Wpedantic -std=c11 -Ofast -march=native -fanalyzer -Wlarger-than-524288 -Wundef -Werror -Winline "
-$CC --version
-TIME="0.0"
-for d in */; do
-    cd "$d"
-    $CC $CFLAGS main.c -lcrypto
-    OUT=$(./a.out)
-    TIME_DAY=$(awk 'NR%4==0 { gsub(/ms$/,"", $2); print $2; }' <<< $OUT)
-    TIME=$(echo "$TIME + $TIME_DAY" | bc)
+make clean
+CXXFLAGS="-O2 -flto -march=native -mtune=native" make all
+
+TIME_LINES=""
+for DAY in {01..25}; do
+    OUT=$(cat $DAY.txt | ./$DAY)
+    TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
+    TIME_LINES+="\n"
     echo -e "$OUT\n"
-    cd ..
 done
 
-printf "Total time: %.2fms\n", $TIME
-
+# Print sum of runtimes
+echo -e "$TIME_LINES" | awk 'BEGIN {sum=0.0} { gsub(/(Time: | μs)/,"", $2); sum += $2; } END { printf "Total time: %.2f μs\n", sum }'

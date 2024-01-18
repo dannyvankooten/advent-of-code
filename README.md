@@ -1,9 +1,11 @@
-# Advent of Code: 2015 - 2023
+# Advent of Code: 2015 - 2023 🎄🎅🦌
 
 My solutions for [Advent of Code](https://adventofcode.com) over the years.
 
 - [2015](2015/): C
 - [2016](2016/): C++
+- [2017](2017/): C++
+- [2018](2018/): C
 - [2019](2019/): Rust
 - [2020](2020/): C ([all days, < 500 ms total runtime](https://dannyvankooten.com/solving-advent-of-code-2020-under-1-second/)!)
 - [2021](2021/): Python

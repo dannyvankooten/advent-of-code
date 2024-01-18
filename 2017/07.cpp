@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <chrono>
-#include <functional>
+#include <exception>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <vector>
 
 using std::string;
+using std::unordered_map;
 using std::vector;
 
 struct Program {
@@ -14,18 +16,19 @@ struct Program {
   vector<string> childnames;
 };
 
-vector<Program> parse_input() {
-  vector<Program> programs;
+unordered_map<string, Program> parse_input() {
+
+  unordered_map<string, Program> programs;
   std::string input;
   while (std::getline(std::cin, input)) {
     auto s = input.find_first_of(' ');
     Program p = {input.substr(0, s), std::stoi(&input[s + 2]), {}};
 
     size_t childstart = input.find(" -> ");
-
     if (childstart != string::npos) {
       const auto done = input.end();
-      auto start = input.begin() + childstart + 4;
+      auto start =
+          input.begin() + static_cast<string::difference_type>(childstart) + 4;
       while (true) {
         auto end = std::find_if(start, done, [](char ch) { return ch == ','; });
         p.childnames.push_back(string(start, end));
@@ -36,30 +39,40 @@ vector<Program> parse_input() {
       }
     }
 
-    programs.push_back(p);
+    programs.insert({p.name, p});
   }
+
   return programs;
 }
 
-bool is_root(const vector<Program>& programs, const string& name) {
-  for (const Program& p : programs) {
+// Program is a root if has children
+// and is not referenced by any other program as one of its children
+bool is_root(const unordered_map<string, Program>& programs,
+             const string& name) {
+  for (const auto& [_, p] : programs) {
     for (const string& childname : p.childnames) {
       if (childname == name) {
         return false;
       }
     }
   }
+
   return true;
 }
 
-int main() {
-  auto tstart = std::chrono::high_resolution_clock::now();
-  string pt1;
-  int pt2 = 0;
+int sum_weight(const unordered_map<string, Program>& programs,
+               const Program& root) {
+  int sum = root.weight;
+  for (const string& childname : root.childnames) {
+    const Program& child = programs.at(childname);
+    sum += sum_weight(programs, child);
+  }
 
-  vector<Program> programs = parse_input();
+  return sum;
+}
 
-  for (const Program& a : programs) {
+const Program& find_root(unordered_map<string, Program>& programs) {
+  for (const auto& [_, a] : programs) {
     // skip all leafs
     if (a.childnames.size() == 0) {
       continue;
@@ -67,10 +80,50 @@ int main() {
 
     // potential root, check if referenced from any other program
     if (is_root(programs, a.name)) {
-      pt1 = a.name;
-      break;
+      return a;
     }
   }
+
+  throw new std::exception();
+}
+
+int solve_pt2(const unordered_map<string, Program>& programs,
+              const Program& root, int unbalanced) {
+  vector<int> weights;
+  for (const string& c : root.childnames) {
+    weights.push_back(sum_weight(programs, programs.at(c)));
+  }
+
+  int diff = 0;
+
+  for (unsigned int i = 0; i < root.childnames.size(); i++) {
+    for (unsigned int j = 0; j < root.childnames.size(); j++) {
+      if (i == j) {
+        continue;
+      }
+
+      diff = weights[i] - weights[j];
+      if (diff == 0) {
+        break;
+      }
+    }
+
+    if (diff != 0) {
+      return solve_pt2(programs, programs.at(root.childnames[i]), diff);
+    }
+  }
+
+  return root.weight - unbalanced;
+}
+
+int main() {
+  auto tstart = std::chrono::high_resolution_clock::now();
+
+  unordered_map<string, Program> programs = parse_input();
+
+  const Program& root = find_root(programs);
+  string pt1 = root.name;
+  int pt2 = solve_pt2(programs, root, 0);
 
   std::cout << "--- Day 7: Recursive Circus ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

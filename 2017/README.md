@@ -19,7 +19,33 @@ make 01
 
 ## Runtimes
 
-```txt
+```
+--- Day 1: Inverse Captcha ---
+Part 1: 1097
+Part 2: 1188
+Time: 173 μs
+
+--- Day 2: Corruption Checksum ---
+Part 1: 44670
+Part 2: 285
+Time: 188 μs
+
+--- Day 3: Spiral Memory ---
+Part 1: 475
+Part 2: 279138
+Time: 125 μs
+
+--- Day 1: No Time for a Taxicab ---
+Part 1: 477
+Part 2: 167
+Time: 2135 μs
+
+--- Day 5: A Maze of Twisty Trampolines, All Alike ---
+Part 1: 364539
+Part 2: 27477714
+Time: 76426 μs
+
+Total time: 79047.00 μs
 ```
 
 ## License

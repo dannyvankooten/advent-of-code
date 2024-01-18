@@ -5,10 +5,13 @@ CXXFLAGS="-O2 -flto -march=native -mtune=native" make all
 
 TIME_LINES=""
 for DAY in {01..25}; do
-    OUT=$(cat $DAY.txt | ./$DAY)
-    TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
-    TIME_LINES+="\n"
-    echo -e "$OUT\n"
+
+    if [[ -f ./$DAY ]]; then
+        OUT=$(cat $DAY.txt | ./$DAY)
+        TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
+        TIME_LINES+="\n"
+        echo -e "$OUT\n"
+    fi
 done
 
 # Print sum of runtimes

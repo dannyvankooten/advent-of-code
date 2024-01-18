@@ -1,4 +1,4 @@
-CXXFLAGS+=-g -std=c++20 -Wall -Wextra -Wpedantic -Wundef -Winline -Wimplicit-fallthrough -Wformat=2 -Wconversion -O1
+CXXFLAGS+=-g -std=c++20 -Wall -Wextra -Wpedantic -Wundef -Winline -Wimplicit-fallthrough -Wformat=2 -Wconversion -O2
 SHELL=bash
 
 # Only consider C++ for implicit Make targets

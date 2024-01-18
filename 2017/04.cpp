@@ -63,7 +63,7 @@ int main() {
     pt2 += valid_pt2;
   }
 
-  std::cout << "--- Day 1: No Time for a Taxicab ---\n";
+  std::cout << "--- Day 4: High-Entropy Passphrases ---\n";
   std::cout << "Part 1: " << pt1 << "\n";
   std::cout << "Part 2: " << pt2 << "\n";
 

@@ -69,7 +69,8 @@ int main() {
   auto tstop = std::chrono::high_resolution_clock::now();
   auto duration =
       std::chrono::duration_cast<std::chrono::microseconds>(tstop - tstart);
-  std::cout << "Time: " << duration.count() << " μs"
+  std::cout << "Time: " << (static_cast<double>(duration.count()) / 1000.0)
+            << " ms"
             << "\n";
   return EXIT_SUCCESS;
 }

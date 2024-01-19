@@ -2,36 +2,36 @@
 #include <chrono>
 #include <iostream>
 #include <string>
-#include <unordered_map>
-#include <unordered_set>
 #include <vector>
 
 using std::string;
-using std::unordered_map;
-using std::unordered_set;
 using std::vector;
 
-int count_in_group(const unordered_map<string, vector<string>> &programs,
-                   unordered_set<string> &seen, const string &name) {
+int count_in_group(const vector<vector<int>> &programs, vector<bool> &seen,
+                   const int name) {
 
   int count = 1;
-  seen.insert(name);
-  const vector<string> &connections = programs.at(name);
-  for (const string &conn : connections) {
-    if (seen.contains(conn)) {
+  const vector<int> &connections = programs.at(name);
+
+  seen[name] = true;
+
+  for (const int conn : connections) {
+    if (seen[conn]) {
       continue;
     }
 
     count += count_in_group(programs, seen, conn);
   }
+
   return count;
 }
 
-int count_groups(const unordered_map<string, vector<string>> &programs,
-                 unordered_set<string> &seen) {
+int count_groups(const vector<vector<int>> &programs) {
   int groups = 0;
-  for (const auto &[name, _] : programs) {
-    if (seen.contains(name)) {
+  vector<bool> seen(programs.size());
+
+  for (unsigned int p = 0; p < programs.size(); p++) {
+    if (seen[p]) {
       continue;
     }
 
@@ -39,27 +39,29 @@ int count_groups(const unordered_map<string, vector<string>> &programs,
 
     // re-use function from part 1
     // to recursively (dfs) mark all programs in this group as seen
-    count_in_group(programs, seen, name);
+    count_in_group(programs, seen, p);
   }
 
   return groups;
 }
 
-unordered_map<string, vector<string>> parse_input() {
+vector<vector<int>> parse_input() {
   string input;
-  unordered_map<string, vector<string>> programs;
+  vector<vector<int>> programs;
+  programs.reserve(2000);
 
   while (std::getline(std::cin, input)) {
     auto it = input.begin();
-    auto end = std::find(it, input.end(), ' ');
-    string name(it, end);
-    end = std::find(end, input.end(), '>');
+    auto end = std::find(it, input.end(), '>');
+    vector<int> conns;
 
     while (end != input.end()) {
       it = end + 2;
       end = std::find(it, input.end(), ',');
-      programs[name].push_back(string(it, end));
+      int c = std::stoi(&(*it));
+      conns.push_back(c);
     }
+    programs.push_back(conns);
   }
 
   return programs;
@@ -70,14 +72,10 @@ int main() {
   int pt1 = 0;
   int pt2 = 0;
 
-  unordered_map<string, vector<string>> programs = parse_input();
-  std::unordered_set<string> seen;
-  pt1 = count_in_group(programs, seen, "0");
-
-  // we could also re-use the map from part 1 here and add 1
-  // but for correctness, let's just start fresh
-  seen.clear();
-  pt2 = count_groups(programs, seen);
+  vector<vector<int>> programs = parse_input();
+  vector<bool> seen(programs.size());
+  pt1 = count_in_group(programs, seen, 0);
+  pt2 = count_groups(programs);
 
   std::cout << "--- Day 12: Digital Plumber ---\n";
   std::cout << "Part 1: " << pt1 << "\n";

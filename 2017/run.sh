@@ -1,6 +1,6 @@
 #!/bin/bash
 
-make clean
+# make clean
 CXXFLAGS="-O2 -flto -march=native -mtune=native" make all
 
 TIME_LINES=""

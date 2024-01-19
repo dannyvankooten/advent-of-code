@@ -47,10 +47,10 @@ unordered_map<string, Program> parse_input() {
 
 // Program is a root if has children
 // and is not referenced by any other program as one of its children
-bool is_root(const unordered_map<string, Program>& programs,
-             const string& name) {
-  for (const auto& [_, p] : programs) {
-    for (const string& childname : p.childnames) {
+bool is_root(const unordered_map<string, Program> &programs,
+             const string &name) {
+  for (const auto &[_, p] : programs) {
+    for (const string &childname : p.childnames) {
       if (childname == name) {
         return false;
       }
@@ -60,19 +60,19 @@ bool is_root(const unordered_map<string, Program>& programs,
   return true;
 }
 
-int sum_weight(const unordered_map<string, Program>& programs,
-               const Program& root) {
+int sum_weight(const unordered_map<string, Program> &programs,
+               const Program &root) {
   int sum = root.weight;
-  for (const string& childname : root.childnames) {
-    const Program& child = programs.at(childname);
+  for (const string &childname : root.childnames) {
+    const Program &child = programs.at(childname);
     sum += sum_weight(programs, child);
   }
 
   return sum;
 }
 
-const Program& find_root(unordered_map<string, Program>& programs) {
-  for (const auto& [_, a] : programs) {
+const Program &find_root(unordered_map<string, Program> &programs) {
+  for (const auto &[_, a] : programs) {
     // skip all leafs
     if (a.childnames.size() == 0) {
       continue;
@@ -87,10 +87,10 @@ const Program& find_root(unordered_map<string, Program>& programs) {
   throw new std::exception();
 }
 
-int solve_pt2(const unordered_map<string, Program>& programs,
-              const Program& root, int unbalanced) {
+int solve_pt2(const unordered_map<string, Program> &programs,
+              const Program &root, int unbalanced) {
   vector<int> weights;
-  for (const string& c : root.childnames) {
+  for (const string &c : root.childnames) {
     weights.push_back(sum_weight(programs, programs.at(c)));
   }
 
@@ -121,7 +121,7 @@ int main() {
 
   unordered_map<string, Program> programs = parse_input();
 
-  const Program& root = find_root(programs);
+  const Program &root = find_root(programs);
   string pt1 = root.name;
   int pt2 = solve_pt2(programs, root, 0);
 

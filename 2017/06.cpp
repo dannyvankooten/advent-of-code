@@ -1,15 +1,14 @@
 #include <algorithm>
 #include <chrono>
 #include <iostream>
-#include <iterator>
 #include <unordered_map>
 #include <vector>
 
 using std::vector;
 
-inline unsigned long hash_banks(const vector<int>& banks) noexcept {
+inline unsigned long hash_banks(const vector<int> &banks) noexcept {
   unsigned long h = 0;
-  for (const auto& b : banks) {
+  for (const auto &b : banks) {
     h <<= 4;
     h += static_cast<unsigned long>(b);
   }

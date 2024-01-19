@@ -9,12 +9,12 @@ struct Point {
   int x;
   int y;
 
-  void operator+=(const Point& other) noexcept {
+  void operator+=(const Point &other) noexcept {
     x += other.x;
     y += other.y;
   }
 
-  bool operator==(const Point& other) const noexcept {
+  bool operator==(const Point &other) const noexcept {
     return x == other.x && y == other.y;
   }
 };
@@ -43,13 +43,13 @@ int solve_pt2(int n) {
   int steps = 1;
   unsigned int dir = 0;
 
-  auto hash = [](const Point& p) {
+  auto hash = [](const Point &p) {
     return std::hash<int>()(p.x) ^ (std::hash<int>()(p.y) << 16);
   };
   unordered_map<Point, int, decltype(hash)> grid(0, hash);
   grid[pos] = 1;
 
-  auto sum_neighbors = [&grid](const Point& p) {
+  auto sum_neighbors = [&grid](const Point &p) {
     int sum = 0;
     for (int y = -1; y <= 1; y++) {
       for (int x = -1; x <= 1; x++) {

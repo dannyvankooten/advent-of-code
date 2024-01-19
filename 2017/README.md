@@ -23,29 +23,49 @@ make 01
 --- Day 1: Inverse Captcha ---
 Part 1: 1097
 Part 2: 1188
-Time: 173 μs
+Time: 69 μs
 
 --- Day 2: Corruption Checksum ---
 Part 1: 44670
 Part 2: 285
-Time: 188 μs
+Time: 197 μs
 
 --- Day 3: Spiral Memory ---
 Part 1: 475
 Part 2: 279138
-Time: 125 μs
+Time: 214 μs
 
---- Day 1: No Time for a Taxicab ---
+--- Day 4: High-Entropy Passphrases ---
 Part 1: 477
 Part 2: 167
-Time: 2135 μs
+Time: 936 μs
 
 --- Day 5: A Maze of Twisty Trampolines, All Alike ---
 Part 1: 364539
 Part 2: 27477714
-Time: 76426 μs
+Time: 54497 μs
 
-Total time: 79047.00 μs
+--- Day 6: Memory Reallocation ---
+Part 1: 11137
+Part 2: 1038
+Time: 3715 μs
+
+--- Day 7: Recursive Circus ---
+Part 1: wiapj
+Part 2: 1072
+Time: 5482 μs
+
+--- Day 8: I Heard You Like Registers ---
+Part 1: 5221
+Part 2: 7491
+Time: 1296 μs
+
+--- Day 9: Stream Processing ---
+Part 1: 11089
+Part 2: 5288
+Time: 575 μs
+
+Total time: 66981.00 μs
 ```
 
 ## License

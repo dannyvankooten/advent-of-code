@@ -8,7 +8,7 @@ using std::string;
 using std::string_view;
 using std::unordered_set;
 
-int character_value(const string_view& word) {
+int character_value(const string_view &word) {
   int value = 1;
   for (const char ch : word) {
     value *= (ch - 'a' + 1);
@@ -44,9 +44,8 @@ int main() {
       valid = valid && !words.contains(word);
 
       // TODO: We could get rid of the allocation here
-      // By multiplying each character with its ordinal value and summing the result
-      // string anagram(word);
-      // sort(anagram.begin(), anagram.end());
+      // By multiplying each character with its ordinal value and summing the
+      // result string anagram(word); sort(anagram.begin(), anagram.end());
       int anagram = character_value(word);
       valid_pt2 = valid_pt2 && !anagrams.contains(anagram);
 

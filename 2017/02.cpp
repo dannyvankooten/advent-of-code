@@ -8,7 +8,7 @@
 using std::string;
 using std::vector;
 
-int find_evenly_divisble_pair(const vector<int>& numbers) noexcept {
+int find_evenly_divisble_pair(const vector<int> &numbers) noexcept {
   for (const int a : numbers) {
     for (const int b : numbers) {
       if (a == b) {

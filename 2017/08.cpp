@@ -25,8 +25,8 @@ int main() {
     regex_match(input, matches, rx);
 
     // first, parse and execute guard clause
-    const string& cr = matches[4];
-    const string& cop = matches[5];
+    const string &cr = matches[4];
+    const string &cop = matches[5];
     const int cv = std::stoi(matches[6]);
     bool guard = false;
     if (cop == ">=") {
@@ -47,8 +47,8 @@ int main() {
     }
 
     // only then, execute instruction
-    const string& op = matches[2];
-    const string& r = matches[1];
+    const string &op = matches[2];
+    const string &r = matches[1];
     const int amount = std::stoi(matches[3]);
     if (op == "inc") {
       registers[r] += amount;
@@ -63,7 +63,7 @@ int main() {
   }
 
   // find max final register value for part 1
-  for (const auto& [_, value] : registers) {
+  for (const auto &[_, value] : registers) {
     if (value > pt1) {
       pt1 = value;
     }

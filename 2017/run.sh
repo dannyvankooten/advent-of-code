@@ -1,6 +1,5 @@
 #!/bin/bash
 
-# make clean
 CXXFLAGS="-O2 -flto -march=native -mtune=native" make all
 
 TIME_LINES=""
@@ -11,6 +10,7 @@ for DAY in {01..25}; do
         TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
         TIME_LINES+="\n"
         echo -e "$OUT\n"
+        sleep 0.5;
     fi
 done
 

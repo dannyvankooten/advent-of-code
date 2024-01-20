@@ -12,9 +12,7 @@ int count_in_group(const vector<vector<int>> &programs, vector<bool> &seen,
 
   int count = 1;
   const vector<int> &connections = programs.at(name);
-
   seen[name] = true;
-
   for (const int conn : connections) {
     if (seen[conn]) {
       continue;
@@ -68,9 +66,10 @@ vector<vector<int>> parse_input() {
 }
 
 int main() {
-  auto tstart = std::chrono::high_resolution_clock::now();
   int pt1 = 0;
   int pt2 = 0;
+
+  const auto tstart = std::chrono::high_resolution_clock::now();
 
   vector<vector<int>> programs = parse_input();
   vector<bool> seen(programs.size());

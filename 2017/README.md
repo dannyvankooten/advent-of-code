@@ -23,64 +23,69 @@ make 01
 --- Day 1: Inverse Captcha ---
 Part 1: 1097
 Part 2: 1188
-Time: 0.128 ms
+Time: 0.18 ms
 
 --- Day 2: Corruption Checksum ---
 Part 1: 44670
 Part 2: 285
-Time: 0.138 ms
+Time: 0.185 ms
 
 --- Day 3: Spiral Memory ---
 Part 1: 475
 Part 2: 279138
-Time: 0.707 ms
+Time: 0.772 ms
 
 --- Day 4: High-Entropy Passphrases ---
 Part 1: 477
 Part 2: 167
-Time: 0.71 ms
+Time: 2.246 ms
 
 --- Day 5: A Maze of Twisty Trampolines, All Alike ---
 Part 1: 364539
 Part 2: 27477714
-Time: 55.664 ms
+Time: 87.503 ms
 
 --- Day 6: Memory Reallocation ---
 Part 1: 11137
 Part 2: 1038
-Time: 2.066 ms
+Time: 3.911 ms
 
 --- Day 7: Recursive Circus ---
 Part 1: wiapj
 Part 2: 1072
-Time: 4.716 ms
+Time: 4.125 ms
 
 --- Day 8: I Heard You Like Registers ---
 Part 1: 5221
 Part 2: 7491
-Time: 1.29 ms
+Time: 3.802 ms
 
 --- Day 9: Stream Processing ---
 Part 1: 11089
 Part 2: 5288
-Time: 0.669 ms
+Time: 0.854 ms
 
 --- Day 10: Knot Hash ---
 Part 1: 8536
 Part 2: aff593797989d665349efe11bb4fd99b
-Time: 2.018 ms
+Time: 0.869 ms
 
 --- Day 11: Hex Ed ---
 Part 1: 834
 Part 2: 1569
-Time: 0.884 ms
+Time: 1.145 ms
 
 --- Day 12: Digital Plumber ---
 Part 1: 283
 Part 2: 195
-Time: 0.881 ms
+Time: 2.446 ms
 
-Total time: 69.871 ms
+--- Day 13: Packet Scanners ---
+Part 1: 1624
+Part 2: 3923436
+Time: 56.848 ms
+
+Total time: 164.886 ms
 ```
 
 ## License

@@ -9,7 +9,6 @@ int main() {
 
   unsigned int steps;
   std::cin >> steps;
-  // steps = 3;
 
   std::list<int> ring = {0};
   auto it = ring.begin();

@@ -1,5 +1,4 @@
 #include <bitset>
-#include <charconv>
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -16,16 +15,11 @@ void reverse(vector<int> &list, unsigned int start, unsigned int length) {
   }
 }
 
-constexpr vector<int> knot_list() {
+bitset<128> create_row(const vector<int> &lengths, unsigned int row_idx) {
   vector<int> list(256);
   for (int i = 0; i < 256; i++) {
     list[i] = i;
   }
-  return list;
-}
-
-bitset<128> create_row(const vector<int> &lengths, unsigned int row_idx) {
-  vector<int> list = knot_list();
 
   int pos = 0;
   int skip = 0;

@@ -1,5 +1,4 @@
 #include <algorithm>
-#include <cassert>
 #include <chrono>
 #include <iostream>
 #include <vector>
@@ -9,9 +8,37 @@ using std::swap;
 using std::vector;
 
 struct Rule {
-  vector<vector<char>> input;
+  vector<vector<vector<char>>> input;
   vector<vector<char>> output;
 };
+
+vector<vector<char>> flip(const vector<vector<char>> &grid) {
+  vector<vector<char>> copy = grid;
+  for (auto &row : copy) {
+    std::reverse(row.begin(), row.end());
+  }
+  return copy;
+}
+
+vector<vector<char>> rotate(const vector<vector<char>> &grid) {
+  vector<vector<char>> copy = grid;
+
+  size_t size = grid.size();
+  // transpose the matrix
+  for (size_t i = 0; i < size; i++) {
+    for (size_t j = i; j < size; j++) {
+      swap(copy[i][j], copy[j][i]);
+    }
+  }
+
+  // reverse each column
+  for (size_t i = 0; i < size; i++) {
+    for (size_t j = 0; j < size / 2; j++) {
+      swap(copy[j][i], copy[size - j - 1][i]);
+    }
+  }
+  return copy;
+}
 
 vector<Rule> parse_input() {
   string line;
@@ -22,15 +49,17 @@ vector<Rule> parse_input() {
     // parse input pattern
     auto start = line.begin();
     auto eol = std::find(start, line.end(), ' ');
+    vector<vector<char>> tile;
     while (true) {
       auto end = std::find(start, eol, '/');
-      r.input.push_back(vector<char>(start, end));
+      tile.push_back(vector<char>(start, end));
       if (end == eol) {
         break;
       }
 
       start = end + 1;
     }
+    r.input.push_back(tile);
 
     // parse output pattern
     start = eol + 4;
@@ -47,39 +76,27 @@ vector<Rule> parse_input() {
 
     rules.push_back(r);
   }
+
+  // generate transformations of every tile in rule patterns
+  for (Rule &rule : rules) {
+    vector<vector<char>> grid = rule.input[0];
+    for (int j = 0; j < 3; j++) {
+      grid = flip(grid);
+      rule.input.push_back(grid);
+      grid = rotate(grid);
+      rule.input.push_back(grid);
+      grid = flip(grid);
+      rule.input.push_back(grid);
+    }
+  }
+
   return rules;
 }
 
-vector<vector<char>> &flip(vector<vector<char>> &grid) {
-  for (auto &row : grid) {
-    std::reverse(row.begin(), row.end());
-  }
-  return grid;
-}
-
-vector<vector<char>> &rotate(vector<vector<char>> &grid) {
-  size_t size = grid.size();
-  // transpose the matrix
-  for (unsigned int i = 0; i < size; i++) {
-    for (unsigned int j = i; j < size; j++) {
-      swap(grid[i][j], grid[j][i]);
-    }
-  }
-
-  // reverse each column
-  for (unsigned int i = 0; i < size; i++) {
-    for (unsigned int j = 0; j < size / 2; j++) {
-      swap(grid[j][i], grid[size - j - 1][i]);
-    }
-  }
-  return grid;
-}
-
 vector<vector<vector<vector<char>>>> split(const vector<vector<char>> &grid,
-                                           size_t n) {
-  vector<vector<vector<vector<char>>>> tiles;
+                                           const size_t n) {
   size_t tw = (grid.size() / n);
-  tiles.reserve(tw);
+  vector<vector<vector<vector<char>>>> tiles(tw);
   for (size_t tr = 0; tr < tw; tr++) {
     vector<vector<vector<char>>> tile_row;
     tile_row.reserve(tw);
@@ -96,7 +113,7 @@ vector<vector<vector<vector<char>>>> split(const vector<vector<char>> &grid,
       }
       tile_row.push_back(tile);
     }
-    tiles.push_back(tile_row);
+    tiles[tr] = tile_row;
   }
 
   return tiles;
@@ -124,65 +141,25 @@ vector<vector<char>> join(const vector<vector<vector<vector<char>>>> &tiles) {
   return grid;
 }
 
-bool matches(const vector<vector<char>> &grid,
-             const vector<vector<char>> &pattern) {
+void match_rule(vector<vector<char>> &tile, const vector<Rule> &rules) {
+  for (const Rule &rule : rules) {
+    if (rule.input[0].size() != tile.size()) {
+      continue;
+    }
 
-  size_t n = pattern.size();
-  for (unsigned int r = 0; r < n; r++) {
-    for (unsigned int c = 0; c < n; c++) {
-      if (grid[r][c] != pattern[r][c]) {
-        return false;
+    for (const vector<vector<char>> &pattern : rule.input) {
+      if (tile == pattern) {
+        tile = rule.output;
+        return;
       }
     }
   }
-
-  return true;
-}
-
-bool matches_any(vector<vector<char>> &grid,
-                 const vector<vector<char>> &pattern) {
-  for (int i = 0; i < 6; i++) {
-    for (int j = 0; j < 2; j++) {
-      if (matches(grid, pattern)) {
-        return true;
-      }
-      flip(grid);
-    }
-    rotate(grid);
-  }
-
-  return false;
-}
-
-void run_tests() {
-
-  vector<vector<char>> grid = {
-      {'1', '2', '3'},
-      {'4', '5', '6'},
-      {'7', '8', '9'},
-  };
-  flip(grid);
-
-  assert(matches(grid, {
-                           {'3', '2', '1'},
-                           {'6', '5', '4'},
-                           {'9', '8', '7'},
-                       }));
-
-  rotate(grid);
-  assert(matches(grid, {
-                           {'1', '4', '7'},
-                           {'2', '5', '8'},
-                           {'3', '6', '9'},
-                       }));
 }
 
 int main() {
   auto tstart = std::chrono::high_resolution_clock::now();
   int pt1 = 0;
   int pt2 = 0;
-
-  run_tests();
 
   vector<vector<char>> grid = {
       {'.', '#', '.'},
@@ -199,25 +176,16 @@ int main() {
     // go over tiles and look for match
     for (auto &tr : tiles) {
       for (auto &t : tr) {
-        for (const Rule &rule : rules) {
-          if (rule.input.size() != sq_size) {
-            continue;
-          }
-          if (matches_any(t, rule.input)) {
-            t = rule.output;
-            goto next_tile;
-          }
-        }
-      next_tile:
+        match_rule(t, rules);
       }
     }
 
     grid = join(tiles);
 
     if (i == 4) {
-      for (size_t r = 0; r < grid.size(); r++) {
-        for (size_t c = 0; c < grid[r].size(); c++) {
-          if (grid[r][c] == '#') {
+      for (const auto &row : grid) {
+        for (const auto &cell : row) {
+          if (cell == '#') {
             pt1++;
           }
         }
@@ -225,14 +193,9 @@ int main() {
     }
   }
 
-  // 170: too high
-  // 168 too high
-  // 161 too high
-  // 29: not right
-  // 160?
-  for (size_t r = 0; r < grid.size(); r++) {
-    for (size_t c = 0; c < grid[r].size(); c++) {
-      if (grid[r][c] == '#') {
+  for (const auto &row : grid) {
+    for (const auto &cell : row) {
+      if (cell == '#') {
         pt2++;
       }
     }

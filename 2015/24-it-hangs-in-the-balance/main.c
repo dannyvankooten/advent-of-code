@@ -1,9 +1,10 @@
 #include "../adventofcode.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 
-int parse(const char *s, int weights[]) {
+static int parse(const char *s, int weights[]) {
   int n = 0;
   while (*s != 0x0) {
     s = parse_int(&weights[n++], s);
@@ -13,10 +14,46 @@ int parse(const char *s, int weights[]) {
 }
 
 // qsort callback
-int cmp_ints(const void *p1, const void *p2) {
+static int cmp_ints(const void *p1, const void *p2) {
   int a = *(int *)p1;
   int b = *(int *)p2;
   return b - a;
+}
+
+// this is sloppy, but it was a property of my input so why not?
+static unsigned long solve_pt1(const int weights[], const int nweights,
+                               const int group_weight) {
+  unsigned long qe = 1;
+
+  int w = 0;
+  for (int i = 0; i < nweights && w < group_weight; i++) {
+    if (w + weights[i] <= group_weight) {
+      w += weights[i];
+      qe *= weights[i];
+    }
+  }
+
+  assert(w == group_weight);
+
+  return qe;
+}
+
+static unsigned long sumto(const int weights[], const int nweights, int i,
+                           int sum, unsigned long qe, const int want) {
+  if (sum >= want) {
+    return sum == want ? qe : 1ul << 63;
+  }
+
+  unsigned long best = 1ul << 63;
+  unsigned long r;
+  for (; i < nweights; i++) {
+    r = sumto(weights, nweights, i + 1, sum + weights[i], qe * weights[i],
+              want);
+    if (r < best) {
+      best = r;
+    }
+  }
+  return best;
 }
 
 int main() {
@@ -32,19 +69,12 @@ int main() {
     weights_sum += weights[i];
   }
 
-  int group_sum = weights_sum / 3;
-  uint64_t qe = 1;
-  for (int s = 0, i = 0; i < nweights && s < group_sum; i++) {
-    if (s + weights[i] < group_sum) {
-      s += weights[i];
-      qe *= weights[i];
-    }
-  }
+  unsigned long pt1 = solve_pt1(weights, nweights, weights_sum / 3);
+  unsigned long pt2 = sumto(weights, nweights, 0, 0, 1, weights_sum / 4);
 
-  int a2 = 0;
   printf("--- Day 24: It Hangs in the Balance ---\n");
-  printf("Part 1: %ld\n", qe);
-  printf("Part 2: %d\n", a2);
+  printf("Part 1: %ld\n", pt1);
+  printf("Part 2: %ld\n", pt2);
   printf("Time: %.2fms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

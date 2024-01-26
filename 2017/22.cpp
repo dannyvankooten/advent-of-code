@@ -42,16 +42,16 @@ unordered_map<Point, unsigned char> parse_input() {
     if (pos == Point{0, 0}) {
       // update start pos to be relative to middle
       // so 0,0 is {12,12} in our input
-      pos.row = static_cast<int>(line.size() / 2) * -1;
+      pos.row = -static_cast<int>(line.size() / 2);
       pos.col = pos.row;
     }
 
     for (const char ch : line) {
       grid[pos] = ch == '#' ? INFECTED : CLEAN;
-      pos.col++;
+      ++pos.col;
     }
-    pos.row += 1;
-    pos.col = static_cast<int>(line.size() / 2) * -1;
+    ++pos.row;
+    pos.col = -static_cast<int>(line.size() / 2);
   }
 
   return grid;
@@ -62,7 +62,7 @@ int solve_pt1(unordered_map<Point, unsigned char> grid) {
   Point pos = {0, 0};
   Point directions[] = {{-1, 0}, {0, 1}, {1, 0}, {0, -1}};
   unsigned int dir = 0; // start facing north
-  for (int i = 0; i < 10000; i++) {
+  for (int i = 0; i < 10000; ++i) {
     dir = (grid[pos] ? dir + 1 : dir - 1) % 4;
     grid[pos] = grid[pos] == INFECTED ? CLEAN : INFECTED;
     if (grid[pos] == INFECTED) {
@@ -83,10 +83,10 @@ int solve_pt2(unordered_map<Point, unsigned char> grid) {
   unsigned char next_state[] = {WEAKENED, INFECTED, FLAGGED, CLEAN};
   int state_values[] = {0, 0, 1, 0};
   int dd[] = {-1, 0, 1, 2};
-
+  unsigned char s;
   unsigned int dir = 0; // start facing north
-  for (int i = 0; i < 10000000; i++) {
-    unsigned char s = grid[pos];
+  for (int i = 0; i < 10000000; ++i) {
+    s = grid[pos];
     grid[pos] = next_state[s];
     infection_count += state_values[next_state[s]];
     dir = static_cast<unsigned int>((static_cast<int>(dir) + dd[s])) % 4;

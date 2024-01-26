@@ -25,15 +25,15 @@ vector<vector<char>> rotate(const vector<vector<char>> &grid) {
 
   size_t size = grid.size();
   // transpose the matrix
-  for (size_t i = 0; i < size; i++) {
-    for (size_t j = i; j < size; j++) {
+  for (size_t i = 0; i < size; ++i) {
+    for (size_t j = i; j < size; ++j) {
       swap(copy[i][j], copy[j][i]);
     }
   }
 
   // reverse each column
-  for (size_t i = 0; i < size; i++) {
-    for (size_t j = 0; j < size / 2; j++) {
+  for (size_t i = 0; i < size; ++i) {
+    for (size_t j = 0; j < size / 2; ++j) {
       swap(copy[j][i], copy[size - j - 1][i]);
     }
   }
@@ -52,21 +52,21 @@ vector<Rule> parse_input() {
     vector<vector<char>> tile;
     while (true) {
       auto end = std::find(start, eol, '/');
-      tile.push_back(vector<char>(start, end));
+      tile.emplace_back(vector<char>(start, end));
       if (end == eol) {
         break;
       }
 
       start = end + 1;
     }
-    r.input.push_back(tile);
+    r.input.emplace_back(tile);
 
     // parse output pattern
     start = eol + 4;
     eol = line.end();
     while (true) {
       auto end = std::find(start, eol, '/');
-      r.output.push_back(vector<char>(start, end));
+      r.output.emplace_back(vector<char>(start, end));
       if (end == eol) {
         break;
       }
@@ -74,7 +74,7 @@ vector<Rule> parse_input() {
       start = end + 1;
     }
 
-    rules.push_back(r);
+    rules.emplace_back(r);
   }
 
   // generate transformations of every tile in rule patterns
@@ -82,11 +82,11 @@ vector<Rule> parse_input() {
     vector<vector<char>> grid = rule.input[0];
     for (int j = 0; j < 3; j++) {
       grid = flip(grid);
-      rule.input.push_back(grid);
+      rule.input.emplace_back(grid);
       grid = rotate(grid);
-      rule.input.push_back(grid);
+      rule.input.emplace_back(grid);
       grid = flip(grid);
-      rule.input.push_back(grid);
+      rule.input.emplace_back(grid);
     }
   }
 
@@ -107,11 +107,11 @@ vector<vector<vector<vector<char>>>> split(const vector<vector<char>> &grid,
         vector<char> row;
         row.reserve(n);
         for (size_t c = 0; c < n; c++) {
-          row.push_back(grid[(tr * n) + r][(tc * n) + c]);
+          row.emplace_back(grid[(tr * n) + r][(tc * n) + c]);
         }
-        tile.push_back(row);
+        tile.emplace_back(row);
       }
-      tile_row.push_back(tile);
+      tile_row.emplace_back(tile);
     }
     tiles[tr] = tile_row;
   }
@@ -127,12 +127,14 @@ vector<vector<char>> join(const vector<vector<vector<vector<char>>>> &tiles) {
     grid[i].resize(sz);
   }
 
-  for (size_t tr = 0; tr < tiles.size(); tr++) {
-    for (size_t tc = 0; tc < tiles[tr].size(); tc++) {
+  for (size_t tr = 0; tr < tiles.size(); ++tr) {
+    for (size_t tc = 0; tc < tiles[tr].size(); ++tc) {
       const auto &tile = tiles[tr][tc];
-      for (size_t r = 0; r < tile.size(); r++) {
-        for (size_t c = 0; c < tile[r].size(); c++) {
-          grid[tr * tile.size() + r][tc * tile.size() + c] = tile[r][c];
+      const size_t ts = tile.size();
+      for (size_t r = 0; r < ts; ++r) {
+        const size_t gr = tr * ts + r;
+        for (size_t c = 0; c < ts; ++c) {
+          grid[gr][tc * ts + c] = tile[r][c];
         }
       }
     }

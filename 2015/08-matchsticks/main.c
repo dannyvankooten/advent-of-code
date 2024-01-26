@@ -50,6 +50,6 @@ int main() {
   printf("--- Day 8: Matchsticks ---\n");
   printf("Part 1: %d %s\n", pt1, pt1 == 1342 ? "✔" : "");
   printf("Part 2: %d %s\n", pt2, pt2 == 2074 ? "✔" : "");
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return 0;
 }

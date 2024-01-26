@@ -104,6 +104,6 @@ int main() {
   printf("Part 1: %d %s\n", max_score, max_score == 18965440 ? "✔" : "");
   printf("Part 2: %d %s\n", max_score_500c,
          max_score_500c == 15862900 ? "✔" : "");
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return 0;
 }

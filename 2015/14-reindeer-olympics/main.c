@@ -137,6 +137,6 @@ int main() {
   printf("--- Day 14: Reindeer Olympics ---\n");
   printf("Part 1: %d %s\n", a1, a1 == 2660 ? "✔" : "");
   printf("Part 2: %d %s\n", a2, a2 == 1256 ? "✔" : "");
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

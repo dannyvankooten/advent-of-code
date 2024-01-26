@@ -120,7 +120,7 @@ int main() {
 
   end_t = clock();
   double total_t = (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
-  printf("Time: %.2fms\n", total_t);
+  printf("Time: %.2f ms\n", total_t);
 
   free(grid_pt1);
   free(grid_pt2);

@@ -99,6 +99,6 @@ int main() {
   printf("--- Day 12: JSAbacusFramework.io ---\n");
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", clock_time_since(tstart));
+  printf("Time: %.2f ms\n", clock_time_since(tstart));
   return 0;
 }

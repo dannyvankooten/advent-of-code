@@ -75,6 +75,6 @@ int main() {
   printf("--- Day 17: No Such Thing as Too Much ---\n");
   printf("Part 1: %d\n", count);
   printf("Part 2: %d\n", pt2);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return 0;
 }

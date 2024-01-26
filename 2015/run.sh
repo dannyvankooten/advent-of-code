@@ -3,31 +3,30 @@
 CC="${CC:=gcc}"
 CFLAGS="$CFLAGS
 -O2
+-march=native
+-mtune=native
 -Wall
 -Wextra
 -Wpedantic
--std=c11
+-std=c99
 -Wformat=2
 -Wconversion
 -Wtrampolines
 -Wimplicit-fallthrough
--U_FORTIFY_SOURCE -D_FORTIFY_SOURCE=3
--D_GLIBCXX_ASSERTIONS
--fstrict-flex-arrays=3
--fstack-clash-protection -fstack-protector-strong
--Wl,-z,nodlopen -Wl,-z,noexecstack
--Wl,-z,relro -Wl,-z,now
--fPIE -pie"
+"
 
 $CC --version
-ALLOUT=""
+TIME_LINES=""
 for d in */; do
     cd "$d"
     $CC $CFLAGS main.c -lcrypto
     OUT=$(./a.out)
-    ALLOUT+="$OUT\n"
     echo -e "$OUT\n"
+
+    TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
+    TIME_LINES+="\n"
+
     cd ..
 done
 
-echo -e "$ALLOUT" | awk 'BEGIN {sum=0.0} NR%4==0 { gsub(/ms$/,"", $2); sum += $2; } END { printf "Total time: %.2fms\n", sum }'
+echo -e "$TIME_LINES" | awk 'BEGIN {sum=0.0} { gsub(/(Time: | ms)/,"", $2); sum += $2; } END { printf "Total time: %.3f ms\n", sum }'

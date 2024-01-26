@@ -4,8 +4,8 @@
 #include <stdlib.h>
 #include <time.h>
 
-static int parse(const char *s, int weights[]) {
-  int n = 0;
+static unsigned int parse(const char *s, int weights[]) {
+  unsigned int n = 0;
   while (*s != 0x0) {
     s = parse_int(&weights[n++], s);
     s = skip_optional('\n', s);
@@ -21,15 +21,15 @@ static int cmp_ints(const void *p1, const void *p2) {
 }
 
 // this is sloppy, but it was a property of my input so why not?
-static unsigned long solve_pt1(const int weights[], const int nweights,
+static unsigned long solve_pt1(const int weights[], const unsigned int nweights,
                                const int group_weight) {
   unsigned long qe = 1;
 
   int w = 0;
-  for (int i = 0; i < nweights && w < group_weight; i++) {
+  for (unsigned int i = 0; i < nweights && w < group_weight; i++) {
     if (w + weights[i] <= group_weight) {
       w += weights[i];
-      qe *= weights[i];
+      qe *= (unsigned long)weights[i];
     }
   }
 
@@ -38,8 +38,9 @@ static unsigned long solve_pt1(const int weights[], const int nweights,
   return qe;
 }
 
-static unsigned long sumto(const int weights[], const int nweights, int i,
-                           int sum, unsigned long qe, const int want) {
+static unsigned long sumto(const int weights[], const unsigned int nweights,
+                           unsigned int i, int sum, unsigned long qe,
+                           const int want) {
   if (sum >= want) {
     return sum == want ? qe : 1ul << 63;
   }
@@ -47,8 +48,8 @@ static unsigned long sumto(const int weights[], const int nweights, int i,
   unsigned long best = 1ul << 63;
   unsigned long r;
   for (; i < nweights; i++) {
-    r = sumto(weights, nweights, i + 1, sum + weights[i], qe * weights[i],
-              want);
+    r = sumto(weights, nweights, i + 1, sum + weights[i],
+              qe * (unsigned long)weights[i], want);
     if (r < best) {
       best = r;
     }
@@ -62,10 +63,10 @@ int main() {
   char input[1024];
   read_input_file(input, 1024, "input.txt");
   int weights[32];
-  int nweights = parse(input, weights);
+  unsigned int nweights = parse(input, weights);
   qsort(weights, nweights, sizeof(int), cmp_ints);
   int weights_sum = 0;
-  for (int i = 0; i < nweights; i++) {
+  for (unsigned int i = 0; i < nweights; i++) {
     weights_sum += weights[i];
   }
 
@@ -75,6 +76,6 @@ int main() {
   printf("--- Day 24: It Hangs in the Balance ---\n");
   printf("Part 1: %ld\n", pt1);
   printf("Part 2: %ld\n", pt2);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

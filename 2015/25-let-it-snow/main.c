@@ -1,5 +1,4 @@
 #include "../adventofcode.h"
-#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
@@ -11,10 +10,10 @@ void parse(const char *s, int *row, int *col) {
   s = parse_int(col, s);
 }
 
-uint64_t value_at(int row, int col) {
+unsigned long value_at(int row, int col) {
   int r = 6;
   int c = 6;
-  uint64_t v = 27995004;
+  unsigned long v = 27995004;
 
   for (; r < row || c < col;) {
     if (r == 1) {
@@ -38,11 +37,9 @@ int main() {
   int row, col;
   parse(input, &row, &col);
 
-  int a1 = value_at(row, col);
-  int a2 = 0;
-  printf("--- Day 23: Opening the Turing Lock ---\n");
-  printf("Part 1: %d\n", a1);
-  printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  unsigned long a1 = value_at(row, col);
+  printf("--- Day 25: Let It Snow ---\n");
+  printf("Part 1: %ld\n", a1);
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

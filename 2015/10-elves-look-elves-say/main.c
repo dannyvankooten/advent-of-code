@@ -51,7 +51,7 @@ int main() {
   printf("--- Day 10: Elves Look, Elves Say ---\n");
   printf("Part 1: %d %s\n", pt1, pt1 == 492982 ? "✔" : "");
   printf("Part 2: %d %s\n", pt2, pt2 == 6989950 ? "✔" : "");
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   free(input);
   return 0;
 }

@@ -25,6 +25,6 @@ int main() {
   fprintf(stdout, "--- Day 1: Not Quite Lisp ---\n");
   fprintf(stdout, "Part 1: %d\n", v);
   fprintf(stdout, "Part 2: %d\n", pos);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

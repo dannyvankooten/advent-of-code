@@ -82,6 +82,6 @@ int main() {
   printf("--- Day 4: The Ideal Stocking Stuffer ---\n");
   printf("Part 1: %d\n", pt1);
   printf("Part 2: %d\n", i);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

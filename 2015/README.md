@@ -18,114 +18,128 @@ Results:
 --- Day 1: Not Quite Lisp ---
 Part 1: 232
 Part 2: 1783
-Time: 0.16ms
+Time: 0.17 ms
 
 --- Day 2: I Was Told There Would Be No Math ---
 Part 1: 1588178
 Part 2: 3783758
-Time: 0.21ms
+Time: 0.07 ms
 
 --- Day 3: Perfectly Spherical Houses in a Vacuum ---
 Part 1: 2592
 Part 2: 2360
-Time: 0.18ms
+Time: 0.16 ms
 
 --- Day 4: The Ideal Stocking Stuffer ---
 Part 1: 282749
 Part 2: 9962624
-Time: 1891.65ms
+Time: 1828.19 ms
 
 --- Day 5: Doesn't He Have Intern-Elves For This? ---
 Part 1: 258
 Part 2: 53
-Time: 0.39ms
+Time: 0.47 ms
 
 --- Day 6: Probably a Fire Hazard ---
 Part 1: 400410
 Part 2: 15343601
-Time: 55.82ms
+Time: 58.48 ms
 
 --- Day 7: Some Assembly Required ---
-Part 1: 46065
-Part 2: 14134
-Time: 0.68ms
+Part 1: 46065 ✔
+Part 2: 14134 ✔
+Time: 0.23 ms
 
 --- Day 8: Matchsticks ---
-Part 1: 1342
-Part 2: 2074
-Time: 0.05ms
+Part 1: 1342 ✔
+Part 2: 2074 ✔
+Time: 0.04 ms
 
 --- Day 9: All in a Single Night ---
-Part 1: 264
-Time: 0.06ms
+Part 1: 141
+Part 2: 736
+Time: 0.13 ms
 
 --- Day 10: Elves Look, Elves Say ---
-Part 1: 492982
-Part 2: 6989950
-Time: 46.09ms
+Part 1: 492982 ✔
+Part 2: 6989950 ✔
+Time: 48.52 ms
 
 --- Day 11: Corporate Policy ---
 Part 1: cqjxxyzz
 Part 2: cqkaabcc
-Time: 38.94ms
+Time: 14.11 ms
 
 --- Day 12: JSAbacusFramework.io ---
 Part 1: 119433
-Part 2: 67653
-Time: 0.11ms
+Part 2: 68466
+Time: 0.34 ms
 
 --- Day 13: Knights of the Dinner Table ---
 Part 1: 618
 Part 2: 601
-Time: 2.22ms
+Time: 2.06 ms
 
 --- Day 14: Reindeer Olympics ---
-Part 1: 2660
-Part 2: 1256
-Time: 0.15ms
+Part 1: 2660 ✔
+Part 2: 1256 ✔
+Time: 0.12 ms
 
 --- Day 15: Science for Hungry People ---
 Part 1: 18965440 ✔
 Part 2: 15862900 ✔
-Time: 0.29ms
+Time: 0.17 ms
 
 --- Day 16: Aunt Sue ---
-Part 1: 213
-Part 2: 323
-Time: 0.17ms
+Part 1: 213 ✔
+Part 2: 323 ✔
+Time: 0.15 ms
 
 --- Day 17: No Such Thing as Too Much ---
 Part 1: 1638
 Part 2: 17
-Time: 2.49ms
+Time: 5.08 ms
 
 --- Day 18: Like a GIF For Your Yard ---
 Part 1: 814
 Part 2: 924
-Time: 14.76ms
+Time: 41.03 ms
 
 --- Day 19: Medicine for Rudolph ---
 Part 1: 509
 Part 2: 195
-Time: 1.51ms
+Time: 1.50 ms
 
 --- Day 20: Infinite Elves and Infinite Houses ---
 Part 1: 786240
 Part 2: 831600
-Time: 322.97ms
+Time: 318.88 ms
 
 --- Day 21: RPG Simulator 20XX ---
 Part 1: 111
 Part 2: 188
-Time: 0.04ms
+Time: 0.13 ms
+
+--- Day 22: Wizard Simulator 20XX ---
+Part 1: 0
+Part 2: 0
+Time: 0.07 ms
 
 --- Day 23: Opening the Turing Lock ---
 Part 1: 307
 Part 2: 160
-Time: 0.07ms
+Time: 0.07 ms
 
+--- Day 24: It Hangs in the Balance ---
+Part 1: 10723906903
+Part 2: 74850409
+Time: 36.95 ms
 
-Total time: 1970.64ms
+--- Day 25: Let It Snow ---
+Part 1: 9132360
+Time: 98.70 ms
+
+Total time: 2455.820 ms
 ```
 
 ## License

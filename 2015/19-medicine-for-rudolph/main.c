@@ -69,7 +69,8 @@ int pt1(char needles[][16], char replacements[][16], int n, char *medicine) {
       m += suffix_length;
       *m = 0x0;
 
-      int *seen = hashmap_entry(&hm, (unsigned char *)buf, m - buf);
+      int *seen =
+          hashmap_entry(&hm, (unsigned char *)buf, (size_t)m - (size_t)buf);
       if (*seen != 1) {
         *seen = 1;
         nmolecules++;
@@ -124,6 +125,6 @@ int main() {
   printf("--- Day 19: Medicine for Rudolph ---\n");
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

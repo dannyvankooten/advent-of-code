@@ -79,18 +79,19 @@ int fight(struct stats boss) {
 
     // deal effect damage
     if (damage_effect > 0) {
-      printf("Poison deals %d damage. Its timer is now %d.\n", damage_effect,
-             timers[SPELL_POISON]);
+      // printf("Poison deals %d damage. Its timer is now %d.\n", damage_effect,
+      //        timers[SPELL_POISON]);
       boss.hitpoints -= damage_effect;
     }
     if (boss.hitpoints <= 0) {
       return 1; // player wins
     }
 
-    printf("-- %s turn --\n", turn == PLAYER ? "Player" : " Boss");
-    printf("- Player has %d hitpoints, %d armor, %d mana\n", player_hitpoints,
-           player_armor, player_mana);
-    printf("- Boss has %d hit points\n", boss.hitpoints);
+    // printf("-- %s turn --\n", turn == PLAYER ? "Player" : " Boss");
+    // printf("- Player has %d hitpoints, %d armor, %d mana\n",
+    // player_hitpoints,
+    //        player_armor, player_mana);
+    // printf("- Boss has %d hit points\n", boss.hitpoints);
 
     // deal instant damages
     if (turn == PLAYER) {
@@ -107,13 +108,13 @@ int fight(struct stats boss) {
         player_mana -= spells[0].mana_cost;
         instant_damage += spells[0].damage;
         boss.hitpoints -= instant_damage;
-        printf("Player deals %d damage\n", instant_damage);
+        // printf("Player deals %d damage\n", instant_damage);
       }
     } else {
       instant_damage =
           (boss.damage - player_armor) > 1 ? boss.damage - player_armor : 1;
       player_hitpoints -= instant_damage;
-      printf("Boss deals %d damage\n", instant_damage);
+      // printf("Boss deals %d damage\n", instant_damage);
     }
 
     if (boss.hitpoints <= 0) {
@@ -133,15 +134,15 @@ struct answer {
   int pt2;
 };
 
-struct answer permute(struct stats boss) {
-  int cheap_win = 1 << 30;
-  int expensive_lose = -1;
+// struct answer permute(struct stats boss) {
+//   int cheap_win = 1 << 30;
+//   int expensive_lose = -1;
 
-  for (int s = 1; s < sizeof(spells) / sizeof(spells[0]); s++) {
-  }
+//   for (unsigned int s = 1; s < sizeof(spells) / sizeof(spells[0]); s++) {
+//   }
 
-  return (struct answer){cheap_win, expensive_lose};
-}
+//   return (struct answer){cheap_win, expensive_lose};
+// }
 
 int main() {
   clock_t start_t = clock_time();
@@ -149,14 +150,14 @@ int main() {
   read_input_file(input, 1024, "input_test.txt");
 
   struct stats boss = parse(input);
-  struct answer a = permute(boss);
+  struct answer a = {0, 0};
 
   printf("%d\n", fight(boss));
 
   printf("--- Day 22: Wizard Simulator 20XX ---\n");
   printf("Part 1: %d\n", a.pt1);
   printf("Part 2: %d\n", a.pt2);
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }
 

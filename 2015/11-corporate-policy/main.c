@@ -74,6 +74,6 @@ int main() {
   printf("Part 2: %s\n", buf);
   assert(strcmp(buf, "cqkaabcc") == 0);
 
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return EXIT_SUCCESS;
 }

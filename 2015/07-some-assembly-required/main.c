@@ -220,6 +220,6 @@ int main() {
   printf("--- Day 7: Some Assembly Required ---\n");
   printf("Part 1: %d %s\n", pt1, pt1 == 46065 ? "✔" : "");
   printf("Part 2: %d %s\n", pt2, pt2 == 14134 ? "✔" : "");
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return 0;
 }

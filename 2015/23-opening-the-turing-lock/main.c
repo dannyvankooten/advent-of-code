@@ -114,6 +114,6 @@ int main() {
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
 
-  printf("Time: %.2fms\n", clock_time_since(start_t));
+  printf("Time: %.2f ms\n", clock_time_since(start_t));
   return 0;
 }

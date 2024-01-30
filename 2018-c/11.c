@@ -3,6 +3,7 @@
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <time.h>
 
 #define PUZZLE_NAME "Day 11: Chronal Charge"
@@ -14,9 +15,9 @@ struct Answer {
 };
 
 static inline int power_level(const unsigned x, const unsigned y,
-                              const unsigned serial_number) {
+                              const int serial_number) {
   int rack_id = (int)x + 10;
-  int power_level = rack_id * (int) y;
+  int power_level = rack_id * (int)y;
   power_level += serial_number;
   power_level *= rack_id;
 
@@ -27,7 +28,7 @@ static inline int power_level(const unsigned x, const unsigned y,
   return -5;
 }
 
-struct Answer solve_pt1(const unsigned serial_number) {
+struct Answer solve_pt1(const int serial_number) {
   int max = INT_MIN;
   unsigned xmax = 0;
   unsigned ymax = 0;
@@ -51,22 +52,31 @@ struct Answer solve_pt1(const unsigned serial_number) {
   return (struct Answer){xmax + 1, ymax + 1, 3};
 }
 
-struct Answer solve_pt2(const unsigned serial_number) {
+struct Answer solve_pt2(const int serial_number) {
   int max = INT_MIN;
   struct Answer a;
 
-  for (unsigned sq = 3; sq <= 16; sq++) {
-    for (unsigned y = 0; y < 300 - sq; y++) {
-      for (unsigned x = 0; x < 300 - sq; x++) {
-        int pl = 0;
-        for (unsigned yo = 0; yo < sq; yo++) {
-          for (unsigned xo = 0; xo < sq; xo++) {
-            pl += power_level(x + xo + 1, y + yo + 1, serial_number);
-          }
-        }
+  int sum[301][301];
+  memset(sum, 0, 301 * 301 * sizeof(**sum));
 
-        if (pl > max) {
-          max = pl;
+  // first pass: create a summed area table
+  // see https://en.wikipedia.org/wiki/Summed-area_table
+  for (unsigned y = 1; y <= 300; y++) {
+    for (unsigned x = 1; x <= 300; x++) {
+      int pl = power_level(x, y, serial_number);
+      sum[y][x] = pl + sum[y - 1][x] + sum[y][x - 1] - sum[y - 1][x - 1];
+    }
+  }
+
+  for (unsigned sq = 1; sq <= 300; sq++) {
+    for (unsigned y = sq; y <= 300; y++) {
+      for (unsigned x = sq; x <= 300; x++) {
+        // to get sum of just this square
+        // we can do the opposite as we did for calculating the summed area
+        // which is: subtract adjacent corners, add opposite corner
+        int total = sum[y][x] - sum[y - sq][x] - sum[y][x-sq] + sum[y-sq][x-sq];
+        if (total > max) {
+          max = total;
           a.x = x;
           a.y = y;
           a.sq = sq;
@@ -75,8 +85,9 @@ struct Answer solve_pt2(const unsigned serial_number) {
     }
   }
 
-  a.x++;
-  a.y++;
+  a.x = a.x - a.sq + 1;
+  a.y = a.y - a.sq + 1;
+
   return a;
 }
 
@@ -86,7 +97,7 @@ int main(void) {
   char line[1024];
   fgets(line, 1024, stdin);
 
-  unsigned serial_number = (unsigned) atoi(line);
+  int serial_number = atoi(line);
   struct Answer pt1 = solve_pt1(serial_number);
   struct Answer pt2 = solve_pt2(serial_number);
 

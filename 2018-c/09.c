@@ -4,7 +4,7 @@
 #include <string.h>
 #include <time.h>
 
-#define PUZZLE_NAME "--- Day 9: Marble Mania ---"
+#define PUZZLE_NAME "Day 9: Marble Mania"
 
 struct node {
   unsigned long value;

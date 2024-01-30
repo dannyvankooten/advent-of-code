@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-make clean
 RELEASE=1 make all
 
 TIME_LINES=""
-for DAY in build/*; do
-    OUT=$(./$DAY)
+for PROGRAM in build/*; do
+    DAY=$(basename $PROGRAM)
+    OUT=$(./$PROGRAM < $DAY.txt)
     TIME_LINES+=$(echo -e "$OUT" | grep "Time: ")
     TIME_LINES+="\n"
     echo -e "$OUT\n"

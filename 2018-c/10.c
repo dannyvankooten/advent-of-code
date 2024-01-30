@@ -6,7 +6,7 @@
 #include <string.h>
 #include <time.h>
 
-#define PUZZLE_NAME "--- Day 10: The Stars Align ---"
+#define PUZZLE_NAME "Day 10: The Stars Align"
 
 struct Point {
   int px, py;

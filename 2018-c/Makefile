@@ -1,12 +1,12 @@
-CFLAGS+= -std=c11 -Wall -Wextra -Wpedantic  \
+CFLAGS+= -std=c17 -Wall -Wextra -Wpedantic  \
 -Wundef -Winline -Wimplicit-fallthrough -Wformat=2  \
 -Wconversion
-PROGRAMS= 01 02 03 04 05 06 07 08 09
+PROGRAMS= 01 02 03 04 05 06 07 08 09 10
 
 ifndef RELEASE
 CFLAGS+= -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS  \
 	-fsanitize=address -fsanitize=undefined -g        \
-	-fstack-protector-strong
+	-fstack-protector-strong -fstrict-aliasing
 else
 CFLAGS+= -O2 -march=native
 endif

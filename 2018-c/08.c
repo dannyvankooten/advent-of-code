@@ -39,7 +39,7 @@ const char *pt2(const char *s, int *sum) {
   s = parse_int(&nmetadata, s);
   s = skip(" ", s);
 
-  int child_values[nchilds];
+  int child_values[nchilds+1];
   for (int i = 0; i < nchilds; i++) {
     child_values[i] = 0;
     s = pt2(s, &child_values[i]);

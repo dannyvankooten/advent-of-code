@@ -1,4 +1,5 @@
 #include "adventofcode.h"
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -7,30 +8,26 @@
 #define PUZZLE_NAME "Day 5: Alchemical Reduction"
 
 size_t react(char *input) {
-  char *s = input + 1;
-  size_t remaining_length = strlen(s);
-  char o;
-  while (*s != 0x0) {
-    // determine opposite unit of same type
-    if (*s >= 'a' && *s <= 'z') {
-      o = *s - 32;
-    } else {
-      o = *s + 32;
-    }
+  size_t total_length = strlen(input);
+  size_t remaining_length = total_length - 1;
+  unsigned int i = 1;
+  int o;
+  while (input[i] != 0x0) {
+    o = islower(input[i]) ? toupper(input[i]) : tolower(input[i]);
 
-    if (*(s - 1) == o) {
-      s--;
-      remaining_length--;
-      memmove(s, s + 2, remaining_length);
-      *(s + remaining_length) = 0x0;
+    if (i > 0 && input[i-1] == o) {
+      i--;
+      memmove(&input[i], &input[i+2], remaining_length);
+      remaining_length -= 1;
+      total_length -= 2;
       continue;
     }
 
-    s++;
+    i++;
     remaining_length--;
   }
 
-  return strlen(input);
+  return total_length;
 }
 
 size_t pt2(char *input) {

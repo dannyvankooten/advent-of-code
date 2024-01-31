@@ -14,41 +14,41 @@ for d in */; do cd $d && cc -Ofast -march=native main.c -lcrypto && ./a.out && e
 
 Results:
 
-```txt 
+```
 --- Day 1: Not Quite Lisp ---
 Part 1: 232
 Part 2: 1783
-Time: 0.17 ms
+Time: 0.16 ms
 
 --- Day 2: I Was Told There Would Be No Math ---
 Part 1: 1588178
 Part 2: 3783758
-Time: 0.07 ms
+Time: 0.18 ms
 
 --- Day 3: Perfectly Spherical Houses in a Vacuum ---
 Part 1: 2592
 Part 2: 2360
-Time: 0.16 ms
+Time: 0.44 ms
 
 --- Day 4: The Ideal Stocking Stuffer ---
 Part 1: 282749
 Part 2: 9962624
-Time: 1828.19 ms
+Time: 1895.47 ms
 
 --- Day 5: Doesn't He Have Intern-Elves For This? ---
 Part 1: 258
 Part 2: 53
-Time: 0.47 ms
+Time: 0.14 ms
 
 --- Day 6: Probably a Fire Hazard ---
 Part 1: 400410
 Part 2: 15343601
-Time: 58.48 ms
+Time: 26.15 ms
 
 --- Day 7: Some Assembly Required ---
 Part 1: 46065 ✔
 Part 2: 14134 ✔
-Time: 0.23 ms
+Time: 0.51 ms
 
 --- Day 8: Matchsticks ---
 Part 1: 1342 ✔
@@ -63,27 +63,27 @@ Time: 0.13 ms
 --- Day 10: Elves Look, Elves Say ---
 Part 1: 492982 ✔
 Part 2: 6989950 ✔
-Time: 48.52 ms
+Time: 49.12 ms
 
 --- Day 11: Corporate Policy ---
 Part 1: cqjxxyzz
 Part 2: cqkaabcc
-Time: 14.11 ms
+Time: 42.73 ms
 
 --- Day 12: JSAbacusFramework.io ---
 Part 1: 119433
 Part 2: 68466
-Time: 0.34 ms
+Time: 0.13 ms
 
 --- Day 13: Knights of the Dinner Table ---
 Part 1: 618
 Part 2: 601
-Time: 2.06 ms
+Time: 0.73 ms
 
 --- Day 14: Reindeer Olympics ---
 Part 1: 2660 ✔
 Part 2: 1256 ✔
-Time: 0.12 ms
+Time: 0.35 ms
 
 --- Day 15: Science for Hungry People ---
 Part 1: 18965440 ✔
@@ -93,27 +93,27 @@ Time: 0.17 ms
 --- Day 16: Aunt Sue ---
 Part 1: 213 ✔
 Part 2: 323 ✔
-Time: 0.15 ms
+Time: 0.07 ms
 
 --- Day 17: No Such Thing as Too Much ---
 Part 1: 1638
 Part 2: 17
-Time: 5.08 ms
+Time: 5.09 ms
 
 --- Day 18: Like a GIF For Your Yard ---
 Part 1: 814
 Part 2: 924
-Time: 41.03 ms
+Time: 73.58 ms
 
 --- Day 19: Medicine for Rudolph ---
 Part 1: 509
 Part 2: 195
-Time: 1.50 ms
+Time: 1.49 ms
 
 --- Day 20: Infinite Elves and Infinite Houses ---
 Part 1: 786240
 Part 2: 831600
-Time: 318.88 ms
+Time: 328.94 ms
 
 --- Day 21: RPG Simulator 20XX ---
 Part 1: 111
@@ -121,25 +121,25 @@ Part 2: 188
 Time: 0.13 ms
 
 --- Day 22: Wizard Simulator 20XX ---
-Part 1: 0
-Part 2: 0
-Time: 0.07 ms
+Part 1: 1269
+Part 2: 1309
+Time: 49.70 ms
 
 --- Day 23: Opening the Turing Lock ---
 Part 1: 307
 Part 2: 160
-Time: 0.07 ms
+Time: 0.10 ms
 
 --- Day 24: It Hangs in the Balance ---
 Part 1: 10723906903
 Part 2: 74850409
-Time: 36.95 ms
+Time: 12.30 ms
 
 --- Day 25: Let It Snow ---
 Part 1: 9132360
-Time: 98.70 ms
+Time: 94.99 ms
 
-Total time: 2455.820 ms
+Total time: 2582.840 ms
 ```
 
 ## License

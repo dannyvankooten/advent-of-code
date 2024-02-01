@@ -1,4 +1,5 @@
 #include "adventofcode.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,41 +7,47 @@
 
 #define PUZZLE_NAME "Day 10: Knot Hash"
 
+static unsigned int itos(unsigned n, char buf[static 32]) {
+  unsigned m = 10;
+  unsigned digits = 1;
+  while (m <= n) {
+    m *= 10;
+    digits++;
+  }
+
+  assert(digits < 31);
+  assert(digits > 0);
+
+  m = digits;
+  buf[m] = '\0';
+  while (1) {
+    buf[--m] = ((char) (n % 10) + '0');
+
+    if (n < 10) {
+      break;
+    }
+
+    n /= 10;
+  }
+
+  return digits;
+}
+
 int main(void) {
+  char buf[32];
+
+  itos(1, buf);
+  assert(memcmp(buf, "1", 1) == 0);
+  itos(20, buf);
+  assert(memcmp(buf, "20", 2) == 0);
+  itos(22, buf);
+  assert(memcmp(buf, "22", 2) == 0);
+
   clock_t t = clock_time();
 
   char line[1024];
   fgets(line, 1024, stdin);
-  unsigned n = (unsigned) atoi(line);
-
-  char *recipes = malloc_or_die((unsigned long)(n+10) * 40ul * sizeof(char));
-  unsigned nrecipes = 2;
-  recipes[0] = 3;
-  recipes[1] = 7;
-
-  unsigned elf_a = 0;
-  unsigned elf_b = 1;
-  char buf[32];
-  while (nrecipes < (n+10) * 40ul) {
-    unsigned a = (unsigned) recipes[elf_a];
-    unsigned b = (unsigned) recipes[elf_b];
-    unsigned r = a + b;
-
-    sprintf(buf, "%d", r);
-    unsigned long len = strlen(buf);
-    for (unsigned i = 0; i < len && nrecipes < (n+10) * 40ul; i++) {
-      recipes[nrecipes++] = buf[i] - '0';
-    }
-
-    elf_a = (elf_a + (1u + a)) % nrecipes;
-    elf_b = (elf_b + (1u + b)) % nrecipes;
-  }
-
-  unsigned pt1 = 0;
-  for (unsigned i = 0; i < 10; i++) {
-   pt1 = (pt1*10) + (unsigned) recipes[n+i];
-  }
-
+  unsigned n = (unsigned)atoi(line);
 
   char needle[32];
   sprintf(needle, "%d", n);
@@ -49,17 +56,38 @@ int main(void) {
     needle[i] -= '0';
   }
 
+  char *recipes = malloc_or_die((unsigned long)(n + 10) * 40ul * sizeof(char));
+  unsigned nrecipes = 2;
+  recipes[0] = 3;
+  recipes[1] = 7;
+
+  unsigned elf_a = 0;
+  unsigned elf_b = 1;
   unsigned pt2 = 0;
-  char *p = recipes;
+
   while (1) {
-    // TODO: Potentially speed this up by jumping to next memchr result
-    // OR, use strstr if we resort to string digits
-    if (memcmp(p, needle, needle_len) == 0) {
-      pt2 = (unsigned) (p - recipes);
+    unsigned a = (unsigned)recipes[elf_a];
+    unsigned b = (unsigned)recipes[elf_b];
+    unsigned r = a + b;
+
+    unsigned long digits = itos(r, buf);
+    for (unsigned i = 0; i < digits; i++) {
+      recipes[nrecipes++] = buf[i] - '0';
+    }
+
+    pt2 = (unsigned) (nrecipes - needle_len - 1);
+    if (recipes[nrecipes - 1] == needle[needle_len - 1] &&
+        memcmp(&recipes[pt2], needle, needle_len) == 0) {
       break;
     }
 
-    p++;
+    elf_a = (elf_a + (1u + a)) % nrecipes;
+    elf_b = (elf_b + (1u + b)) % nrecipes;
+  }
+
+  unsigned pt1 = 0;
+  for (unsigned i = 0; i < 10; i++) {
+    pt1 = (pt1 * 10) + (unsigned)recipes[n + i];
   }
 
   free(recipes);

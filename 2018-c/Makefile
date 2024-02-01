@@ -18,7 +18,7 @@ all: $(PROGRAMS)
 
 $(PROGRAMS):
 	mkdir -p build
-	$(CC) $(CFLAGS) $@.c -o build/$@
+	$(CC) $(CFLAGS) $@.c -o build/$@ -lm
 
 clean:
 	rm -rf $(BINDIR)

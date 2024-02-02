@@ -59,7 +59,8 @@ static struct Count visit_adjacent(const char *grid, const size_t width,
   return cnt;
 }
 
-static void step(const size_t width, char grid[width*width], char next[width*width]) {
+static void step(const size_t width, char grid[width * width],
+                 char next[width * width]) {
   for (unsigned r = 0; r < width; r++) {
     for (unsigned c = 0; c < width; c++) {
       const struct Count cnt = visit_adjacent(grid, width, r, c);
@@ -176,36 +177,40 @@ static struct Cycle floyd(const size_t width, const char grid[width * width]) {
   free(hare);
   free(next);
 
-  return (struct Cycle) { mu, lam};
+  return (struct Cycle){mu, lam};
 }
 
-static unsigned grid_value(const size_t width, const char grid[width*width]) {
+static unsigned grid_value(const size_t width, const char grid[width * width]) {
   unsigned trees = 0;
   unsigned lumberyards = 0;
-  for (unsigned r = 0; r < width; r++) {
-    for (unsigned c = 0; c < width; c++) {
-      const char tile = grid[r * width + c];
-      switch (tile) {
-      case '|': trees++; break;
-      case '#': lumberyards++; break;
-      }
+  const size_t sz = width * width;
+  for (size_t i = 0; i < sz; i++) {
+    switch (grid[i]) {
+    case '|':
+      trees += 1;
+      break;
+    case '#':
+      lumberyards += 1;
+      break;
     }
   }
 
   return trees * lumberyards;
 }
 
-static unsigned int nsteps(const size_t width, const char grid[width * width], const unsigned nsteps) {
+static unsigned int nsteps(const size_t width, const char grid[width * width],
+                          unsigned nsteps) {
   const size_t n = width * width * sizeof(char);
-  char *cur = malloc( n);
+  char *cur = malloc(n);
   assert(cur != NULL);
-  memcpy(cur, grid,  n);
+  memcpy(cur, grid, n);
 
-  char *next = malloc( n);
+  char *next = malloc(n);
   assert(next != NULL);
 
-  for (unsigned int i = 0; i < nsteps; i++) {
+  while (nsteps > 0) {
     step(width, cur, next);
+    nsteps -= 1;
   }
 
   unsigned int value = grid_value(width, cur);
@@ -226,7 +231,8 @@ int main(void) {
 
   /* Detect cycle for part 2 */
   const struct Cycle c = floyd(width, grid);
-  const unsigned int pt2 = nsteps(width, grid, c.mu + ((1000000000u - c.mu) % c.lam));
+  const unsigned int pt2 =
+      nsteps(width, grid, c.mu + ((1000000000u - c.mu) % c.lam));
 
   free(grid);
 

@@ -10,7 +10,7 @@ else
 CFLAGS+= -O2 -march=native
 endif
 
-PROGRAMS= 01 02 03 04 05 06 07 08 09 10 11 12 14 16 18
+PROGRAMS= 01 02 03 04 05 06 07 08 09 10 11 12 14 16 18 19
 
 .PHONY: all clean
 
@@ -18,7 +18,7 @@ all: $(PROGRAMS)
 
 $(PROGRAMS):
 	mkdir -p build
-	$(CC) $(CFLAGS) $@.c -o build/$@ -lm
+	$(CC) $(CFLAGS) $@.c -o build/$@
 
 clean:
 	rm -rf $(BINDIR)

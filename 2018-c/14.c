@@ -5,7 +5,7 @@
 #include <string.h>
 #include <time.h>
 
-#define PUZZLE_NAME "Day 10: Knot Hash"
+#define PUZZLE_NAME "Day 14: Chocolate Charts"
 
 static unsigned int itos(unsigned n, char buf[static 32]) {
   unsigned m = 10;

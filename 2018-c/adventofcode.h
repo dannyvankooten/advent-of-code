@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <sys/cdefs.h>
 #include <time.h>
 
 /* Allocate SIZE bytes of memory.  */
@@ -25,7 +26,7 @@ static inline void *calloc_or_die(unsigned long n, unsigned long size) {
   return ptr;
 }
 
-static size_t read_input_file(char *dest, size_t size, char *file) {
+static inline size_t read_input_file(char *dest, size_t size, char *file) {
   FILE *fp = fopen(file, "r");
   if (!fp) {
     fprintf(stderr, "error reading %s", file);
@@ -118,9 +119,9 @@ static inline const char *skip_until_digit(const char *s) {
   return s;
 }
 
-static clock_t clock_time(void) { return clock(); }
+static inline clock_t clock_time(void) { return clock(); }
 
-static double clock_time_since(clock_t start_t) {
+static inline double clock_time_since(clock_t start_t) {
   clock_t end_t = clock();
   return (double)(end_t - start_t) / CLOCKS_PER_SEC * 1000;
 }

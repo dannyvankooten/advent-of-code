@@ -174,7 +174,7 @@ remove_option_from_allergen(allergen_t* restrict a, int index) {
   a->noptions--;
 }
 
-int day21() {
+int day21(void) {
   food_t foods[32];
   int nfoods = parse_input(foods);
 

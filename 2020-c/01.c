@@ -15,7 +15,7 @@ intcmp(const void *p1, const void *p2) {
   return a < b ? -1 : 1;
 }
 
-int day1() {
+int day1(void) {
   int numbers[200] = {0};
   int n = 0;
   const unsigned char *s = input;

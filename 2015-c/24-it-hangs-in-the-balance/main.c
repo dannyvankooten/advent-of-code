@@ -17,7 +17,7 @@ static unsigned int parse(const char *s, int weights[]) {
 static int cmp_ints(const void *p1, const void *p2) {
   int a = *(int *)p1;
   int b = *(int *)p2;
-  return b - a;
+  return (a > b) + (a < b);
 }
 
 // this is sloppy, but it was a property of my input so why not?

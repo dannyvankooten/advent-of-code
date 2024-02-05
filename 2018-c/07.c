@@ -52,7 +52,10 @@ static struct step *step_next(struct step **steps, size_t nsteps) {
 int step_compare(const void *p1, const void *p2) {
   struct step *a = *(struct step **)p1;
   struct step *b = *(struct step **)p2;
-  return a->name - b->name;
+  if (a->name == b->name) {
+    return 0;
+  }
+  return a->name < b->name ? -1 : 1;
 }
 
 void pt1(char *buf, struct step **steps, size_t nsteps) {

@@ -17,7 +17,7 @@ int compare(const void* p1, const void* p2) {
   return (a < b) ? -1 : 1;
 }
 
-int day10() {
+int day10(void) {
   int64_t adapter_joltages[108];
   size_t adapter_n = 0;
   adapter_joltages[adapter_n++] = 0;  // outlet

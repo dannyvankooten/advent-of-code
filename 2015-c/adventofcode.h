@@ -69,6 +69,10 @@ static inline const char *parse_int(int *dst, const char *s) {
   return s;
 }
 
+static inline const char *parse_uint(unsigned int *dst, const char *s) {
+    return parse_int((int *)dst, s);
+}
+
 // parse_int parses a (signed) integer, with optional plus sign
 static inline const char *parse_uint16(int16_t *dst, const char *s) {
   return parse_int((int *)dst, s);

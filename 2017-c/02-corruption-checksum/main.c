@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <time.h>
 
-int compare_ints(const void* a, const void* b)
+static int compare_ints(const void* a, const void* b)
 {
     int arg1 = *(const int*)a;
     int arg2 = *(const int*)b;
@@ -13,7 +13,7 @@ int compare_ints(const void* a, const void* b)
 }
 
 
-int main() {
+int main(void) {
     clock_t start_t, end_t;
     start_t = clock();
 

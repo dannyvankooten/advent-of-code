@@ -1,17 +1,16 @@
 #include "../adventofcode.h"
 #include <stdio.h>
-#include <time.h>
 
-int min_containers = 1 << 30;
+unsigned int min_containers = 1 << 30;
 int pt2 = 0;
 
-int permute(int sizes[], int flags, int i, int n) {
+unsigned int permute(unsigned int sizes[],unsigned int flags, unsigned int i, unsigned int n) {
   if (i == n) {
     int s = 0;
-    int c = 0;
-    int b;
-    for (int x = 0; x < n; x++) {
-      b = (int)((flags >> (n - x)) & 1);
+    unsigned int c = 0;
+    unsigned int b;
+    for (unsigned int x = 0; x < n; x++) {
+      b = (unsigned int)((flags >> (n - x)) & 1);
       c += b;
       s += sizes[x] * b;
     }
@@ -30,9 +29,9 @@ int permute(int sizes[], int flags, int i, int n) {
   }
 
   // try to bail early
-  int s = 0;
-  for (int x = 0; x < i; x++) {
-    s += sizes[x] * (int)((flags >> (n - x)) & 1);
+  unsigned int s = 0;
+  for (unsigned int x = 0; x < i; x++) {
+    s += sizes[x] * (unsigned int)((flags >> (n - x)) & 1);
   }
   if (s > 150) {
     return 0;
@@ -43,18 +42,24 @@ int permute(int sizes[], int flags, int i, int n) {
 }
 
 int qsort_compare_int_desc(const void *ptra, const void *ptrb) {
-  int a = *(int *)ptra;
-  int b = *(int *)ptrb;
-  return b - a;
+  unsigned int a = *(unsigned int *)ptra;
+  unsigned int b = *(unsigned int *)ptrb;
+  if (b < a) {
+    return -1;
+  }
+  if (b > a) {
+    return 1;
+  }
+  return 0;
 }
 
-int parse(const char *s, int *dest) {
-  int n = 0;
+unsigned int parse(const char *s,unsigned int *dest) {
+  unsigned int n = 0;
   while (*s != 0x0) {
     while (*s == ' ') {
       s++;
     }
-    s = parse_int(&dest[n++], s);
+    s = parse_uint(&dest[n++], s);
     s = skip_optional('\n', s);
   }
 
@@ -67,10 +72,10 @@ int main(void) {
 
   char input[1024];
   read_input_file(input, 1024, "input.txt");
-  int sizes[32];
-  int n = parse(input, sizes);
-  int flags = 0;
-  int count = permute(sizes, flags, 0, n);
+  unsigned int sizes[32];
+  unsigned int n = parse(input, sizes);
+  unsigned int flags = 0;
+  unsigned int count = permute(sizes, flags, 0,(unsigned) n);
 
   printf("--- Day 17: No Such Thing as Too Much ---\n");
   printf("Part 1: %d\n", count);

@@ -14,15 +14,10 @@ static inline char *parse(int *dst, char *s) {
   return s;
 }
 
-int compare_ints(const void *a, const void *b) {
-  int arg1 = *(const int *)a;
-  int arg2 = *(const int *)b;
-
-  if (arg1 < arg2)
-    return -1;
-  if (arg1 > arg2)
-    return 1;
-  return 0;
+int compare_ints(const void *ptr_a, const void *ptr_b) {
+  const int a = *(const int *)ptr_a;
+  const int b = *(const int *)ptr_b;
+  return (a > b) - (a < b);
 }
 
 int main(void) {

@@ -1,34 +1,35 @@
 #include "../adventofcode.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
 
-int pt1(int *houses, int nhouses, int target, int elfvalue, int elflimit) {
+static unsigned int pt1(const unsigned nhouses, unsigned int houses[static nhouses], const unsigned int target, const unsigned int elfvalue, const unsigned int elflimit) {
 
   if (elflimit > 0) {
-    for (int elf = 1; elf < nhouses; elf++) {
-      for (int house = elf, j = 0; house < nhouses && j < elflimit;
+    for (unsigned elf = 1; elf < nhouses; elf++) {
+      for (unsigned house = elf, j = 0; house < nhouses && j < elflimit;
            house += elf, j++) {
         houses[house] += elf * elfvalue;
       }
     }
   } else {
     // simpler loop without elf limit
-    for (int elf = 1; elf < nhouses; elf++) {
-      for (int house = elf; house < nhouses; house += elf) {
+    for (unsigned elf = 1; elf < nhouses; elf++) {
+      for (unsigned house = elf; house < nhouses; house += elf) {
         houses[house] += elf * elfvalue;
       }
     }
   }
 
-  for (int i = 1; i < nhouses; i++) {
+  for (unsigned i = 1; i < nhouses; i++) {
     if (houses[i] > target) {
       return i;
     }
   }
 
-  return -1;
+  return 0;
 }
 
 int main(void) {
@@ -36,29 +37,23 @@ int main(void) {
 
   char input[64];
   read_input_file(input, 64, "input.txt");
-  int target;
-  parse_int(&target, input);
+  unsigned int target = (unsigned int) atoi(input);
 
-  int nhouses = target / 10;
-  int *houses = malloc(sizeof(int) * (size_t)nhouses);
-  if (houses == NULL) {
-    perror("error allocating memory");
-    exit(EXIT_FAILURE);
-  }
-  memset(houses, 0, (size_t)nhouses * sizeof(int));
+  unsigned int nhouses = target / 10;
+  unsigned int *houses = malloc(sizeof(int) * (size_t)nhouses);
+  assert(houses != NULL);
+  memset(houses, 0, nhouses * sizeof(int));
 
-  int a1 = pt1(houses, nhouses, target, 10, -1);
+  unsigned int a1 = pt1(nhouses, houses,  target, 10, 0);
 
-  memset(houses, 0, (size_t)nhouses * sizeof(int));
+  memset(houses, 0, nhouses * sizeof(int));
   nhouses = target / 11;
-  int a2 = pt1(houses, nhouses, target, 11, 50);
+  unsigned int a2 = pt1(nhouses, houses, target, 11, 50);
 
   printf("--- Day 20: Infinite Elves and Infinite Houses ---\n");
   printf("Part 1: %d\n", a1);
   printf("Part 2: %d\n", a2);
-
   printf("Time: %.2f ms\n", clock_time_since(start_t));
-
   free(houses);
   return 0;
 }

@@ -22,8 +22,8 @@ struct guard {
 };
 
 static int log_entry_compare(const void *p1, const void *p2) {
-  struct log_entry *a = (struct log_entry *)p1;
-  struct log_entry *b = (struct log_entry *)p2;
+  const struct log_entry *a = (struct log_entry *)p1;
+  const struct log_entry *b = (struct log_entry *)p2;
 
   if (a->year < b->year) {
     return -1;
@@ -54,7 +54,7 @@ static int log_entry_compare(const void *p1, const void *p2) {
   return 1;
 }
 
-int parse(struct log_entry *log_entries, char *s) {
+static int parse(struct log_entry *log_entries, const char *s) {
   int nentries = 0;
   while (*s != 0x0) {
     struct log_entry *e = &log_entries[nentries++];
@@ -88,7 +88,7 @@ int parse(struct log_entry *log_entries, char *s) {
   return nentries;
 }
 
-struct guard *guard_by_id(struct guard *guards, int nguards, int id) {
+static struct guard *guard_by_id(struct guard *guards, const int nguards, const int id) {
   for (int i = 0; i < nguards; i++) {
     if (guards[i].id == id) {
       return &guards[i];
@@ -98,8 +98,8 @@ struct guard *guard_by_id(struct guard *guards, int nguards, int id) {
   return NULL;
 }
 
-int log_entries_into_guards(struct guard *guards, struct log_entry *entries,
-                            int nentries) {
+static int log_entries_into_guards(struct guard *guards, struct log_entry *entries,
+                            const int nentries) {
   int nguards = 0;
   struct guard *guard = NULL;
 
@@ -129,7 +129,7 @@ int log_entries_into_guards(struct guard *guards, struct log_entry *entries,
   return nguards;
 }
 
-int solve_pt1(struct guard *guards, int nguards) {
+static int solve_pt1(struct guard *guards, const int nguards) {
   struct guard *guard = &guards[0];
 
   for (int i = 0; i < nguards; i++) {
@@ -149,7 +149,7 @@ int solve_pt1(struct guard *guards, int nguards) {
   return answer_pt1;
 }
 
-int solve_pt2(struct guard *guards, int nguards) {
+static int solve_pt2(struct guard *guards, const int nguards) {
   struct guard *guard = &guards[0];
   int max = 0;
 
@@ -170,8 +170,7 @@ int main(void) {
   char input[1024 * 64] = "";
   read_input_file(input, 1024 * 64, "04.txt");
 
-  struct log_entry *log_entries =
-      malloc_or_die(2048 * sizeof(struct log_entry));
+  struct log_entry *log_entries = malloc_or_die(2048 * sizeof(struct log_entry));
   int nentries = parse(log_entries, input);
 
   struct guard *guards = malloc_or_die(512 * sizeof(struct guard));

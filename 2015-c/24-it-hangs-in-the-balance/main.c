@@ -15,8 +15,8 @@ static unsigned int parse(const char *s, int weights[]) {
 
 // qsort callback
 static int cmp_ints(const void *p1, const void *p2) {
-  int a = *(int *)p1;
-  int b = *(int *)p2;
+  const int a = *(int *)p1;
+  const int b = *(int *)p2;
   return (a > b) + (a < b);
 }
 

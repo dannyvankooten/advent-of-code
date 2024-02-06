@@ -9,7 +9,7 @@ typedef struct {
   int8_t y;
 } pos_t;
 
-int solve(const char *s, uint8_t nworkers) {
+static int solve(const char *s, const uint8_t nworkers) {
   int8_t dx, dy;
   uint16_t tally[256 * 256] = {0};
   uint8_t w = 0;

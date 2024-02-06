@@ -14,7 +14,7 @@ static inline char *parse(int *dst, char *s) {
   return s;
 }
 
-int compare_ints(const void *ptr_a, const void *ptr_b) {
+static int compare_ints(const void *ptr_a, const void *ptr_b) {
   const int a = *(const int *)ptr_a;
   const int b = *(const int *)ptr_b;
   return (a > b) - (a < b);

@@ -41,16 +41,10 @@ unsigned int permute(unsigned int sizes[],unsigned int flags, unsigned int i, un
          permute(sizes, flags | 1 << (n - i), i + 1, n);
 }
 
-int qsort_compare_int_desc(const void *ptra, const void *ptrb) {
-  unsigned int a = *(unsigned int *)ptra;
-  unsigned int b = *(unsigned int *)ptrb;
-  if (b < a) {
-    return -1;
-  }
-  if (b > a) {
-    return 1;
-  }
-  return 0;
+static int qsort_compare_int_desc(const void *ptra, const void *ptrb) {
+  const unsigned int a = *(unsigned int *)ptra;
+  const unsigned int b = *(unsigned int *)ptrb;
+  return (b > a) - (b < a);
 }
 
 unsigned int parse(const char *s,unsigned int *dest) {

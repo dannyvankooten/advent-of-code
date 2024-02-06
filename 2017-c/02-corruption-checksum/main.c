@@ -4,14 +4,10 @@
 
 static int compare_ints(const void* a, const void* b)
 {
-    int arg1 = *(const int*)a;
-    int arg2 = *(const int*)b;
-
-    if (arg1 < arg2) return -1;
-    if (arg1 > arg2) return 1;
-    return 0;
+    const int ia = *(const int*)a;
+    const int ib = *(const int*)b;
+    return (ia > ib) - (ia < ib);
 }
-
 
 int main(void) {
     clock_t start_t, end_t;

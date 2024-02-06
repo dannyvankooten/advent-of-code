@@ -49,16 +49,13 @@ static struct step *step_next(struct step **steps, size_t nsteps) {
   return NULL;
 }
 
-int step_compare(const void *p1, const void *p2) {
-  struct step *a = *(struct step **)p1;
-  struct step *b = *(struct step **)p2;
-  if (a->name == b->name) {
-    return 0;
-  }
-  return a->name < b->name ? -1 : 1;
+static int step_compare(const void *p1, const void *p2) {
+  const struct step *a = *(struct step **)p1;
+  const struct step *b = *(struct step **)p2;
+  return (a->name > b->name) - (a->name < b->name);
 }
 
-void pt1(char *buf, struct step **steps, size_t nsteps) {
+static void pt1(char *buf, struct step **steps, const size_t nsteps) {
   char *o = buf;
   while (1) {
     struct step *cur = step_next(steps, nsteps);
@@ -74,8 +71,8 @@ void pt1(char *buf, struct step **steps, size_t nsteps) {
     steps[i]->done = 0;
 }
 
-int pt2(struct step **steps, size_t nsteps) {
-  size_t nworkers = 5;
+static int pt2(struct step **steps, const size_t nsteps) {
+  const size_t nworkers = 5;
   int delay_s = 60;
   int worker_finish_times[nworkers];
   struct step *worker_tasks[nworkers];

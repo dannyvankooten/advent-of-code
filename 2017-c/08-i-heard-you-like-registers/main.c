@@ -24,7 +24,7 @@ typedef struct {
     int highest_value;
 } cpu_t;
 
-int *get(cpu_t *cpu, char *name) {
+int *get(cpu_t *cpu, const char *name) {
     for (int i = 0; i < cpu->nregs; i++) {
         if (strcmp(cpu->reg_names[i], name) == 0) {
             return &cpu->reg_values[i];
@@ -37,7 +37,7 @@ int *get(cpu_t *cpu, char *name) {
     return &cpu->reg_values[cpu->nregs-1];
 }
 
-char *parse_infix_op(char *dst, char *s) {
+const char *parse_infix_op(char *dst, const char *s) {
     if (strncmp(s, ">=", 2) == 0) {
         *dst = OP_GTE;
         s += 2;
@@ -56,6 +56,9 @@ char *parse_infix_op(char *dst, char *s) {
     } else if (strncmp(s, "<", 1) == 0) {
         *dst = OP_LT;
         s += 1;
+    } else {
+      fprintf(stderr, "invalid infix operator");
+      exit(EXIT_FAILURE);
     }
 
 
@@ -104,7 +107,7 @@ void exec(cpu_t *cpu, char *reg, int op, int opvalue, char *leftname, int infix,
     }
 }
 
-int main() {
+int main(void) {
     clock_t start_t, end_t;
     start_t = clock();
 
@@ -130,7 +133,7 @@ int main() {
     char left[4];
     int right;
     char infix_op;
-    char *s = input;
+    const char *s = input;
     while (*s != 0x0) {
         // parse line
         s = parse_ident(target, s);

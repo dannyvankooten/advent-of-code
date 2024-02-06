@@ -36,7 +36,7 @@ int axial_distance(hex_t a, hex_t b) {
             + abs(a.r - b.r)) / 2;
 }
 
-int main() {
+int main(void) {
     clock_t t = timer_start();
     char input[1024 * 64] = "";
     read_input_file(input, "input.txt");
@@ -47,7 +47,7 @@ int main() {
     };
     hex_t start = pos;
     int max_distance = -1;
-    char *s = input;
+    const char *s = input;
     char dir[8];
     while (*s != '\0') {
         s = parse_ident(dir, s);

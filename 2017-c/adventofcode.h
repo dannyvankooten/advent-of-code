@@ -15,7 +15,7 @@ void read_input_file(char *dest, char *file) {
 }
 
 // parse_ident parses a string consisting of only lowercase a-z chars
-char *parse_ident(char *dst, char *s) {
+const char *parse_ident(char *dst, const char *s) {
     while (*s >= 'a' && *s <= 'z') {
         *dst++ = *s++;
     }
@@ -24,7 +24,7 @@ char *parse_ident(char *dst, char *s) {
 }
 
 // parse_int parses a (signed) integer, with optional plus sign
-char *parse_int(int *dst, char *s) {
+const char *parse_int(int *dst, const char *s) {
     int n = 0;
     int mod = 1;
     if (*s == '-') {
@@ -44,7 +44,7 @@ char *parse_int(int *dst, char *s) {
 
 
 // parse_uint8 parses a single byte
-char *parse_uint8(uint8_t *dst, char *s) {
+const char *parse_uint8(uint8_t *dst, const char *s) {
     uint8_t n = 0;
 
     while (*s >= '0' && *s <= '9') {
@@ -56,7 +56,7 @@ char *parse_uint8(uint8_t *dst, char *s) {
 }
 
 // skip advanced the pointer s as long as it matches the corresponding chars from expects
-char *skip(char *expects, char *s) {
+const char *skip(char *expects, const char *s) {
     while (*s == *expects) {
         s++;
         expects++;

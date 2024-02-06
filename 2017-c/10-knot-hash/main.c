@@ -6,7 +6,7 @@
 
 #define PUZZLE_NAME "Day 10: Knot Hash"
 
-void reverse(int *values, int nvalues, int start, int length) {
+void reverse(int values[], const int nvalues, const int start, const int length) {
     for (int i = 0; i < length/2; i++) {
         int idx_a = (start + i) % (nvalues);
         int idx_b = (start + length - i - 1) % (nvalues);
@@ -16,7 +16,7 @@ void reverse(int *values, int nvalues, int start, int length) {
     }
 }
 
-int pt1(char *s) {
+int pt1(const char *s) {
     // parse
     int lengths[32];
     int nlengths = 0;
@@ -88,7 +88,7 @@ void pt2(char *hash, char *s) {
     hash[32] = 0x0;
 }
 
-int main() {
+int main(void) {
     clock_t t = timer_start();
     char input[1024 * 64];
     read_input_file(input, "input.txt");

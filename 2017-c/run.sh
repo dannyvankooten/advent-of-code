@@ -3,7 +3,7 @@
 CC="${CC:=gcc}"
 CFLAGS="$CFLAGS
 -O2 -flto -march=native -mtune=native
--Wall -Wextra -Wpedantic -std=c11"
+-Wall -Wextra -Wpedantic -std=c17"
 
 TIME_LINES=""
 for d in */; do

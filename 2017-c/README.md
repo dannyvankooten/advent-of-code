@@ -1,8 +1,8 @@
-# Advent of Code 2017
+# Advent of Code 2017 in C
 
 See https://adventofcode.com/2017 for puzzle text and inputs.
 
-Solutions for Advent of Code 2017, implemented in C.
+Solutions for Advent of Code 2017, implemented in C (`-std=c17`).
 
 Execute [run.sh](run.sh) to run all days (needs a C compiler like gcc or Clang):
 

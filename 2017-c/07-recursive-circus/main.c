@@ -24,7 +24,7 @@ typedef struct program {
     struct program **children;
 } program_t;
 
-char *parse_int(int *restrict dst, char *s) {
+const char *parse_int(int *dst, const char *s) {
     int mod = 1;
     int n = 0;
     if (*s == '-') {
@@ -51,8 +51,8 @@ program_t *byname(char *name, program_t *programs, int nprograms) {
     return NULL;
 }
 
-int parse_input(program_t *programs, char *input) {
-    char *s = input;
+int parse_input(program_t *programs, const char *input) {
+    const char *s = input;
     int n = 0;
     char *w;
     while (*s != '\0') {
@@ -158,7 +158,7 @@ int pt2(program_t *restrict programs, int nprograms, program_t *restrict root, i
     return root->weight - unbalanced;
 }
 
-int main() {
+int main(void) {
     clock_t start_t, end_t;
     start_t = clock();
 

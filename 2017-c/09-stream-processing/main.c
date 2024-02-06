@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <time.h>
-#include <string.h>
 
 #define PUZZLE_NAME "Day 9: Stream Processing"
 
@@ -16,7 +15,7 @@ void read_input_file(char *dest, char *file) {
     fclose(fp);
 }
 
-int main() {
+int main(void) {
     clock_t start_t, end_t;
     start_t = clock();
 
@@ -29,7 +28,6 @@ int main() {
     int count = 0;
     char *s = input;
     while (*s != '\0') {
-
         if (garbage) {
             switch (*s) {
                 case '!':

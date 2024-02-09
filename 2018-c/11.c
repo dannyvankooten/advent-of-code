@@ -28,7 +28,7 @@ static inline int power_level(const unsigned x, const unsigned y,
   return -5;
 }
 
-struct Answer solve_pt1(const int serial_number) {
+static struct Answer solve_pt1(const int serial_number) {
   int max = INT_MIN;
   unsigned xmax = 0;
   unsigned ymax = 0;
@@ -52,7 +52,7 @@ struct Answer solve_pt1(const int serial_number) {
   return (struct Answer){xmax + 1, ymax + 1, 3};
 }
 
-struct Answer solve_pt2(const int serial_number) {
+static struct Answer solve_pt2(const int serial_number) {
   int max = INT_MIN;
   struct Answer a;
 

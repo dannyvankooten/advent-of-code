@@ -60,6 +60,7 @@ collect_neighbors(grid_t* restrict grid, seat_t* restrict seat) {
   }
 }
 
+__attribute((unused))
 static void
 print_grid(grid_t* restrict grid) {
     for (int y=0; y < grid->height; y++) {
@@ -191,7 +192,7 @@ parse_input(grid_t* restrict grid) {
   }
 }
 
-int day11() {
+int day11(void) {
   grid_t grid = {
       .height = 0,
       .width = 0,

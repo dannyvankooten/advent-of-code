@@ -15,7 +15,7 @@ const int HEIGHT = 323;
 const int WIDTH = 31;
 static uint64_t count_trees(square_t* grid, int slope_y, int slope_x);
 
-int day3() {
+int day3(void) {
   const unsigned char *s = input;
 
   square_t* grid = calloc(HEIGHT * WIDTH, sizeof(square_t));

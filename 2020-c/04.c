@@ -89,7 +89,7 @@ static bool is_valid_pid(const char *v) {
 
 enum field_key { BYR = 0, IYR, EYR, HGT, HCL, ECL, PID, CID };
 
-int day4() {
+int day4(void) {
   char fields[8] = {0};
   char key[32];
   char value[32];

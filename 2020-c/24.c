@@ -7,9 +7,9 @@
 #include "inputs/24.h"
 
 #define GRIDSIZE 140
-#define GRIDSIZE_SQ GRIDSIZE * GRIDSIZE
+#define GRIDSIZE_SQ (GRIDSIZE * GRIDSIZE)
 #define isodd(v) (v & 1)
-#define iseven(v) (v & 1) == 0
+#define iseven(v) ((v & 1) == 0)
 
 enum color {
   WHITE = 0,
@@ -54,8 +54,9 @@ void err(int status, char *message) {
   exit(status);
 }
 
+__attribute((unused))
 static void
-print_direction(const direction_t d) {
+print_direction(const direction_t d)  {
   static const char* names[] = {"NE", "NW", "E", "W", "SE", "SW"};
   printf("%s", names[d]);
 }
@@ -160,7 +161,7 @@ apply_rules(grid_t* restrict grid, int8_t neighbors[GRIDSIZE_SQ * 2], bound_t* r
   memcpy(neighbors, new_neighbors, sizeof(int8_t) * GRIDSIZE_SQ);
 }
 
-int day24() {
+int day24(void) {
   grid_t grid = {
     .tiles = (char*)calloc(GRIDSIZE_SQ, sizeof(char)),
     .black_tile_count = 0,

@@ -96,6 +96,7 @@ apply_address_mask(vec_t* v, const char mask[36], int64_t n) {
   }
 }
 
+__attribute((unused))
 static void
 print_binary(int64_t n) {
   int8_t c;
@@ -111,7 +112,7 @@ print_binary(int64_t n) {
   }
 }
 
-int32_t day14() {
+int32_t day14(void) {
   // assert(apply_bitmask("XXXXXXXXXXXXXXXXXXXXXXXXXXXXX1XXXX0X", 11) == 73);
   FILE* f = fopen("inputs/14.txt", "r");
   if (!f) {

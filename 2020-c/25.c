@@ -52,7 +52,7 @@ discrete_log(int subject, int value, int mod) {
   exit(1);
 }
 
-int day25() {
+int day25(void) {
   int card_pubkey = 1965712;
   int door_pubkey = 19072108;
   int loop_size = discrete_log(7, card_pubkey, 20201227);

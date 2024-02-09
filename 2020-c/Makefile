@@ -1,5 +1,5 @@
 CFLAGS+= -std=c11 -Wall -Wextra -Wpedantic 	\
--Wundef -Winline -Wimplicit-fallthrough -Wformat=2
+-Wundef -Winline -Wimplicit-fallthrough -Wformat=2 -Wvla
 BIN=aoc2020
 
 all: release
@@ -14,7 +14,7 @@ profile: CFLAGS+= -pg
 profile: BIN=aoc2020debug
 profile: $(BIN)
 
-release: CFLAGS+=-O3 -march=native -mtune=native
+release: CFLAGS+=-O2 -march=native -mtune=native -flto
 release: $(BIN)
 
 $(BIN): *.c

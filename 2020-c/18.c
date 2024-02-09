@@ -33,7 +33,7 @@ const char* s;
 static int64_t _eval(precedence_t);
 
 static token_t
-gettoken() {
+gettoken(void) {
   while (isspace(*s))
     s++;
 
@@ -161,7 +161,7 @@ eval(const char* input) {
   return _eval(LOWEST);
 }
 
-int day18() {
+int day18(void) {
   assert(eval("1 + 2 * 3 + 4 * 5 + 6") == 231);
   assert(eval("2 * 3 + (4 * 5)") == 46);
   assert(eval("1 + (2 * 3) + (4 * (5 + 6)))") == 51);

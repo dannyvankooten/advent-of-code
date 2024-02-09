@@ -103,6 +103,7 @@ parse_input(food_t* restrict dest) {
   return n;
 }
 
+__attribute((unused))
 static void
 print_food(const food_t* f) {
   for (int j = 0; j < f->ningredients; j++) {

@@ -31,7 +31,7 @@ game_t* games_memory;
 size_t games_memory_ptr = 0;
 
 static game_t*
-new_game() {
+new_game(void) {
   game_t* game = &games_memory[games_memory_ptr++];
   game->p1.ncards = 0;
   game->p1.offset = 0;
@@ -74,7 +74,7 @@ copy_game(game_t* g1, const int8_t card_p1, const int8_t card_p2) {
 }
 
 static game_t*
-parse_input() {
+parse_input(void) {
   game_t* game = new_game();
   const unsigned char *s = input;
 
@@ -127,6 +127,7 @@ add_card_to_deck(player_t* restrict p, const int8_t card) {
   p->ncards++;
 }
 
+__attribute((unused))
 static void
 print_player_deck(const player_t* restrict p) {
   for (int8_t i = 0; i < p->ncards; i++) {
@@ -224,7 +225,7 @@ play_game(game_t* restrict game) {
   return game->winner;
 }
 
-int day22() {
+int day22(void) {
   // pre-allocate memory for main game and enough sub-games
   games_memory = malloc(50 * sizeof(game_t));
   if (!games_memory) {

@@ -72,19 +72,19 @@ static void pt1(char *buf, struct step **steps, const size_t nsteps) {
 }
 
 static int pt2(struct step **steps, const size_t nsteps) {
-  const size_t nworkers = 5;
+  #define NWORKERS 5
   int delay_s = 60;
-  int worker_finish_times[nworkers];
-  struct step *worker_tasks[nworkers];
-  memset(worker_finish_times, 0, sizeof(*worker_finish_times) * nworkers);
-  memset(worker_tasks, 0, sizeof(struct step *) * nworkers);
+  int worker_finish_times[NWORKERS];
+  struct step *worker_tasks[NWORKERS];
+  memset(worker_finish_times, 0, sizeof(*worker_finish_times) * NWORKERS);
+  memset(worker_tasks, 0, sizeof(struct step *) * NWORKERS);
   size_t ndone = 0;
 
   // loop over seconds
   for (int s = 0;; s++) {
 
     // first loop, mark steps as done
-    for (size_t w = 0; w < nworkers; w++) {
+    for (size_t w = 0; w < NWORKERS; w++) {
       if (worker_finish_times[w] != s) {
         continue;
       }
@@ -104,7 +104,7 @@ static int pt2(struct step **steps, const size_t nsteps) {
     }
 
     // second loop: assign new tasks
-    for (size_t w = 0; w < nworkers; w++) {
+    for (size_t w = 0; w < NWORKERS; w++) {
       if (worker_tasks[w] != NULL) {
         continue;
       }

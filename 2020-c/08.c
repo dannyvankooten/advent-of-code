@@ -64,7 +64,7 @@ static const unsigned char *
   return line;
 }
 
-int day8() {
+int day8(void) {
   const unsigned char *s = input;
   struct Instructions ins = {
       .cap = 64,

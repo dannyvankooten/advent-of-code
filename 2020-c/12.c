@@ -52,7 +52,7 @@ rotate_waypoint(struct ship* ship, const int value) {
   ship->waypoint.y = y1;
 }
 
-int day12() {
+int day12(void) {
   int instructions_n = 0;
   struct instruction instructions[1024];
   FILE* f = fopen("inputs/12.txt", "r");

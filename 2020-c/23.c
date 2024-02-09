@@ -1,7 +1,7 @@
 #include <assert.h>
 #include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
+#include <sys/cdefs.h>
 #include "hugemem.h"
 
 // const char *test_input = "389125467";
@@ -33,6 +33,7 @@ parse_input(int* restrict cups, const char* restrict s) {
   return first;
 }
 
+__attribute((unused))
 static void
 print_raw(const int* restrict cups) {
   printf("| ");
@@ -46,6 +47,7 @@ print_raw(const int* restrict cups) {
   printf("\n\n");
 }
 
+__attribute((unused))
 static void
 print_cups(const int* restrict cups, const int first, const size_t n, const char* restrict before) {
   printf("%s", before);
@@ -56,17 +58,17 @@ print_cups(const int* restrict cups, const int first, const size_t n, const char
   printf("\n");
 }
 
-int day23() {
-  int *cups = (int *) hugemem(1000000 * sizeof(int));
+int day23(void) {
+  unsigned int *cups = (unsigned int *) hugemem(1000000 * sizeof(unsigned int));
   if (!cups) {
     perror("hugemem error");
     return 1;
   }
-  int current_cup = parse_input(cups, input);
-  int a, b, c;
-  int destination;
+  unsigned int current_cup = parse_input(cups, input);
+  unsigned int a, b, c;
+  unsigned int destination;
   assert(current_cup == 3);
-  int next_cur;
+  unsigned int next_cur;
 
   for (int m = 0; m < 10000000; m++) {
     a = cups[current_cup];
@@ -87,8 +89,8 @@ int day23() {
     current_cup = next_cur;
   }
 
-  int c1 = cups[1];
-  int64_t r = (int64_t)c1 * (int64_t)cups[c1];
+  unsigned int c1 = cups[1];
+  unsigned long r = (unsigned long)c1 * (unsigned long)cups[c1];
   printf("%ld\n", r);
   assert(r == 474600314018);
   hugemem_free(cups, 1000000 * sizeof(int));

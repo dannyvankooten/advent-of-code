@@ -13,15 +13,17 @@
 #define BITCLEAR(a, b) ((a)[BITSLOT(b)] &= ~BITMASK(b))
 #define BITTEST(a, b) ((a)[BITSLOT(b)] & BITMASK(b))
 #define BITNSLOTS(nb) ((nb + CHAR_BIT - 1) / CHAR_BIT)
+#define likely(x)       __builtin_expect(!!(x), 1)
+#define unlikely(x)     __builtin_expect(!!(x), 0)
 
-static int
-parse_input(int* numbers, const char* s) {
-  int n = 0;
+static unsigned int
+parse_input(unsigned int* numbers, const char* s) {
+  unsigned int n = 0;
 
   while (*s != '\0') {
-    int num = 0;
+    unsigned int num = 0;
     while (*s >= '0' && *s <= '9') {
-      num = (num * 10) + (*s++ - '0');
+      num = (num * 10) + (unsigned int) (*s++ - '0');
     }
 
     numbers[n++] = num;
@@ -33,21 +35,22 @@ parse_input(int* numbers, const char* s) {
   return n;
 }
 
-int day15(void) {
-  int numbers[6];
-  int nnumbers = parse_input(numbers, "12,1,16,3,11,0");
 
-  int* seen = hugemem(N * sizeof(int));
+int day15(void) {
+  unsigned int numbers[6];
+  unsigned int nnumbers = parse_input(numbers, "12,1,16,3,11,0");
+
+  char seen_malloced = 0;
+  unsigned int* seen = hugemem(N * sizeof(unsigned int));
   if (seen == NULL) {
-    perror("hugemem error");
-    printf("(day 15 needs ~60 2MB huge pages available on your machine)\n");
-    return 1;
+     seen = malloc(N * sizeof(unsigned int));
+     seen_malloced = 1;
   }
   assert(seen != NULL);
 
-  int i = 0;
-  int prev = 0;
-  char* bitarray = calloc(BITNSLOTS(N), sizeof(char));
+  unsigned int i = 0;
+  unsigned int prev = 0;
+  unsigned char* bitarray = calloc(BITNSLOTS(N), sizeof(unsigned char));
   if (!bitarray) {
     perror("calloc error");
     return 1;
@@ -59,9 +62,9 @@ int day15(void) {
     BITSET(bitarray, prev);
   }
 
-  int last_seen_at;
+  unsigned int last_seen_at;
   for (; i < N; i++) {
-    if (prev < (i >> 6)) {
+    if (likely(prev < (i >> 8))) {
       last_seen_at = seen[prev];
       seen[prev] = i;
       if (last_seen_at) {
@@ -69,7 +72,7 @@ int day15(void) {
       } else {
         prev = 0;
       }
-    } else if(BITTEST(bitarray, prev)) {
+    } else if (unlikely(BITTEST(bitarray, prev))) {
       last_seen_at = seen[prev];
       seen[prev] = i;
       prev = i - last_seen_at;
@@ -78,14 +81,16 @@ int day15(void) {
       seen[prev] = i;
       prev = 0;
     }
-
   }
 
   printf("%d\n", prev);
   assert(prev == 37385);
-
   free(bitarray);
-  hugemem_free((void *) seen, N * sizeof(int));
+  if (seen_malloced) {
+    free(seen);
+  } else {
+    hugemem_free((void *) seen, N * sizeof(int));
+  }
 
   return 0;
 }

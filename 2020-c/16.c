@@ -34,7 +34,7 @@ parse_digit(int32_t* d, char* restrict s) {
   return s - start;
 }
 
-int32_t day16() {
+int32_t day16(void) {
   int32_t nrules = 0;
   struct rule rules[128];
   FILE* f = fopen("inputs/16.txt", "r");

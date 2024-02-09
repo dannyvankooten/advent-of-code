@@ -5,17 +5,16 @@
 #include <time.h>
 
 #define PUZZLE_NAME "Day 12: Subterranean Sustainability"
-
-static const unsigned PADDING = 200; // should be larger than # of cycles
-static const unsigned INITIAL_PLANTS = 99;
-static const unsigned WIDTH = INITIAL_PLANTS + PADDING * 2;
+#define PADDING 200 // should be larger than # of cycles
+#define INITIAL_PLANTS 99
+#define WIDTH (INITIAL_PLANTS + PADDING * 2)
 
 struct Pattern {
   char in[5];
   char out;
 };
 
-unsigned long count_plants(const char plants[WIDTH], unsigned long offset) {
+static unsigned long count_plants(const char plants[static WIDTH], const unsigned long offset) {
   unsigned long count = 0;
 
   // for part 2 I noticed the grid would stabilise
@@ -31,7 +30,7 @@ unsigned long count_plants(const char plants[WIDTH], unsigned long offset) {
   return count;
 }
 
-void growth_cycles(char plants[WIDTH], const struct Pattern patterns[],
+static void growth_cycles(char plants[static WIDTH], const struct Pattern patterns[],
                    const unsigned npatterns, const unsigned ncycles) {
   char next[WIDTH];
   for (unsigned g = 0; g < ncycles; g++) {
@@ -68,8 +67,7 @@ int main(void) {
 
   unsigned npatterns = 0;
   struct Pattern patterns[64];
-  while (fgets(line, 1024, stdin)) {
-
+  while (fgets(line, 1024, stdin) && npatterns < 64) {
     // we only need to know about the patterns that result into a plant
     if (line[9] != '#') {
       continue;

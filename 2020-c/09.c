@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-int day9() {
+int day9(void) {
   const unsigned char *s = input;
   unsigned int numbers[1000];
   unsigned int numbers_n = 0;
@@ -22,11 +22,11 @@ int day9() {
 
   // loop through numbers to find contiguous set
   // that sums to invalid_n (127)
-  int range_start = 0;
-  int range_end = 0;
-  for (int i = 0; i < numbers_n - 1; i++) {
-    int sum = numbers[i];
-    int j = i;
+  unsigned int range_start = 0;
+  unsigned int range_end = 0;
+  for (unsigned int i = 0; i < numbers_n - 1; i++) {
+    unsigned int sum = numbers[i];
+    unsigned j = i;
     for (; j < numbers_n - 1 && sum < invalid_n;) {
       sum += numbers[++j];
     }
@@ -38,9 +38,9 @@ int day9() {
     }
   }
 
-  int smallest = numbers[range_start];
-  int largest = numbers[range_start];
-  for (int i = range_start; i <= range_end; i++) {
+  unsigned int smallest = numbers[range_start];
+  unsigned int largest = numbers[range_start];
+  for (unsigned int i = range_start; i <= range_end; i++) {
     if (numbers[i] < smallest) {
       smallest = numbers[i];
     } else if (numbers[i] > largest) {
@@ -48,7 +48,7 @@ int day9() {
     }
   }
 
-  int answer = largest + smallest;
+  unsigned int answer = largest + smallest;
   printf("%d\n", answer);
   assert(answer == 13935797);
 

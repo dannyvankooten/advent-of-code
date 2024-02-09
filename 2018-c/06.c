@@ -1,7 +1,7 @@
 #include "adventofcode.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
 #include <time.h>
 
 #define PUZZLE_NAME "Day 6: Chronal Coordinates"
@@ -32,10 +32,10 @@ void determine_bounds(struct Point *points, size_t n, int bounds[4]) {
   }
 }
 
-size_t parse(const char *s, struct Point *points, int bounds[4]) {
+static size_t parse(const char *s, struct Point points[static 64], int bounds[4]) {
   size_t n = 0;
 
-  while (*s != 0x0) {
+  while (*s != 0x0 && n < 64) {
     s = parse_int(&points[n].x, s);
     s = skip(", ", s);
     s = parse_int(&points[n].y, s);
@@ -48,7 +48,7 @@ size_t parse(const char *s, struct Point *points, int bounds[4]) {
   return n;
 }
 
-int get_closest_point(struct Point *points, size_t n, int x, int y) {
+static int get_closest_point(const struct Point points[static 64], const size_t n, const int x, const int y) {
   int closest_idx = -1;
   int closest_distance = 1 << 30;
 
@@ -67,12 +67,10 @@ int get_closest_point(struct Point *points, size_t n, int x, int y) {
   return closest_idx;
 }
 
-int pt1(struct Point points[], size_t n, int bounds[4]) {
-  int areas[n];
-  memset(areas, 0, n * sizeof(int));
-
-  char infinite[n];
-  memset(areas, 0, n * sizeof(*infinite));
+unsigned int pt1(const struct Point points[static 64], const size_t n, const int bounds[4]) {
+  assert(n <= 64);
+  unsigned int areas[64] = {0};
+  unsigned int infinite[64] = {0};
 
   for (int x = bounds[0], y = bounds[1]; x <= bounds[2] && y <= bounds[3];) {
     int closest_idx = get_closest_point(points, n, x, y);
@@ -103,11 +101,13 @@ int pt1(struct Point points[], size_t n, int bounds[4]) {
     }
   }
 
+
   return areas[largest];
 }
 
-int pt2(struct Point points[], size_t n, int bounds[4]) {
-  int count = 0;
+unsigned int pt2(const struct Point points[static 64], const size_t n, const int bounds[static 4]) {
+  assert(n <= 64);
+  unsigned int count = 0;
   for (int x = bounds[0], y = bounds[1]; x <= bounds[2] && y <= bounds[3];) {
     int distance = 0;
 
@@ -138,16 +138,11 @@ int main(void) {
   read_input_file(input, 64 * 1024, "06.txt");
 
   int bounds[4];
-  struct Point *points = malloc_or_die(50 * sizeof(*points));
+  struct Point points[64];
   size_t n = parse(input, points, bounds);
 
-  // printf("%ld coords: (%d, %d) to (%d, %d)\n", n, bounds[0], bounds[1],
-  //        bounds[2], bounds[3]);
-
-  int a1 = pt1(points, n, bounds);
-  int a2 = pt2(points, n, bounds);
-
-  free(points);
+  unsigned int a1 = pt1(points, n, bounds);
+  unsigned int a2 = pt2(points, n, bounds);
 
   printf("--- %s ---\n", PUZZLE_NAME);
   printf("Part 1: %d\n", a1);
@@ -155,7 +150,3 @@ int main(void) {
   printf("Time: %.2fms\n", clock_time_since(t));
   return EXIT_SUCCESS;
 }
-
-// part 1: 3890 CORRECT
-// part 2: 99540 too high
-// part 2: 40284 CORRECT

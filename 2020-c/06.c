@@ -39,7 +39,7 @@ int8_t count_yes_answers(const char* s) {
   return y_count;
 }
 
-int day6() {
+int day6(void) {
   // Test input
   assert(count_yes_answers("abc") == 3);
   assert(count_yes_answers("a\nb\nc") == 0);

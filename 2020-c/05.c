@@ -60,7 +60,7 @@ struct Seat decode(const char* v) {
   return s;
 }
 
-int day5() {
+int day5(void) {
   assert(decode_row("FBFBBFFRLR") == 44);
   assert(decode_column("RLR") == 5);
   assert(decode("FBFBBFFRLR").seat == 357);

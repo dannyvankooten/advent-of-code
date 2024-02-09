@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [-std=c17, -Wall, -Wextra, -Wpedantic, -Wundef, -Winline, -Wimplicit-fallthrough, -Wformat=2, -Wconversion ]
+  Add: [-std=c17, -Wall, -Wextra, -Wpedantic, -Wundef, -Winline, -Wimplicit-fallthrough, -Wformat=2, -Wvla, -Wconversion, -Wstringop-overflow=3 ]

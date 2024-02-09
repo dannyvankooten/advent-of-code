@@ -3,7 +3,7 @@
 
 #include "inputs/02.h"
 
-int day2() {
+int day2(void) {
   int count_valid = 0;
   const unsigned char *s = input;
   while (*s != '\0') {

@@ -10,10 +10,8 @@ static const char* input =
     "13,x,x,x,x,x,x,37,x,x,x,x,x,449,x,29,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,x,"
     "19,x,"
     "x,x,23,x,x,x,x,x,x,x,773,x,x,x,x,x,x,x,x,x,41,x,x,x,x,x,x,17";
-// static const char *test_input = "939\n"
-//     "7,13,x,x,59,x,31,19";
 
-int day13() {
+int day13(void) {
   const char* s = input;
   int ready_timestamp = 0;
   while (*s != '\n') {

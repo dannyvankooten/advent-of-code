@@ -87,7 +87,7 @@ message_matches_rule(const rule_t* restrict rule,
   return characters_matched;
 }
 
-int day19() {
+int day19(void) {
   FILE* f = fopen("inputs/19.txt", "r");
   if (!f) {
     err(EXIT_FAILURE, "error reading input file");

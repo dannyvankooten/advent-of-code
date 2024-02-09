@@ -21,7 +21,7 @@ ht* bags;
 bag_t* mbags;
 
 static
-void parse_rules_from_input() {
+void parse_rules_from_input(void) {
   int qty;
   int cap = 1024;
   int size = 0;
@@ -165,7 +165,7 @@ int count_children(bag_t* b) {
   return count;
 }
 
-int day7() {
+int day7(void) {
   parse_rules_from_input();
   bag_t* shiny_gold = find_bag("shiny gold");
   assert(shiny_gold != NULL);

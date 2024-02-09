@@ -25,7 +25,7 @@ struct Count {
   int open;
 };
 
-static struct Count visit_adjacent(const char *grid, const size_t width,
+static struct Count visit_adjacent(const char grid[static 50*50], const size_t width,
                                    const unsigned int r1,
                                    const unsigned int c1) {
   struct Count cnt = {0, 0, 0};
@@ -59,8 +59,8 @@ static struct Count visit_adjacent(const char *grid, const size_t width,
   return cnt;
 }
 
-static void step(const size_t width, char grid[width * width],
-                 char next[width * width]) {
+static void step(const size_t width, char grid[static 50*50],
+                 char next[static 50*50]) {
   for (unsigned r = 0; r < width; r++) {
     for (unsigned c = 0; c < width; c++) {
       const struct Count cnt = visit_adjacent(grid, width, r, c);
@@ -95,10 +95,7 @@ static void step(const size_t width, char grid[width * width],
   }
 
   // swap pointers
-  // char *tmp = grid;
   memcpy(grid, next, width * width * sizeof(char));
-  // grid = next;
-  // next = tmp;
 }
 
 struct Cycle {
@@ -113,7 +110,7 @@ struct Cycle {
 Floyd's tortoise and hare cycle-finding algorithm
 See https://en.wikipedia.org/wiki/Cycle_detection
 */
-static struct Cycle floyd(const size_t width, const char grid[width * width]) {
+static struct Cycle floyd(const size_t width, const char grid[static 50*50]) {
   const size_t n = width * width * sizeof(char);
   char *tortoise = malloc(n);
   char *hare = malloc(n);
@@ -180,7 +177,7 @@ static struct Cycle floyd(const size_t width, const char grid[width * width]) {
   return (struct Cycle){mu, lam};
 }
 
-static unsigned grid_value(const size_t width, const char grid[width * width]) {
+static unsigned grid_value(const size_t width, const char grid[static 50*50]) {
   unsigned trees = 0;
   unsigned lumberyards = 0;
   const size_t sz = width * width;
@@ -198,7 +195,7 @@ static unsigned grid_value(const size_t width, const char grid[width * width]) {
   return trees * lumberyards;
 }
 
-static unsigned int nsteps(const size_t width, const char grid[width * width],
+static unsigned int nsteps(const size_t width, const char grid[static 50*50],
                           unsigned nsteps) {
   const size_t n = width * width * sizeof(char);
   char *cur = malloc(n);
@@ -226,6 +223,7 @@ int main(void) {
   char *grid = malloc(grid_size * sizeof(char));
   assert(grid != NULL);
   const size_t width = parse(grid);
+  assert(width <= 50);
 
   const unsigned int pt1 = nsteps(width, grid, 10);
 

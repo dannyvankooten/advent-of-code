@@ -17,7 +17,7 @@ intcmp(const void *p1, const void *p2) {
 
 int day1(void) {
   int numbers[200] = {0};
-  int n = 0;
+  size_t n = 0;
   const unsigned char *s = input;
   while (*s != '\0') {
     while (*s >= '0' && *s <= '9') {
@@ -34,9 +34,9 @@ int day1(void) {
   qsort(numbers, n, sizeof(int), intcmp);
 
   int answer = 0;
-  for (int i = 0; i < n; i++) {
-    for (int j = i; j < n; j++) {
-      for (int k = j; k < n; k++) {
+  for (size_t i = 0; i < n; i++) {
+    for (size_t j = i; j < n; j++) {
+      for (size_t k = j; k < n; k++) {
         if (numbers[i] + numbers[j] + numbers[k] == 2020) {
           answer = numbers[i] * numbers[j] * numbers[k];
           goto PRINT_RESULT;

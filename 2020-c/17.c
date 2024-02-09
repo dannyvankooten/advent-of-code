@@ -24,7 +24,7 @@ struct grid {
 typedef struct grid grid_t;
 
 static grid_t
-read_input() {
+read_input(void) {
   const unsigned char *s = input;
 
   // assume high enough values to fit our infinite grid
@@ -183,7 +183,7 @@ transmute_grid(grid_t* restrict g) {
 
 // TODO: Grow grid dynamically, as this should also improve performance by
 // reducing loop iterations
-int day17() {
+int day17(void) {
   grid_t g = read_input();
   int32_t count = 0;
   for (int32_t i = 0; i < 6; i++) {

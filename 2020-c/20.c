@@ -112,6 +112,7 @@ print_tile(const tile_t* restrict tile) {
   }
 }
 
+__attribute((unused))
 static void 
 print_tiles(const tile_t* restrict tiles, const int32_t ntiles) {
   for (int32_t i = 0; i < ntiles; i++) {
@@ -266,6 +267,7 @@ remove_image_borders(char* restrict image, tile_t** const restrict tiles, const 
   }
 }
 
+__attribute((unused))
 static void 
 print_image(const tile_t** restrict image, const int32_t image_size) {
   for (int32_t image_y = 0; image_y < image_size; image_y++) {
@@ -282,6 +284,7 @@ print_image(const tile_t** restrict image, const int32_t image_size) {
   }
 }
 
+__attribute((unused))
 static void 
 print_image_ids(const tile_t** restrict image, const int32_t size) {
   for (int32_t y = 0; y < size; y++) {
@@ -350,7 +353,7 @@ count_sea_monster_in_image(const char* image, const int32_t image_size) {
   return count;
 }
 
-int day20() {
+int day20(void) {
   tile_t* tiles = (tile_t*)malloc(200 * sizeof(tile_t));
   if (!tiles) {
     err(EXIT_FAILURE, "could not allocate memory for tiles");

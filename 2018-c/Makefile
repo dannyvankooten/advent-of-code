@@ -1,6 +1,6 @@
 CFLAGS+= -std=c17 -Wall -Wextra -Wpedantic  \
 -Wundef -Winline -Wimplicit-fallthrough -Wformat=2  \
--Wconversion
+-Wconversion -Wvla -Wstringop-overflow=3
 
 ifndef RELEASE
 CFLAGS+= -D_FORTIFY_SOURCE=2 -D_GLIBCXX_ASSERTIONS  \

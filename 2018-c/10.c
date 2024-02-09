@@ -13,12 +13,15 @@ struct Point {
   int vx, vy;
 };
 
-static void print(const struct Point points[], const unsigned int npoints,
+static void print(const struct Point points[static 512], const unsigned int npoints,
                   const int x1, const int y1, const int x2, const int y2) {
   unsigned w = (unsigned) (x2 - x1) + 1;
   unsigned h = (unsigned) (y2 - y1) + 1;
-  char grid[h][w];
-  memset(grid, ' ', (unsigned int)w * (unsigned int)h * sizeof(char));
+
+  assert(h <= 12);
+  assert(w <= 64);
+  char grid[12][64];
+  memset(grid, ' ', 12 * 64 * sizeof(char));
 
   for (unsigned p = 0; p < npoints; p++) {
     unsigned y = (unsigned) (points[p].py - y1);

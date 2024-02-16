@@ -46,6 +46,7 @@ fn main() {
             }
         }
     }
+
     println!("Part 1: {}", pt1);
     println!("Part 2: {}", pt2);
     println!("Time: {:.2?}", now.elapsed());

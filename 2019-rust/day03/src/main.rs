@@ -1,5 +1,6 @@
 use std::hash::{Hash, Hasher};
 use std::collections::HashSet;
+use std::time::Instant;
 
 #[derive(Debug)]
 struct Point(i64, i64, i64);
@@ -24,9 +25,11 @@ impl PartialEq for Point {
 impl Eq for Point {}
 
 fn main() {
+    let t = Instant::now();
     let lines : Vec<&str> = include_str!("../input.txt").lines().collect();
     let closest_intersection_distance = calculate_intersection_distances(lines);
     println!("Answer: {}", closest_intersection_distance);
+    println!("Time: {:.2?}", t.elapsed())
 }
 
 fn calculate_intersection_distances(lines : Vec<&str>) -> i64 {
@@ -37,7 +40,7 @@ fn calculate_intersection_distances(lines : Vec<&str>) -> i64 {
         let turns : Vec<Turn> = lines[i].split_terminator(",").map(|v| {
             let (dir, amount) = v.split_at(1);
             let amount : i64 = amount.parse().unwrap();
-            
+
             Turn {
                 dir: dir.chars().nth(0).unwrap(),
                 amount
@@ -71,7 +74,7 @@ fn calculate_intersection_distances(lines : Vec<&str>) -> i64 {
             }
         }
     }
-    
+
     return closest;
 }
 

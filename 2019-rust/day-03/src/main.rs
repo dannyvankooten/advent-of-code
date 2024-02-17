@@ -7,12 +7,12 @@ fn main() {
     let wires: Vec<HashMap<(i32, i32), i32>> = io::stdin()
         .lines()
         .map(|line| {
-            let mut wire = HashMap::new();
+            let mut wire = HashMap::with_capacity(300*10);
             let mut x = 0;
             let mut y = 0;
             let mut s = 0;
             let raw = line.unwrap();
-            for i in raw.trim().split(',') {
+            raw.trim().split(',').for_each(|i| {
                 let mut value: i32 = i32::from_str_radix(&i[1..], 10).unwrap();
                 let ch = i.chars().nth(0).unwrap();
                 while value > 0 {
@@ -27,7 +27,7 @@ fn main() {
                     s += 1;
                     wire.insert((x, y), s);
                 }
-            }
+            });
 
             wire
         })
@@ -46,5 +46,5 @@ fn main() {
     let pt2 = min_steps;
     println!("Part 1: {}", pt1);
     println!("Part 2: {}", pt2);
-    println!("Time: {:.3?}", now.elapsed());
+    println!("Time: {:.3?} ms", now.elapsed().as_millis());
 }

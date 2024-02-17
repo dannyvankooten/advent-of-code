@@ -1,6 +1,8 @@
-
+use std::time::Instant;
 
 fn main() {
+    let t = Instant::now();
+
     let mut c = 0;
     for n in 165432..707913 {
         if matches_1(n) {
@@ -9,6 +11,7 @@ fn main() {
     }
 
     println!("Answer: {}", c);
+    println!("Time: {:.3?}", t.elapsed());
 }
 
 // It is a six-digit number.
@@ -63,6 +66,6 @@ mod test {
         assert!(matches_1(234556));
         assert!(matches_1(223344));
         assert!(matches_1(222233));
-        
+
     }
 }

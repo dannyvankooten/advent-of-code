@@ -1,10 +1,12 @@
 use std::io;
+use std::time::Instant;
 
 fn fuel_required(mass: i32) -> i32 {
     return (mass / 3) - 2;
 }
 
 fn main() {
+    let t = Instant::now();
     let lines = io::stdin().lines();
     let mut pt1 : i32 = 0;
     let mut pt2 : i32 = 0;
@@ -16,8 +18,8 @@ fn main() {
         };
 
         let mut fuel = fuel_required(mass);
-        pt1 += fuel;
 
+        pt1 += fuel;
         while fuel > 0 {
             pt2 += fuel;
             fuel = fuel_required(fuel);
@@ -25,4 +27,5 @@ fn main() {
     }
     println!("Part 1: {}", pt1);
     println!("Part 2: {}", pt2);
+    println!("Time: {:.3?} ms", t.elapsed().as_millis());
 }

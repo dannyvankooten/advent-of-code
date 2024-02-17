@@ -28,7 +28,7 @@ fn run(mut ins: Vec<i64>, noun: i64, verb: i64) -> i64 {
 }
 
 fn main() {
-    let now = Instant::now();
+    let t = Instant::now();
     let ins: Vec<i64> = io::read_to_string(io::stdin())
         .unwrap()
         .trim()
@@ -49,5 +49,5 @@ fn main() {
 
     println!("Part 1: {}", pt1);
     println!("Part 2: {}", pt2);
-    println!("Time: {:.2?}", now.elapsed());
+    println!("Time: {:.3?} ms", t.elapsed().as_millis());
 }

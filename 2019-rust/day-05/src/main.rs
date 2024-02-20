@@ -26,9 +26,14 @@ fn read_operand(ins: &Vec<i32>, ip: &mut usize, mode: &mut i32) -> i32 {
     return ins[value as usize];
 }
 
+fn foo(a: i64) -> bool {
+    return false;
+}
+
 fn run(mut ins: Vec<i32>, input: i32) -> i32 {
     let mut output = 0;
     let mut ip: usize = 0;
+
     while ip < ins.len() {
         let mut i = ins[ip];
         ip += 1;

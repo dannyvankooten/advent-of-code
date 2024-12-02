@@ -33,8 +33,8 @@ for ($i = 0, $j = 0; $i < count($a); $i++) {
 	$pt2 += $a[$i] * $occurs;
 }
 
-echo "Day 1: Historian Hysteria", PHP_EOL;
+echo "--- Day 1: Historian Hysteria ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
-echo "Part 1: ", $pt2, PHP_EOL;
+echo "Part 2: ", $pt2, PHP_EOL;
 echo "Took ", microtime(true) - $time_start, " seconds", PHP_EOL;
 echo PHP_EOL;

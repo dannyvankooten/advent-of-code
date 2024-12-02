@@ -1,9 +1,9 @@
 <?php
 $time_start = microtime(true);
 
-function is_safe($numbers): bool
+function is_safe(array $numbers): bool
 {
-	$diffs = [];
+	$diff_prev = 0;
 	for ($i = 1; $i < count($numbers); $i++) {
 		$diff = $numbers[$i] - $numbers[$i - 1];
 
@@ -12,18 +12,12 @@ function is_safe($numbers): bool
 			return false;
 		}
 
-		$diffs[] = $diff;
-	}
-
-	// sign of each diff must be the same as all other elements
-	for ($i = 1; $i < count($diffs); $i++) {
-		if ($diffs[$i] > 0 && $diffs[$i-1] < 0) {
+		// sign of each diff must match preceding diff
+		if ($i >= 2 && $diff > 0 != $diff_prev > 0) {
 			return false;
 		}
 
-		if ($diffs[$i] < 0 && $diffs[$i-1] > 0) {
-			return false;
-		}
+		$diff_prev = $diff;
 	}
 
 	return true;
@@ -38,15 +32,17 @@ foreach (explode("\n", $input) as $line) {
 	if (is_safe($numbers)) {
 		$pt1++;
 		$pt2++;
-	} else {
-		for ($i = 0; $i < count($numbers); $i++) {
-			$copy = $numbers;
-			unset($copy[$i]);
-			$copy = array_values($copy);
-			if (is_safe($copy)) {
-				$pt2++;
-				break;
-			}
+		continue;
+	}
+
+	// for part 2, brute-force remove each number and see if safe
+	for ($i = 0; $i < count($numbers); $i++) {
+		$copy = $numbers;
+		unset($copy[$i]);
+		$copy = array_values($copy);
+		if (is_safe($copy)) {
+			$pt2++;
+			break;
 		}
 	}
 }

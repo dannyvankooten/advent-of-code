@@ -51,5 +51,5 @@ foreach (explode("\n", $input) as $line) {
 echo "--- Day 2: Red-Nosed Reports ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
 echo "Part 2: ", $pt2, PHP_EOL;
-echo "Took ", microtime(true) - $time_start, " seconds", PHP_EOL;
+echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;

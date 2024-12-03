@@ -2,7 +2,7 @@
 $time_start = microtime(true);
 $input = trim(file_get_contents('03.txt'));
 
-function op($in): int
+function op(string $in): int
 {
 	$matches = [];
 	preg_match_all('/mul\((\d{1,3}),(\d{1,3})\)/', $in, $matches);
@@ -16,21 +16,7 @@ function op($in): int
 $pt1 = op($input);
 
 // for part 2, we use the same regex but first do some string manipulation
-while (true) {
-	$pos = strpos($input, "don't()");
-	if ($pos === false) {
-		break;
-	}
-
-	$new = substr($input, 0, $pos);
-
-	$next = strpos($input, "do()", $pos+1);
-	if ($next !== false) {
-		$new .= substr($input, $next);
-	}
-	$input = $new;
-}
-
+$input = preg_replace('/don\'t\(\)(?:.|\n)*?do\(\)/', '', $input);
 $pt2 = op($input);
 
 echo "--- Day 3: Mull It Over ---", PHP_EOL;

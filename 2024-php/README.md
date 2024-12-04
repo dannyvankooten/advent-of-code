@@ -8,19 +8,24 @@ Inputs are read from a `{day}.txt` file in the same directory as the day's solut
 --- Day 1: Historian Hysteria ---
 Part 1: 1506483
 Part 2: 23126924
-Took 1.3668537139893 ms
+Took 1.1241436004639 ms
 
 --- Day 2: Red-Nosed Reports ---
 Part 1: 371
 Part 2: 426
-Took 5.5990219116211 ms
+Took 5.4459571838379 ms
 
 --- Day 3: Mull It Over ---
 Part 1: 174103751
 Part 2: 100411201
-Took 0.31900405883789 ms
+Took 0.87499618530273 ms
 
-Total time: 7.28ms
+--- Day 4: Ceres Search ---
+Part 1: 2414
+Part 2: 2301
+Took 8.5370540618896 ms
+
+Total time: 15.98ms
 ```
 
 ## License

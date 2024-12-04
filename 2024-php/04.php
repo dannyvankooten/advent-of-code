@@ -11,16 +11,17 @@ $dirs = [
 	[1, 1], 	// south-east
 	[-1, -1], 	// north-west
 	[1, -1], 	// north-east
-	[-1, 1] 	// south-west
+	[-1, 1], 	// south-west
 ];
 
-function walk(array $grid, int $row, int $col, array $d, int $char_index): bool {
+function walk(array $grid, int $row, int $col, array $d, int $char_index): int
+{
 	static $word = "XMAS";
 	$row += $d[1];
 	$col += $d[0];
 
 	if ($char_index >= strlen($word)) {
-		return true;
+		return 1;
 	}
 
 	if (
@@ -30,10 +31,10 @@ function walk(array $grid, int $row, int $col, array $d, int $char_index): bool 
 		|| $col >= count($grid[$row])
 		|| $grid[$row][$col] !== $word[$char_index]
 	) {
-		return false;
+		return 0;
 	}
 
-	return walk($grid, $row, $col, $d, $char_index+1);
+	return walk($grid, $row, $col, $d, $char_index + 1);
 }
 
 $pt1 = 0;
@@ -43,28 +44,26 @@ for ($row = 0; $row < count($grid); $row++) {
 
 		// current grid pos == 'X', search all directions for XMAS
 		foreach ($dirs as $d) {
-			if (walk($grid, $row, $col, $d, 1)) {
-				$pt1++;
-			};
+			$pt1 += walk($grid, $row, $col, $d, 1);
 		}
 	}
 }
 
 $pt2 = 0;
 for ($row = 1; $row < count($grid) - 1; $row++) {
-	for ($col = 1; $col < count($grid[$row]) -1; $col++) {
+	for ($col = 1; $col < count($grid[$row]) - 1; $col++) {
 		if ($grid[$row][$col] !== 'A') continue;
 
-		$a = $grid[$row-1][$col-1] . $grid[$row][$col] . $grid[$row+1][$col+1];
-		$b = $grid[$row-1][$col+1] . $grid[$row][$col] . $grid[$row+1][$col-1];
-
+		// current grid position === 'A', search diagonals for M S combo
+		$nw = $grid[$row - 1][$col - 1];
+		$ne = $grid[$row - 1][$col + 1];
+		$se = $grid[$row + 1][$col + 1];
+		$sw = $grid[$row + 1][$col - 1];
 		if (
-			($a === "MAS" && $b === "MAS")
-			|| ($a === "SAM" && $b === "SAM")
-			|| ($a === "MAS" && $b === "SAM")
-			|| ($a === "SAM" && $b === "MAS")
+			(($nw === 'M' && $se === 'S') || ($nw === 'S' && $se === 'M'))
+			&& (($ne === 'M' && $sw === 'S') || ($ne === 'S' && $sw === 'M'))
 		) {
-			$pt2 += 1;
+			$pt2++;
 		}
 	}
 }

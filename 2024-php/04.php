@@ -1,6 +1,9 @@
 <?php
 $time_start = microtime(true);
 $input = trim(file_get_contents('04.txt'));
+
+// parse as array of strings
+// we add some padding so we don't have to bounds check all over the place
 $grid = array_map(function($row) {
 	return '.' . $row . '.';
 }, explode("\n", $input));
@@ -18,25 +21,8 @@ $dirs = [
 	[-1, 1], 	// south-west
 ];
 
-function walk(array $grid, int $row, int $col, array $d, int $char_index): int
-{
-	static $word = "XMAS";
-	$row += $d[1];
-	$col += $d[0];
-
-	if ($char_index >= strlen($word)) {
-		return 1;
-	}
-
-	if (
-		$grid[$row][$col] !== $word[$char_index]
-	) {
-		return 0;
-	}
-
-	return walk($grid, $row, $col, $d, $char_index + 1);
-}
-
+// we use a character that is definitely not in grid as a stop condition
+$word = "XMAS!";
 $pt1 = 0;
 for ($row = 0; $row < count($grid); $row++) {
 	for ($col = 0; $col < strlen($grid[$row]); $col++) {
@@ -44,14 +30,26 @@ for ($row = 0; $row < count($grid); $row++) {
 
 		// current grid pos == 'X', search all directions for XMAS
 		foreach ($dirs as $d) {
-			$pt1 += walk($grid, $row, $col, $d, 1);
+			$char_index = 0;
+			$r = $row;
+			$c = $col;
+			do {
+				$r += $d[1];
+				$c += $d[0];
+				$char_index++;
+			} while ($grid[$r][$c] === $word[$char_index]);
+
+			// if we made it to 'S', we found "XMAS"
+			if ($char_index === 4) {
+				$pt1++;
+			}
 		}
 	}
 }
 
 $pt2 = 0;
-for ($row = 1; $row < count($grid) - 1; $row++) {
-	for ($col = 1; $col < strlen($grid[$row]) - 1; $col++) {
+for ($row = 2; $row < count($grid) - 2; $row++) {
+	for ($col = 2; $col < strlen($grid[$row]) - 2; $col++) {
 		if ($grid[$row][$col] !== 'A') continue;
 
 		// current grid position === 'A', search diagonals for M S combo

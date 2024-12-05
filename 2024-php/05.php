@@ -4,10 +4,10 @@ $time_start = microtime(true);
 $input = trim(file_get_contents('05.txt'));
 $input = explode("\n\n", $input);
 $ordering_rules = array_map(function($line) {
-	return explode("|", trim($line));
+	return array_map('intval', explode("|", trim($line)));
 }, explode("\n", trim($input[0])));
 $updates = array_map(function($line) {
-	return explode(",", trim($line));
+	return array_map('intval', explode(",", trim($line)));
 }, explode("\n", trim($input[1])));
 
 // create a hashmap to store our ordering rules so we can check order rules in constant time

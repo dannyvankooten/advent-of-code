@@ -37,7 +37,7 @@ foreach ($updates as $update) {
 		$pt1 += $mid;
 	} else {
 		// for part 2, sort each incorrect update according to ordering rules
-		usort($update, function($a, $b) use ($ordering_rules, $ordering_rules_map) {
+		usort($update, function($a, $b) use ($ordering_rules_map) {
 			if (isset($ordering_rules_map[($a << 8) + $b])) return -1;
 			if (isset($ordering_rules_map[($b << 8) + $a])) return 1;
 			return 0;

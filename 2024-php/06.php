@@ -21,9 +21,9 @@ function find_pos(array $grid): array {
 	throw new Exception('No guard in grid?!');
 }
 
-function walk(array $grid, array $pos): int {
+function walk(array $grid, array $pos): array {
 	$dir = NORTH; // guard starts facing up
-	$dirs = [
+	static $dirs = [
 		NORTH => [-1, 0],
 		EAST => [0, 1],
 		SOUTH => [1, 0],
@@ -44,44 +44,45 @@ function walk(array $grid, array $pos): int {
 			continue;
 		}
 
-
-
 		// take a step
 		$pos[0] = $r2;
 		$pos[1] = $c2;
 
 		// check if we've been there in exact same orientation
-		if (isset($seen_exact[($pos[0] << 24) + ($pos[1] << 8) + $dir])) {
-			return 0;
+		if (isset($seen_exact[($pos[0] << 16) + ($pos[1] << 8) + $dir])) {
+			return [];
 		}
 
 		// mark as seen
-		$seen[($pos[0] << 16) + $pos[1]] = true;
-		$seen_exact[($pos[0] << 24) + ($pos[1] << 8) + $dir] = true;
+		$seen[($pos[0] << 8) + $pos[1]] = true;
+		$seen_exact[($pos[0] << 16) + ($pos[1] << 8) + $dir] = true;
 	}
 
 
-	return count($seen);
+	return $seen;
 }
 
 $pos = find_pos($grid);
 $grid[$pos[0]][$pos[1]] = '.';
-$pt1 = walk($grid, $pos);
+
+// for part 1, simply walk grid and count seen positions
+$positions = walk($grid, $pos);
+$pt1 = count($positions);
+
+// for part 2, brute-force place an obstacle at each visited location from part 1
 $pt2 = 0;
-for ($r = 0; $r < count($grid); $r++) {
-	for ($c = 0; $c < strlen($grid[$r]); $c++) {
-		if ($grid[$r][$c] === '#') continue;
-		if ($r === $pos[0] && $c === $pos[1]) continue;
+foreach ($positions as $p => $_) {
+	$r = $p >> 8;
+	$c = $p & 0xFF;
+	if ($grid[$r][$c] === '#') continue;
+	if ($r === $pos[0] && $c === $pos[1]) continue;
 
-		// try placing an obstacle and then walking grid
-		$grid_copy = $grid;
-		$grid_copy[$r][$c] = '#';
-		if (walk($grid_copy, $pos) === 0) {
-			$pt2++;
-		}
+	$grid[$r][$c] = '#';
+	if (!walk($grid, $pos)) {
+		$pt2++;
 	}
+	$grid[$r][$c] = '.';
 }
-
 
 echo "--- Day 6: Guard Gallivant ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
@@ -89,5 +90,5 @@ echo "Part 2: ", $pt2, PHP_EOL;
 echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;
 
-
 assert($pt1 === 5409);
+assert($pt2 === 2022);

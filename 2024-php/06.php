@@ -21,19 +21,20 @@ function find_pos(array $grid): array {
 	throw new Exception('No guard in grid?!');
 }
 
-function walk(array $grid, array $pos): array {
-	$dir = NORTH; // guard starts facing up
+function walk(array $grid, int $r, int $c): array {
 	static $dirs = [
 		NORTH => [-1, 0],
 		EAST => [0, 1],
 		SOUTH => [1, 0],
 		WEST => [0, -1],
 	];
+	$dir = NORTH; // guard starts facing up
 	$seen = [];
-	$seen_exact = [];
 	while (true) {
-		$r2 = $pos[0] + $dirs[$dir][0];
-		$c2 = $pos[1] + $dirs[$dir][1];
+		$r2 = $r + $dirs[$dir][0];
+		$c2 = $c + $dirs[$dir][1];
+
+		// check for grid bounds
 		if ($r2 < 0 || $c2 < 0 || $r2 >= count($grid) || $c2 >= strlen($grid[$r2])) {
 			break;
 		}
@@ -45,40 +46,40 @@ function walk(array $grid, array $pos): array {
 		}
 
 		// take a step
-		$pos[0] = $r2;
-		$pos[1] = $c2;
+		$r = $r2;
+		$c = $c2;
 
-		// check if we've been there in exact same orientation
-		if (isset($seen_exact[($pos[0] << 16) + ($pos[1] << 8) + $dir])) {
+		// mark (row, col) location as seen
+		$h = ($r << 8) + $c;
+
+		if (!isset($seen[$h])) $seen[$h] = 0;
+		if ($seen[$h] & (1 << $dir)) {
 			return [];
 		}
-
-		// mark as seen
-		$seen[($pos[0] << 8) + $pos[1]] = true;
-		$seen_exact[($pos[0] << 16) + ($pos[1] << 8) + $dir] = true;
+		$seen[$h] |= (1 << $dir);
 	}
-
 
 	return $seen;
 }
 
-$pos = find_pos($grid);
-$grid[$pos[0]][$pos[1]] = '.';
+[$rs, $cs] = find_pos($grid);
+$grid[$rs][$cs] = '.';
 
 // for part 1, simply walk grid and count seen positions
-$positions = walk($grid, $pos);
+$positions = walk($grid, $rs, $cs);
 $pt1 = count($positions);
 
 // for part 2, brute-force place an obstacle at each visited location from part 1
 $pt2 = 0;
 foreach ($positions as $p => $_) {
-	$r = $p >> 8;
-	$c = $p & 0xFF;
-	if ($grid[$r][$c] === '#') continue;
-	if ($r === $pos[0] && $c === $pos[1]) continue;
+	$r = $p >> 8; 	// last 8-16 bytes hold the row
+	$c = $p & 0xFF;	// last 8 bytes hold the column
+
+	// skip if already obstacle or guard starting pos
+	if ($grid[$r][$c] === '#' || ($r === $rs && $c === $cs)) continue;
 
 	$grid[$r][$c] = '#';
-	if (!walk($grid, $pos)) {
+	if (!walk($grid, $rs, $cs)) {
 		$pt2++;
 	}
 	$grid[$r][$c] = '.';

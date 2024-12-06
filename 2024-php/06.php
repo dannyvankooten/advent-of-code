@@ -21,7 +21,7 @@ function find_pos(array $grid): array {
 	throw new Exception('No guard in grid?!');
 }
 
-function walk(array $grid, int $r, int $c): array {
+function walk(array $grid, int $r, int $c) {
 	static $dirs = [
 		NORTH => [-1, 0],
 		EAST => [0, 1],
@@ -30,12 +30,14 @@ function walk(array $grid, int $r, int $c): array {
 	];
 	$dir = NORTH; // guard starts facing up
 	$seen = [];
+	$height = count($grid);
+	$width = strlen($grid[0]);
 	while (true) {
 		$r2 = $r + $dirs[$dir][0];
 		$c2 = $c + $dirs[$dir][1];
 
 		// check for grid bounds
-		if ($r2 < 0 || $c2 < 0 || $r2 >= count($grid) || $c2 >= strlen($grid[$r2])) {
+		if ($r2 < 0 || $c2 < 0 || $r2 >= $height || $c2 >= $width) {
 			break;
 		}
 
@@ -49,13 +51,15 @@ function walk(array $grid, int $r, int $c): array {
 		$r = $r2;
 		$c = $c2;
 
-		// mark (row, col) location as seen
 		$h = ($r << 8) + $c;
 
-		if (!isset($seen[$h])) $seen[$h] = 0;
-		if ($seen[$h] & (1 << $dir)) {
-			return [];
+		if (!isset($seen[$h])) {
+			$seen[$h] = 0;
+		} else if ($seen[$h] & (1 << $dir)) {
+			return false;
 		}
+
+		// mark (row, col) location as seen with value storing the orientation
 		$seen[$h] |= (1 << $dir);
 	}
 
@@ -72,8 +76,8 @@ $pt1 = count($positions);
 // for part 2, brute-force place an obstacle at each visited location from part 1
 $pt2 = 0;
 foreach ($positions as $p => $_) {
-	$r = $p >> 8; 	// last 8-16 bytes hold the row
-	$c = $p & 0xFF;	// last 8 bytes hold the column
+	$r = $p >> 8; 	// bytes 8-16 hold the row
+	$c = $p & 0xFF;	// bytes 0-8 hold the column
 
 	// skip if already obstacle or guard starting pos
 	if ($grid[$r][$c] === '#' || ($r === $rs && $c === $cs)) continue;

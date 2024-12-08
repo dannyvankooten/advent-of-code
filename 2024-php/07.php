@@ -4,12 +4,8 @@ $time_start = microtime(true);
 $input = trim(file_get_contents('07.txt'));
 
 function solve(int $expected_result, int $left, array $numbers, bool $concat = false) {
-	if ($left > $expected_result) {
-		return 0;
-	}
-
-	if (count($numbers) === 0) {
-		return $left === $expected_result;
+	if ($left > $expected_result || count($numbers) === 0) {
+		return (int) ($left === $expected_result);
 	}
 
 	$right = array_pop($numbers);
@@ -18,11 +14,9 @@ function solve(int $expected_result, int $left, array $numbers, bool $concat = f
 
 $input = array_map(function($line) {
 	[$expected, $numbers] = explode(": ", $line);
-	$numbers = array_map(function($n) {
-		return intval($n);
-	}, explode(" ", $numbers));
-
-	return [intval($expected), array_reverse($numbers)];
+	$expected = (int) $expected;
+	$numbers = array_reverse(array_map('intval', explode(" ", $numbers)));
+	return [$expected, $numbers];
 }, explode("\n", $input));
 
 $pt1 = 0;

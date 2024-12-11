@@ -2,39 +2,41 @@
 
 $time_start = microtime(true);
 $input = trim(file_get_contents('11.txt'));
-// $input = "125 17";
-
 $stones = explode(" ", $input);
 
-function blink(array $stones) : array
+function blink(string $stone, int $times) : int
 {
-	$new = [];
-	for ($i = 0; $i < count($stones); $i++) {
-		if ($stones[$i] === '0') {
-			$new[] = '1';
-			continue;
-		}
-
-		if (strlen($stones[$i]) % 2 === 0) {
-			$left = substr($stones[$i], 0, strlen($stones[$i]) / 2);
-			$right = (string) ((int) substr($stones[$i], strlen($stones[$i]) / 2));
-			$new[] = $left;
-			$new[] = $right;
-			continue;
-		}
-
-		$new[] = (string) ((int) $stones[$i] * 2024);
-
+	if ($times === 0) {
+		return 1;
 	}
-	return $new;
+
+	static $cache = [];
+	if (isset($cache["$stone-$times"])) {
+		return $cache["$stone-$times"];
+	}
+
+	if ($stone === '0') {
+		$result = blink('1', $times - 1);
+    } else if (strlen($stone) % 2 === 0) {
+       	$left = substr($stone, 0, strlen($stone) / 2);
+       	$right = (string) ((int) substr($stone, strlen($stone) / 2));
+       	$result = blink($left, $times - 1) + blink($right, $times - 1);
+    } else {
+    	$result = blink($stone * 2024, $times - 1);
+    }
+
+	$cache["$stone-$times"] = $result;
+
+    return $result;
 }
 
-for ($i = 0; $i < 25; $i++) {
-	$stones = blink($stones);
-}
 
-$pt1 = count($stones);
+$pt1 = 0;
 $pt2 = 0;
+foreach ($stones as $stone) {
+	$pt1 += blink($stone, 25);
+	$pt2 += blink($stone, 75);
+}
 
 echo "--- Day 11 ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
@@ -42,3 +44,5 @@ echo "Part 2: ", $pt2, PHP_EOL;
 echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;
 
+assert($pt1 === 209412);
+assert($pt2 === 248967696501656);

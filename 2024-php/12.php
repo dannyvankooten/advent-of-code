@@ -3,12 +3,16 @@
 $time_start = microtime(true);
 $input = trim(file_get_contents('12.txt'));
 
+$input = "AAAA
+BBCD
+BBCC
+EEEC";
 
-
-function walk(array $map, int $r, int $c, array &$seen, array &$fences): array
+function walk(array $map, int $r, int $c, array &$seen, array &$region): int
 {
 	// mark location as seen
 	$seen["$r-$c"] = true;
+	$region[] = [$r, $c];
 
 	static $directions = [
 		[-1, 0],		// NORTH
@@ -18,32 +22,62 @@ function walk(array $map, int $r, int $c, array &$seen, array &$fences): array
 	];
 
 	$perimeter = 0;
-	$area = 1;
-	if(!isset($fences["$r-$c"])) {
-		$fences["$r-$c"] = [false, false, false, false];
-	}
-
 	foreach ($directions as $o => $d) {
 		$r2 = $r + $d[0];
 		$c2 = $c + $d[1];
 
 		if ($r2 < 0 || $c2 < 0 || $r2 >= count($map) || $c2 >= strlen($map[$r2])) {
-			$perimeter += 1;
-			$fences["$r-$c"][$o] = true;
+			$perimeter++;
+			continue;
 		} else if ($map[$r2][$c2] === $map[$r][$c]) {
 			if (isset($seen["$r2-$c2"])) continue;
 
 			// descend into new plant spot
-			[$a, $b] = walk($map, $r2, $c2, $seen, $fences);
-			$area += ($a );
-			$perimeter += $b;
+			$perimeter += walk($map, $r2, $c2, $seen, $region);
 		} else {
-			$fences["$r-$c"][$o] = true;
-			$perimeter += 1;
+			$perimeter++;
 		}
 	}
 
-	return [$area, $perimeter];
+	return $perimeter;
+}
+
+function corners(array $region) {
+
+	$corners = 0;
+	foreach ($region as [$r, $c]) {
+		$left = [$r, $c-1];
+		$right = [$r, $c+1];
+		$up = [$r-1, $c];
+		$down = [$r+1, $c];
+
+		foreach ([
+			[-1, -1],
+			[-1, 1],
+			[1, 1],
+			[1, -1],
+		] as $d) {
+
+		}
+
+		if (!array_search($left, $region) && !array_search($up, $region)) {
+			$corners++;
+		}
+
+		if (!array_search($left, $region) && !array_search($down, $region)) {
+			$corners++;
+		}
+
+		if (!array_search($right, $region) && !array_search($up, $region)) {
+			$corners++;
+		}
+
+		if (!array_search($right, $region) && !array_search($down, $region)) {
+			$corners++;
+		}
+	}
+
+	return $corners;
 }
 
 $map = explode("\n", $input);
@@ -54,50 +88,16 @@ $pt2 = 0;
 for ($r = 0; $r < count($map); $r++) {
 	for ($c = 0; $c < strlen($map[$r]); $c++) {
 		if (isset($seen["$r-$c"])) continue;
-		$fences = [];
-		[$area, $perimeter] = walk($map, $r, $c, $seen, $fences);
+		$region = [];
+		$perimeter = walk($map, $r, $c, $seen, $region);
+
+		$area = count($region);
 		$pt1 += ($area * $perimeter);
 
+		$sides = corners($region);
 
-		// count horizontal fence sections
-		$sides = 0;
-		for ($i = 0; $i < count($map); $i++) {
-			// count NORTH side
-			for ($j = 0; $j < strlen($map[0]); $j++) {
-				if (isset($fences["$i-$j"]) && $fences["$i-$j"][0]) {
-					$sides += 1;
-					while (isset($fences["$i-" . ($j+1)]) && $fences["$i-" . ($j+1)][0]) $j++;
-				}
-			}
-
-			for ($j = 0; $j < strlen($map[0]); $j++) {
-				if (isset($fences["$i-$j"]) && $fences["$i-$j"][2]) {
-					$sides += 1;
-					while (isset($fences["$i-" . ($j+1)]) && $fences["$i-" . ($j+1)][2]) $j++;
-				}
-			}
-		}
-
-		for ($i = 0; $i < strlen($map[0]); $i++) {
-			// count EAST side
-			for ($j = 0; $j < count($map); $j++) {
-				if (isset($fences["$j-$i"]) && $fences["$j-$i"][1]) {
-					$sides += 1;
-					while (isset($fences["$j-$i"]) && $fences["$j-$i"][1]) $j++;
-				}
-			}
-
-			// count WEST side
-			for ($j = 0; $j < count($map); $j++) {
-				if (isset($fences["$j-$i"]) && $fences["$j-$i"][3]) {
-					$sides += 1;
-					while (isset($fences["$j-$i"]) && $fences["$j-$i"][3]) $j++;
-				}
-			}
-		}
-
+		echo "{$map[$r][$c]}: $sides\n";
 		$pt2 += $sides * $area;
-
 	}
 }
 

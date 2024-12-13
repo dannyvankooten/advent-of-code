@@ -23,20 +23,8 @@ function lcm(int $a,int $b): int
     return $lcm;
 }
 
-
-// px = a * ax + b * bx
-// py = a * ay + b * by
-$pt1 = 0;
-foreach (explode("\n\n", $input) as $section) {
-
-	$matches = [];
-	preg_match('/Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)/', $section, $matches);
-
-	array_shift($matches);
-	[$ax, $ay, $bx, $by, $px, $py] = $matches;
-
-
-
+function solve(int $ax, int $ay, int $bx, int $by, int $px, int $py): int
+{
 	$ma = lcm($ax, $ay);
 	$mx = $ma / $ax;
 	$my = $ma / $ay;
@@ -45,16 +33,26 @@ foreach (explode("\n\n", $input) as $section) {
 	$a = ($px - $b * $bx) / $ax;
 
 	if ($a !== (int) $a) {
-		continue;
+		return 0;
 	}
 
-	echo "a = $a\n";
-	echo "b = $b\n";
-	$pt1 += ($a * 3) + $b;
+	return ($a * 3) + $b;
 }
 
+// px = a * ax + b * bx
+// py = a * ay + b * by
+$pt1 = 0;
+$pt2 = 0;
+foreach (explode("\n\n", $input) as $section) {
 
+	$matches = [];
+	preg_match('/Button A: X\+(\d+), Y\+(\d+)\nButton B: X\+(\d+), Y\+(\d+)\nPrize: X=(\d+), Y=(\d+)/', $section, $matches);
 
+	array_shift($matches);
+	[$ax, $ay, $bx, $by, $px, $py] = $matches;
+	$pt1 += solve($ax, $ay, $bx, $by, $px, $py);
+	$pt2 += solve($ax, $ay, $bx, $by, $px+10000000000000, $py+10000000000000);
+}
 
 
 echo "--- Day 13 ---", PHP_EOL;

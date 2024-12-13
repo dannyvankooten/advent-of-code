@@ -6,44 +6,15 @@ $input = trim(file_get_contents('13.txt'));
 $pt1 = 0;
 $pt2 = 0;
 
-function gcd(int $a, int $b): int
-{
-    while ($b != 0) {
-        $temp = $b;
-        $b = $a % $b;
-        $a = $temp;
-    }
-    return $a;
-}
-
-function lcm(int $a,int $b): int
-{
-    $gcd = gcd($a, $b);
-    $lcm = ($a * $b) / $gcd;
-    return $lcm;
-}
-
 function solve(int $ax, int $ay, int $bx, int $by, int $px, int $py): int
 {
-	$ma = lcm($ax, $ay);
-	$mx = $ma / $ax;
-	$my = $ma / $ay;
-
-	$b = ($mx*$px - $my*$py) / ($mx*$bx - $my*$by);
-	$a = ($px - $b * $bx) / $ax;
-
-	if ($a != (int) $a || $b != (int) $b) {
-		return 0;
-	}
-
-	return ($a * 3) + $b;
+	$a = ($px * $by - $py * $bx) / ($ax * $by - $ay * $bx);
+    $b = ($ax * $py - $ay * $px) / ($ax * $by - $ay * $bx);
+    return is_int($a) && is_int($b) ? $a * 3 + $b : 0;
 }
 
 // px = a * ax + b * bx
 // py = a * ay + b * by
-//
-
-
 
 $pt1 = 0;
 $pt2 = 0;

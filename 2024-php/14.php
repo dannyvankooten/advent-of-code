@@ -59,23 +59,29 @@ foreach ($robots as $r) {
 $pt1 = $quadrants[1] * $quadrants[2] * $quadrants[3] * $quadrants[4];
 
 // find 1/4 of width adjacent robots
-$grid = str_repeat('.', WIDTH * HEIGHT);
-$needle = str_repeat('O', WIDTH / 4);
-for ($pt2 = 1; true; $pt2++) {
+$empty_grid = str_repeat('.', WIDTH * HEIGHT);
+$needle = str_repeat('#', WIDTH / 4);
+$tree = false;
+for ($pt2 = 0; $tree === false; $pt2++) {
+	$grid = $empty_grid;
 	foreach ($robots as $r) {
-		$grid[$r->y * WIDTH + $r->x] = '.';
 		$r->move(1);
-		$grid[$r->y * WIDTH + $r->x] = 'O';
+		$grid[$r->y * WIDTH + $r->x] = '#';
 	}
 
-	if (strpos($grid, $needle) !== false) {
-		break;
-	}
+	$tree = strpos($grid, $needle);
 }
 
 echo "--- Day 14 ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
 echo "Part 2: ", $pt2, PHP_EOL;
+
+for ($i = 0; $i < WIDTH * HEIGHT; $i++) {
+	echo $grid[$i] === "#" ? "\033[32m▓\033[0m" : ' ';
+	if ($i % WIDTH === 0) echo PHP_EOL;
+}
+echo PHP_EOL;
+
 echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;
 

@@ -20,41 +20,66 @@ class Robot {
 		public int $vy,
 	) {}
 
-	public function quadrant(): int
+	public function quadrant_after_seconds(int $seconds): int
 	{
+		$x = ($this->x + $seconds * $this->vx) % WIDTH;
+		if ($x < 0) $x += WIDTH;
+
+		$y = ($this->y + $seconds * $this->vy) % HEIGHT;
+		if ($y < 0) $y += HEIGHT;
+
 		$y_mid = (int) (HEIGHT / 2);
 		$x_mid = (int) (WIDTH / 2);
-		if ($this->x === $x_mid || $this->y === $y_mid) return -1;
 
-		if ($this->x < $x_mid) {
-			return $this->y < $y_mid ? 0 : 2;
+		// ignore robots in exact middle
+		if ($x === $x_mid || $y === $y_mid) return 0;
+		if ($x < $x_mid) {
+			return $y < $y_mid ? 1 : 3;
 		}
 
-		return $this->y < $y_mid ? 1 : 3;
+		return $y < $y_mid ? 2 : 4;
 	}
 
 	public function move(int $seconds): void {
 		$this->x = ($this->x + $seconds * $this->vx) % WIDTH;
+		if ($this->x < 0) $this->x += WIDTH;
+
 		$this->y = ($this->y + $seconds * $this->vy) % HEIGHT;
 		if ($this->y < 0) $this->y += HEIGHT;
-		if ($this->x < 0) $this->x += WIDTH;
 	}
 }
 
-$pt1 = 0;
-$pt2 = 0;
 
-// count robots in each quadrant
-$quadrants = [0, 0, 0, 0];
+// count robots in each quadrant after 100 seconds
+$quadrants = [0, 0, 0, 0, 0];
 foreach ($robots as $r) {
-	$r->move(100);
-	$q = $r->quadrant();
-	if ($q > -1) {
-		$quadrants[$q]++;
+	$q = $r->quadrant_after_seconds(100);
+	$quadrants[$q]++;
+}
+$pt1 = $quadrants[1] * $quadrants[2] * $quadrants[3] * $quadrants[4];
+
+
+$empty_grid = [];
+for ($y = 0; $y < HEIGHT; $y++) {
+	$empty_grid[] = str_repeat('.', WIDTH);
+}
+$needle = str_repeat('O', 16);
+
+$pt2 = 1;
+for (; true; $pt2++) {
+	$quadrants = [0, 0, 0, 0, 0];
+	$grid = $empty_grid;
+	foreach ($robots as $r) {
+		$r->move(1);
+		$grid[$r->y][$r->x] = 'O';
+	}
+
+	for ($y = 0; $y < HEIGHT; $y++) {
+		if (strpos($grid[$y], $needle) !== false) {
+			break 2;
+		}
 	}
 }
-
-$pt1 = $quadrants[0] * $quadrants[1] * $quadrants[2] * $quadrants[3];
 
 echo "--- Day 14 ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;
@@ -62,3 +87,4 @@ echo "Part 2: ", $pt2, PHP_EOL;
 echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;
 
+assert($pt1 === 225648864);

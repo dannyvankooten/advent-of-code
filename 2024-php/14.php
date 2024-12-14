@@ -58,26 +58,18 @@ foreach ($robots as $r) {
 }
 $pt1 = $quadrants[1] * $quadrants[2] * $quadrants[3] * $quadrants[4];
 
-
-$empty_grid = [];
-for ($y = 0; $y < HEIGHT; $y++) {
-	$empty_grid[] = str_repeat('.', WIDTH);
-}
-$needle = str_repeat('O', 16);
-
-$pt2 = 1;
-for (; true; $pt2++) {
-	$quadrants = [0, 0, 0, 0, 0];
-	$grid = $empty_grid;
+// find 1/4 of width adjacent robots
+$grid = str_repeat('.', WIDTH * HEIGHT);
+$needle = str_repeat('O', WIDTH / 4);
+for ($pt2 = 1; true; $pt2++) {
 	foreach ($robots as $r) {
+		$grid[$r->y * WIDTH + $r->x] = '.';
 		$r->move(1);
-		$grid[$r->y][$r->x] = 'O';
+		$grid[$r->y * WIDTH + $r->x] = 'O';
 	}
 
-	for ($y = 0; $y < HEIGHT; $y++) {
-		if (strpos($grid[$y], $needle) !== false) {
-			break 2;
-		}
+	if (strpos($grid, $needle) !== false) {
+		break;
 	}
 }
 
@@ -88,3 +80,4 @@ echo "Took ", (microtime(true) - $time_start) * 1000, " ms", PHP_EOL;
 echo PHP_EOL;
 
 assert($pt1 === 225648864);
+assert($pt2 === 7847);

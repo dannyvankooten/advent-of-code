@@ -23,13 +23,25 @@ $directions = [
 ];
 
 $queue = new \SplPriorityQueue();
-$queue->insert([$start, EAST, 0], 0);
+$queue->insert([$start, EAST, 0, []], 0);
 $visited = [];
-foreach ($queue as [$pos, $d, $cost]) {
+$pt1 = PHP_INT_MAX;
+foreach ($queue as [$pos, $d, $cost, $path]) {
 	if ($pos === $end) {
-		break;
+		if ($cost > $pt1) {
+			break;
+		}
+
+		$pt1 = $cost;
+		foreach ($path as $p) {
+			$grid[$p[0]][$p[1]] = 'O';
+		}
+		$grid[$pos[0]][$pos[1]] = 'O';
+		continue;
 	}
 
+	// add position to path
+	$path[] = $pos;
 	$visited["{$pos[0]}-{$pos[1]}-$d"] = $cost;
 
 	// we can take a step
@@ -43,16 +55,15 @@ foreach ($queue as [$pos, $d, $cost]) {
 				$new_cost += 1000;
 			}
 
-			$prev_cost = $visited["{$dest[0]}-{$dest[1]}-$dd"] ?? 100000000;
-			if ($new_cost < $prev_cost) $queue->insert([$dest, $dd, $new_cost], -$new_cost);
+			$prev_cost = $visited["{$dest[0]}-{$dest[1]}-$dd"] ?? PHP_INT_MAX;
+			if ($new_cost <= $prev_cost) {
+				$queue->insert([$dest, $dd, $new_cost, $path], -$new_cost);
+			}
 		}
 	}
-
-
 }
 
-$pt1 = $cost;
-$pt2 = 0;
+$pt2 = count_chars(join("", $grid), 1)[ord('O')];
 
 echo "--- Day 16 ---", PHP_EOL;
 echo "Part 1: ", $pt1, PHP_EOL;

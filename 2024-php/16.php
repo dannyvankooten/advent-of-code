@@ -42,8 +42,8 @@ foreach ($queue as ['data' => $data, 'priority' => $priority]) {
 		}
 
 		$pt1 = $cost;
-		foreach ($path as $p) {
-			$grid[$p[0]][$p[1]] = 'O';
+		foreach ($path as [$r, $c]) {
+			$grid[$r][$c] = 'O';
 		}
 		continue;
 	}

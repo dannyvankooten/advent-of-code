@@ -9,19 +9,15 @@ $w = strlen($grid[0]);
 $start = [false, false];
 $end = [false, false];
 foreach ($grid as $r => $row) {
-	if ($start[0] === false) {
-		$start = [strpos($row, 'S'), $r];
-	}
-
-	if ($end[0] === false) {
-		$end = [strpos($row, 'E'), $r];
-	}
+	$start = $start[0] === false ? [strpos($row, 'S'), $r] : $start;
+	$end = $end[0] === false ? [strpos($row, 'E'), $r] : $end;
+	if ($start[0] !== false && $end[0] !== false) break;
 }
 
 function dijkstra (array $grid, int $sx, int $sy, int $ex, int $ey): int {
 	global $w, $h;
 	$directions = [[1, 0], [0, 1], [-1, 0], [0, -1]];
-	$queue = new Ds\Queue();
+	$queue = new \Ds\Queue();
 	$queue->push([$sx, $sy, 0]);
 	$seen = [];
 	foreach ($queue as [$x, $y, $dist]) {
@@ -47,22 +43,19 @@ function dijkstra (array $grid, int $sx, int $sy, int $ex, int $ey): int {
 
 $cutoff = 100;
 $pt1 = 0;
+$pt2 = 0;
 for ($y = 1; $y < $h-1; $y++) {
 	for ($x = 1; $x < $w-1; $x++) {
 	 	if ($grid[$y][$x] !== '#') continue;
 
-	 	// check if left and right can be connected
-	 	if ($grid[$y][$x-1] !== '#' && $grid[$y][$x+1] !== '#') {
-	 		if (dijkstra($grid, $x-1, $y, $x+1, $y) >= $cutoff) {
-	 			$pt1++;
+	 	foreach ([
+	 		[1, 0],
+	 		[0, 1],
+	 	] as [$dx, $dy]) {
+	 		if ($grid[$y-$dy][$x-$dx] !== '#' && $grid[$y+$dy][$x+$dx] !== '#') {
+	 			$pt1 += dijkstra($grid, $x - $dx, $y - $dy, $x + $dx, $y + $dy) >= $cutoff ? 1 : 0;
 	 		}
-		}
-
-		if ($grid[$y-1][$x] !== '#' && $grid[$y+1][$x] !== '#') {
-			if (dijkstra($grid, $x, $y-1, $x, $y+1) >= $cutoff) {
-				$pt1++;
-			}
-		}
+	 	}
 	}
 }
 

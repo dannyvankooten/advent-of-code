@@ -36,7 +36,7 @@ for ($i  = 0; $i < count($computers) - 2; $i++) {
 			$c = $computers[$k];
 
 			// a-c & b-c
-			$interconnected = isset($connections[$a][$c]) && isset($connections[$b][$c]);
+			$interconnected = isset($connections[$c][$a]) && isset($connections[$c][$b]);
 			$name_matches = $a[0] === 't' || $b[0] === 't' || $c[0] === 't';
 			if ($interconnected && $name_matches) {
 				$pt1++;

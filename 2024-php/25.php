@@ -7,21 +7,26 @@ $keys = [];
 $space = 0;
 foreach (explode("\n\n", $input) as $section) {
 	$section = explode("\n", $section);
-	$type = $section[0][0] === '#' ? 'lock' : 'key';
 	$schema = [];
+	$space = count($section) - 2;
 
-	for ($x = 0; $x < strlen($section[0]); $x++) {
-		$height = -1;
-		for ($y = 0; $y < count($section); $y++) {
-			if ($section[$y][$x] === '#') $height++;
+	if ($section[0][0] === '#') {
+		for ($x = 0; $x < strlen($section[0]); $x++) {
+			$height = 0;
+			while ($section[$height+1][$x] === '#') {
+				$height++;
+			}
+			$schema[] = $height;
 		}
-		$schema[] = $height;
-		$space = count($section) - 2;
-	}
-
-	if ($type === 'lock') {
 		$locks[] = $schema;
 	} else {
+		for ($x = 0; $x < strlen($section[0]); $x++) {
+			$height = 0;
+			while ($section[$space-$height][$x] === '#') {
+				$height++;
+			}
+			$schema[] = $height;
+		}
 		$keys[] = $schema;
 	}
 }

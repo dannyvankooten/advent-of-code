@@ -2,6 +2,20 @@
 
 See https://adventofcode.com/2025 for puzzle text and inputs.
 
+## Usage
+
+Run a single day, reading input from a `.txt` file in the current working directory.
+
+```sh
+lua 01.lua < 01.txt # runs day 1
+```
+
+Run all days consecutively:
+
+```sh
+lua run_all.lua
+```
+
 ## License
 
 Solution implementations are released into the public domain under the [UNLICENSE](/UNLICENSE) license.

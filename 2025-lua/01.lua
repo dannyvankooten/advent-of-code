@@ -11,8 +11,9 @@ for line in io.lines() do
         amount = -amount
     end
 
-    pt2 = pt2 + math.abs((p+amount) // 100)
-    p = (p + amount) % 100
+    p = p + amount
+    pt2 = pt2 + math.abs(p // 100)
+    p = p % 100
 
     if p == 0 then
         pt1 = pt1 + 1

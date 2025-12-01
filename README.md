@@ -12,6 +12,7 @@ My solutions for [Advent of Code](https://adventofcode.com) over the years.
 - [2022](2022-py/): Python / Rust
 - [2023](2023-go/): Golang (all days, < 1000 ms total runtime)
 - [2024](2024-php/): PHP
+- [2025](2025-lua/): Lua
 
 ## License
 

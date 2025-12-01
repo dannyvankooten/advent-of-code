@@ -9,6 +9,7 @@ for line in io.lines() do
 
     if dir  == "L" then
         p = p - amount
+
         while p < 0 do
             p = 100 + p
             pt2 = pt2 + 1

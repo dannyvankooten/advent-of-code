@@ -1,42 +1,38 @@
+
 import fs from 'fs';
+import { strict as assert } from 'node:assert';
 
 let time_start = performance.now()
-let input =  String(fs.readFileSync("02.txt")).trim().split(',');
+let input =  String(fs.readFileSync("02.txt")).trim().split(',').map(v => v.split('-').map(v => parseInt(v)));
+let pt1 = 0;
+let pt2 = 0;
 
-let pt1 = input.reduce((accumulator, range) => {
-	let [start, end] = range.split('-').map(v => parseInt(v));
-	let invalid_count = 0;
+for (let i = 0; i < input.length; i++) {
+	let [start, end] = input[i];
 	for (;start <= end; start++) {
 		let v = String(start);
 		let expect = v.substring(0, v.length/2).repeat(2);
 		if (v === expect) {
-			invalid_count += start;
+			pt1 += start;
+			pt2 += start;
+			continue;
 		}
-	}
-	return accumulator + invalid_count;
-}, 0);
 
-
-let pt2 = input.reduce((accumulator, range) => {
-	let [start, end] = range.split('-').map(v => parseInt(v));
-	let invalid_count = 0;
-	for (;start <= end; start++) {
-		let v = String(start);
-
-		for (let repeats = 2; repeats <= v.length; repeats++) {
+		for (let repeats = 3; repeats <= v.length; repeats++) {
+			if (v.length % repeats !== 0) continue;
 			let expect = v.substring(0, v.length/repeats).repeat(repeats);
 			if (v === expect) {
-				invalid_count += start;
+				pt2 += start;
 				break;
 			}
 		}
 	}
-	return accumulator + invalid_count;
-}, 0);
-
+}
 
 console.log("--- Day 2: Gift Shop ---")
 console.log("Part 1", pt1);
 console.log("Part 2", pt2);
 console.log("Took", performance.now() - time_start, "ms")
 
+assert.equal(pt1, 24747430309)
+assert.equal(pt2, 30962646823)

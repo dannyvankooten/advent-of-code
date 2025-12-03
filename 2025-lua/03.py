@@ -2,45 +2,31 @@ import fileinput
 import time
 
 time_start = time.time_ns()
-lines = list(fileinput.input())
+lines = [l.strip() for l in fileinput.input()]
 
-pt1 = 0
-for line in lines:
-	line = line.strip()
+def find_max(line, length: int):
+	positions = list(range(len(line)-length, len(line)))
+	for pos in range(0, length):
+		start = 0 if pos == 0 else positions[pos-1]+1
+		end = positions[pos]
 
-	positions = list(range(len(line)-2, len(line)))
-	for pos in range(0, 2):
-		prev = 0 if pos == 0 else positions[pos-1] + 1
-		for i in range(prev, positions[pos]+1):
-			if line[i] > line[positions[pos]]:
-				positions[pos] = i
-
-
-	v = 0
-	for p in positions:
-		v = v*10 + int(line[p])
-	pt1 += v
-
-
-pt2 = 0
-for line in lines:
-	line = line.strip()
-
-	positions = list(range(len(line)-12, len(line)))
-	for pos in range(0, 12):
-		prev = 0 if pos == 0 else positions[pos-1] + 1
-		for i in range(positions[pos], prev-1,-1):
+		for i in range(end, start-1, -1):
 			if line[i] >= line[positions[pos]]:
 				positions[pos] = i
 
-	v = 0
-	for p in positions:
-		v = v*10 + int(line[p])
-	pt2 += v
+	return int("".join([line[p] for p in positions]))
 
+pt1 = 0
+pt2 = 0
+
+for line in lines:
+	pt1 += find_max(line, 2)
+	pt2 += find_max(line, 12)
 
 print("--- Day 3: Lobby ---")
 print("Part 1", pt1)
 print("Part 2", pt2)
 print("Took", (time.time_ns() - time_start) // 1_000_00, "ms")
 
+assert(pt1 == 16887)
+assert(pt2 == 167302518850275)

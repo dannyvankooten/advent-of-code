@@ -26,7 +26,7 @@ for line in lines:
 print("--- Day 3: Lobby ---")
 print("Part 1", pt1)
 print("Part 2", pt2)
-print("Took", (time.time_ns() - time_start) // 1_000_00, "ms")
+print("Took", (time.time_ns() - time_start) // 1_000_000, "ms")
 
 assert(pt1 == 16887)
 assert(pt2 == 167302518850275)

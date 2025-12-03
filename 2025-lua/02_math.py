@@ -14,6 +14,7 @@ for [start, end] in id_ranges:
 		# skip to next log10 range
 		if digits & 1:
 			v *= 10
+			continue
 
 		half_length = digits / 2
 		first_half = int(v // 10**half_length)

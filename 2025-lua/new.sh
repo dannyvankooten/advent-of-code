@@ -9,6 +9,6 @@ fi;
 DAY=$1
 DAYNAME=$(printf "%02d\n" $DAY)
 
-cp template.lua "$DAYNAME.lua"
-sed -i "s/%%DAYNAME%%/$DAYNAME/" "$DAYNAME.lua"
+cp template.py "$DAYNAME.py"
+sed -i "s/%%DAYNAME%%/$DAYNAME/" "$DAYNAME.py"
 wget --no-cookies --header="Cookie: session=$AOCSESSION" https://adventofcode.com/2025/day/$DAY/input -O $DAYNAME.txt

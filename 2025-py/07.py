@@ -1,54 +1,55 @@
 import sys
 import time
 import math
+import copy
 
 time_start = time.time_ns()
-pt1 = 0
-pt2 = 0
 lines = [list(l.strip()) for l in sys.stdin.readlines()]
-grid = lines
 
-def beam_down(grid, pos) -> int:
+def beam_down(grid, pos, pt2 = False) -> int:
 	(x, y) = pos
 
-	if x < 0 or x > len(grid[0]) or grid[y][x] == '|':
+	# check for OOB
+	if x < 0 or x > len(grid[0]):
 		return 0
+
+	# check if we've been here (and how many splits from here to end)
+	if isinstance(grid[y][x], int):
+		return grid[y][x]
 
 	# walk down until at splitter
 	while y < len(grid) and grid[y][x] != '^':
-		grid[y][x] = '|'
 		y += 1
 
 	# if not at splitter, quit
-	if y >= len(grid) or grid[y][x] != '^':
+	if y >= len(grid):
 		return 0
 
 	splits = 0
-	if grid[y][x-1] == '.':
-		if splits == 0:
-			splits = 1
-		splits += beam_down(grid, (x-1, y))
 
-	if grid[y][x+1] == '.':
-		if splits == 0:
-			splits = 1
-		splits += beam_down(grid, (x+1, y))
+	if pt2 or grid[y][x-1] == '.':
+		splits = 1
+		grid[y][x-1] = beam_down(grid, (x-1, y), pt2)
+		splits += grid[y][x-1]
+
+	if pt2 or grid[y][x+1] == '.':
+		splits = max(1, splits)
+		grid[y][x+1] =  beam_down(grid, (x+1, y), pt2)
+		splits += grid[y][x+1]
+
 
 	return splits
 
 
+pt1 = beam_down(copy.deepcopy(lines), (lines[0].index('S'), 0), False)
+pt2 = 1 + beam_down(copy.deepcopy(lines), (lines[0].index('S'), 0), True)
 
-sx = lines[0].index('S')
-sy = 0
-
-print("starting at ", sx, sy)
-pt1 = beam_down(grid, (sx, sy))
-
+# i think we can just count the splitters directly adjacent to another splitter? maybe multiply each level?
 
 print("--- Day 07 --")
 print("Part 1", pt1)
 print("Part 2", pt2)
 print("Took", (time.time_ns() - time_start) // 1_000_000, "ms")
 
-# assert(pt1)
-# assert(pt2)
+assert(pt1 == 1581)
+assert(pt2 == 73007003089792)

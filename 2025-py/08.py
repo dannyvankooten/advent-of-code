@@ -18,55 +18,38 @@ def compare(a, b) -> int:
 
 	return 0
 
+def work(circuits, a, b):
+	left = next(i for i in range(len(circuits)) if a in circuits[i])
+	right = next(i for i in range(len(circuits)) if b in circuits[i])
+
+	# merge these two circuits
+	if left != right:
+		circuits[left] += circuits[right]
+		del circuits[right]
+
+
 time_start = time.time_ns()
 
+# parse
 junction_boxes = [tuple(map(int, l.strip().split(','))) for l in sys.stdin.readlines()]
 
 # create all possible connections and sort by euclidean distance
 connections =  list(combinations(junction_boxes, 2))
 connections = sorted(connections, key=cmp_to_key(compare))
-
 circuits = [[l] for l in junction_boxes]
 
 # now we can make the connections
 for (left, right) in connections[:1000]:
-	cleft = -1
-	cright = -1
-	# find circuits both junction boxes belong to
-	for i in range(0, len(circuits)):
-		if left in circuits[i]:
-			cleft = i
-
-		if right in circuits[i]:
-			cright = i
-
-	# merge these two circuits
-	if cleft != cright:
-		circuits[cleft] += circuits[cright]
-		del circuits[cright]
-
+	work(circuits, left, right)
 
 # multiply size of three largest circuits
 circuits = sorted(circuits, key=len, reverse=True)
 pt1 = len(circuits[0]) * len(circuits[1]) * len(circuits[2])
 
-# now we can make the connections
+# keep going until a single circuit is left
 pt2 = 0
 for (left, right) in connections[1000:]:
-	cleft = -1
-	cright = -1
-	# find circuits both junction boxes belong to
-	for i in range(0, len(circuits)):
-		if left in circuits[i]:
-			cleft = i
-
-		if right in circuits[i]:
-			cright = i
-
-	# merge these two circuits
-	if cleft != cright:
-		circuits[cleft] += circuits[cright]
-		del circuits[cright]
+	work(circuits, left, right)
 
 	if len(circuits) == 1:
 		pt2 = left[0] * right[0]

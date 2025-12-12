@@ -3,6 +3,7 @@ import time
 import math
 import re
 from collections import deque
+from z3 import *
 
 time_start = time.time_ns()
 pt1 = 0
@@ -10,56 +11,78 @@ pt2 = 0
 lines = [l.strip() for l in sys.stdin.readlines()]
 
 
-def solve_pt1(target_state, buttons):
-	queue = deque([(list("." * len(target_state)), 0)])
-	while queue:
-		(state, pushes) = queue.popleft()
 
-		for b in buttons:
-			new_state = list(state)
-			for x in b:
-				new_state[x] = "." if new_state[x] == "#" else "#"
+def solve_pt1(target, buttons):
+    num_buttons = len(buttons)
+    num_lights = len(target)
 
-			if new_state == target_state:
-				return pushes+1
+    # x[j] in {0,1}: whether to press button j
+    x = [Int(f"x_{j}") for j in range(num_buttons)]
 
-			queue.append((new_state, pushes+1))
+    opt = Optimize()
 
-	raise Exception
+    for v in x:
+        opt.add(Or(v == 0, v == 1))
+
+    # One equation per light: sum toggles mod 2 = target
+    for light in range(num_lights):
+        opt.add(
+            sum(x[j] for j, b in enumerate(buttons) if light in b) % 2
+            == (1 if target[light] else 0)
+        )
+
+    # Minimize number of presses
+    opt.minimize(sum(x))
+
+    assert opt.check() == sat
+    m = opt.model()
+
+    presses = [m[v].as_long() for v in x]
+    return sum(presses)
 
 
-def solve_pt2(target_state, buttons):
-	initial_state = [0] * len(target_state)
-	queue = deque([(initial_state, 0)])
-	while queue:
-		(state, pushes) = queue.popleft()
+def solve_pt2(buttons, target):
+    # buttons: list of lists, each inner list = counters this button increments
+    # target: list of target counts for each counter
 
-		for b in buttons:
-			new_state = list(state)
-			for x in b:
-				new_state[x] += 1
+    num_buttons = len(buttons)
+    num_counters = len(target)
 
-			if new_state == target_state:
-				return pushes+1
+    # One integer variable per button
+    presses = [Int(f"x_{i}") for i in range(num_buttons)]
 
-			queue.append((new_state, pushes+1))
+    opt = Optimize()
 
-	raise Exception
+    for p in presses:
+        opt.add(p >= 0)
+
+    # Build linear equations: sum(button[j] affects counter i) x_j == target[i]
+    for counter_idx in range(num_counters):
+        opt.add(
+            sum(
+                presses[button_idx]
+                for button_idx, b in enumerate(buttons)
+                if counter_idx in b
+            ) == target[counter_idx]
+        )
+
+    # Minimize total presses
+    opt.minimize(sum(presses))
+
+    assert opt.check() == sat
+    model = opt.model()
+    return sum(model[p].as_long() for p in presses)
+
+
 
 for l in lines:
 	# [.##.] (3) (1,3) (2) (2,3) (0,2) (0,1) {3,5,4,7}
 	groups = l.split(" ")
-	target_state = list(groups[0][1:-1])
+	target_state = list([True if x == "#" else False for x in groups[0][1:-1]])
 	buttons = [list(map(int, x[1:-1].split(","))) for x in groups[1:-1]]
-	target_joltage = list(map(int, groups[-1][1:-1].split(",")))
-
+	target_joltages = list(map(int, groups[-1][1:-1].split(",")))
 	pt1 += solve_pt1(target_state, buttons)
-
-	# this is way too slow for part 2...
-	# i think we can somehow see the button groups as factors and then factorize or lcm?
-	# pt2 += solve_pt2(target_joltage, buttons)
-
-
+	pt2 += solve_pt2(buttons, target_joltages)
 
 
 
@@ -69,5 +92,5 @@ print("Part 1", pt1)
 print("Part 2", pt2)
 print("Took", (time.time_ns() - time_start) // 1_000_000, "ms")
 
-# assert(pt1)
-# assert(pt2)
+assert(pt1 == 509)
+assert(pt2 == 20083)
